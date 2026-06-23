@@ -1,8 +1,5 @@
 import {
   IconArrowRightShort,
-  IconBrandDiscord,
-  IconBrandGithub,
-  IconBrandTwitterX,
 } from '@pierre/icons';
 import Link from 'next/link';
 
@@ -14,33 +11,11 @@ const DIFF_LINE_DELETED_BADGE = `${DIFF_LINE_BADGE} bg-[#ff6762]/15 text-[#ff2e3
 const DIFF_LINE_ADDED_BADGE = `${DIFF_LINE_BADGE} bg-[#07c480]/15 text-[#18a46c] dark:bg-[#07c480]/10 dark:text-[#07c480]`;
 import { HomeFetchForm } from './HomeFetchForm';
 
-function Divider() {
-  return <hr className="my-8 max-w-[80px] opacity-50" />;
-}
-
 const EXAMPLE_URLS = [
   'oven-sh/bun/pull/30412',
   'nodejs/node/pull/59805',
   'ghostty-org/ghostty/pull/12291',
 ] as const;
-
-const SOCIAL_LINKS = [
-  {
-    label: 'X',
-    href: 'https://x.com/pierrecomputer',
-    Icon: IconBrandTwitterX,
-  },
-  {
-    label: 'Discord',
-    href: 'https://discord.gg/pierre',
-    Icon: IconBrandDiscord,
-  },
-  {
-    label: 'GitHub',
-    href: 'https://github.com/pierrecomputer/pierre',
-    Icon: IconBrandGithub,
-  },
-];
 
 export function HomePage() {
   return (
@@ -103,59 +78,6 @@ export function HomePage() {
             serves diffs over 100k lines with a delayed first byte.
           </p>
         </div>
-      </section>
-      <section
-        id="home-more"
-        className="w-2xl max-w-[100vw] space-y-4 px-5 pb-8"
-      >
-        <Divider />
-        <p className="text-muted-foreground text-sm text-pretty">
-          Built by{' '}
-          <Link
-            href="https://pierre.computer"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-link"
-          >
-            The Pierre Computer Company
-          </Link>{' '}
-          with{' '}
-          <Link
-            href="https://trees.software/docs#react-api-filetree"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-link"
-          >
-            FileTree
-          </Link>{' '}
-          and the new{' '}
-          <Link
-            href="https://diffs.com/docs#codeview"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-link"
-          >
-            CodeView
-          </Link>{' '}
-          component.
-        </p>
-        <nav
-          aria-label="Social links"
-          className="-ml-2 flex items-center gap-2 pt-2"
-        >
-          {SOCIAL_LINKS.map(({ label, href, Icon }) => (
-            <a
-              key={label}
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={label}
-              className="text-muted-foreground hover:text-foreground rounded-md p-2 transition-colors"
-            >
-              <Icon />
-            </a>
-          ))}
-        </nav>
       </section>
     </div>
   );
