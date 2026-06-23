@@ -34,34 +34,19 @@ import type {
 } from '@/lib/types';
 import { upsertSavedCommentSidebarEntry } from '@/lib/upsertSavedCommentSidebarEntry';
 
-interface ReviewUIProps {
-  domain?: string;
-  initialUrl: string;
-  localWorktree?: boolean;
-  path: string;
-}
-
-export function ReviewUI({ domain, initialUrl, localWorktree, path }: ReviewUIProps) {
+// The app now always shows the local worktree's diff, so the viewer takes
+// no props — it sources its data from the local-worktree API on mount.
+export function ReviewUI() {
   // Provide the diffshub-scoped theme context, then render the body BELOW it so
   // the diffs hook + selection hook can read the controller context.
   return (
     <ThemeSourceProvider controller={themeController}>
-      <ReviewUIInner
-        domain={domain}
-        initialUrl={initialUrl}
-        localWorktree={localWorktree}
-        path={path}
-      />
+      <ReviewUIBody />
     </ThemeSourceProvider>
   );
 }
 
-function ReviewUIInner({
-  domain,
-  initialUrl,
-  localWorktree,
-  path,
-}: ReviewUIProps) {
+function ReviewUIBody() {
   useEffect(preloadAvatars, []);
 
   const isWorkerPoolReadyOrDisable = useIsWorkerPoolReadyOrDisabled();
@@ -147,10 +132,7 @@ function ReviewUIInner({
     viewerKey,
   } = usePatchLoader({
     collapseMode,
-    domain,
-    localWorktree,
     onLoadStart: handlePatchLoadStart,
-    path,
     viewerRef,
   });
 
@@ -252,7 +234,6 @@ function ReviewUIInner({
         darkThemeName={darkThemeName}
         diffIndicators={diffIndicators}
         diffStyle={diffStyle}
-        initialUrl={initialUrl}
         lightThemeName={lightThemeName}
         lineNumbers={lineNumbers}
         overflow={overflow}

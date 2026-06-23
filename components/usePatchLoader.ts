@@ -55,10 +55,7 @@ const GENERIC_PATCH_LOAD_ERROR_MESSAGE =
 
 interface UsePatchLoaderOptions {
   collapseMode: 'expanded' | 'collapsed';
-  domain?: string;
-  localWorktree?: boolean;
   onLoadStart(): void;
-  path: string;
   viewerRef: RefObject<CodeViewHandle<CommentMetadata> | null>;
 }
 
@@ -80,10 +77,7 @@ interface UsePatchLoaderResult {
 
 export function usePatchLoader({
   collapseMode,
-  domain,
-  localWorktree,
   onLoadStart,
-  path,
   viewerRef,
 }: UsePatchLoaderOptions): UsePatchLoaderResult {
   const [initialItems, setInitialItems] = useState<
@@ -214,27 +208,11 @@ export function usePatchLoader({
   );
 
   useEffect(() => {
-    // The local-worktree source has no upstream path or domain; route the
-    // fetch at a different endpoint and use a stable cache key so retries
-    // and accumulator state don't collide with remote loads.
-    const isLocal = localWorktree === true;
-    const patchRequestKey = isLocal
-      ? 'local-worktree'
-      : domain == null || domain === ''
-        ? path
-        : `${domain}${path}`;
-    const patchSearchParams = isLocal
-      ? ''
-      : (() => {
-          const params = new URLSearchParams({ path });
-          if (domain != null && domain !== '') {
-            params.set('domain', domain);
-          }
-          return params.toString();
-        })();
-    const apiURL = isLocal
-      ? '/api/local-worktree-diff'
-      : `/api/diff?${patchSearchParams}`;
+    // The app always shows the local worktree's diff, so the URL and cache
+    // key are fixed. `loadAttempt` (in the dep array) is what triggers
+    // retries — the key just needs to stay stable across them.
+    const patchRequestKey = 'local-worktree';
+    const apiURL = '/api/local-worktree-diff';
 
     const controller = new AbortController();
     const requestId = ++requestIdRef.current;
@@ -504,11 +482,8 @@ export function usePatchLoader({
       controller.abort();
     };
   }, [
-    domain,
     loadAttempt,
-    localWorktree,
     onLoadStart,
-    path,
     tryApplyLineHashTarget,
     viewerRef,
   ]);

@@ -1,6 +1,5 @@
 import type { DiffIndicators } from '@pierre/diffs';
 import {
-  IconBranch,
   IconCheck,
   IconChevronSm,
   IconCodeStyleBars,
@@ -14,12 +13,9 @@ import {
   IconEyeSlash,
   IconFileTreeFill,
   IconGearFill,
-  IconShare,
   IconSymbolDiffstat,
 } from '@pierre/icons';
 import { type ColorMode } from '@pierre/theming';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import {
   type CSSProperties,
   type Dispatch,
@@ -33,7 +29,6 @@ import {
 
 import { CHROME_ICON_BUTTON_CLASS } from './chromeButtonStyles';
 import { DiffsHubLogo } from './DiffsHubLogo';
-import { DiffUrlForm } from './DiffUrlForm';
 import { useChromeThemeProps } from './useChromeThemeProps';
 import { Button } from '@/components/Button';
 import { ButtonGroup, ButtonGroupItem } from '@/components/ButtonGroup';
@@ -64,10 +59,8 @@ interface HeaderProps {
   diffStyle: 'split' | 'unified';
   fileTreeAvailable: boolean;
   fileTreeOverlayOpen: boolean;
-  initialUrl: string;
   lightThemeName: LightThemeName;
   lineNumbers: boolean;
-  localWorktree?: boolean;
   overflow: 'wrap' | 'scroll';
   onToggleCollapseMode(): void;
   onToggleFileTreeOverlay(): void;
@@ -91,10 +84,8 @@ export const DiffsHubHeader = memo(function DiffsHubHeader({
   diffStyle,
   fileTreeAvailable,
   fileTreeOverlayOpen,
-  initialUrl,
   lightThemeName,
   lineNumbers,
-  localWorktree,
   overflow,
   onToggleCollapseMode,
   onToggleFileTreeOverlay,
@@ -108,19 +99,6 @@ export const DiffsHubHeader = memo(function DiffsHubHeader({
   setShowBackgrounds,
   showBackgrounds,
 }: HeaderProps) {
-  const router = useRouter();
-  const [currentUrl, setCurrentUrl] = useState(initialUrl);
-  // Only show the external-link button when the input still reflects the
-  // committed URL — otherwise we'd be pointing at a draft the user is editing.
-  // Skip the share button entirely in local-worktree mode: there's no
-  // external URL to open and the input is replaced with a static label.
-  const showExternalLink = !localWorktree && currentUrl === initialUrl;
-  // The local-worktree button is hidden when already viewing the local
-  // worktree — re-navigating to the same place would be a visible no-op.
-  const showWorktreeButton = !localWorktree;
-  // The reserved path that selects local-worktree mode in the catch-all
-  // route. Kept in sync with the sentinel in resolveDiffshubViewerRoute.
-  const LOCAL_WORKTREE_HREF = '/__local_worktree__' as const;
   // Mirror the sidebar's themed chrome so the header bar lives on the same
   // Shiki surface (background, text, icons, borders) instead of the global
   // light/dark palette. Falls back to the diffshub-sidebar-bg CSS variable
@@ -144,26 +122,8 @@ export const DiffsHubHeader = memo(function DiffsHubHeader({
       )}
       style={themeChromeStyle}
     >
-      <Link
-        href="/"
-        className="absolute top-4 left-[50%] inline-flex -translate-x-1/2 transition-transform duration-200 hover:scale-110 md:static md:translate-x-0"
-      >
-        <DiffsHubLogo />
-      </Link>
-      {localWorktree ? (
-        <div className="text-muted-foreground order-last md:order-none md:mr-auto flex h-9 items-center text-sm">
-          Local worktree
-        </div>
-      ) : (
-        <DiffUrlForm
-          className="order-last md:order-none md:mr-auto"
-          initialUrl={initialUrl}
-          onUrlChange={setCurrentUrl}
-          placeholder="https://github.com/org/repo/123"
-          inputClassName="w-full md:w-auto"
-        />
-      )}
-      <div className="flex w-full items-center justify-between gap-2 md:w-auto md:justify-end">
+      <DiffsHubLogo className="absolute top-4 left-[50%] -translate-x-1/2 md:static md:translate-x-0" />
+      <div className="flex w-full items-center justify-between gap-2 md:ml-auto md:w-auto md:justify-end">
         <Button
           type="button"
           variant="ghost"
@@ -177,36 +137,6 @@ export const DiffsHubHeader = memo(function DiffsHubHeader({
           <IconFileTreeFill className="size-4 md:size-3" />
         </Button>
         <div className="flex items-center gap-2">
-          {showExternalLink && (
-            <>
-              <Button
-                asChild
-                variant="ghost"
-                size="icon-md"
-                aria-label="Open source in new tab"
-                title="Open source in new tab"
-                className={cn(CHROME_ICON_BUTTON_CLASS, 'hidden md:flex')}
-              >
-                <a href={initialUrl} target="_blank" rel="noreferrer noopener">
-                  <IconShare className="size-4 md:size-3" />
-                </a>
-              </Button>
-              <div className="bg-border hidden h-3 w-px md:block" />
-            </>
-          )}
-          {showWorktreeButton && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-md"
-              aria-label="View current worktree diff"
-              title="View current worktree diff"
-              className={cn(CHROME_ICON_BUTTON_CLASS, 'hidden md:flex')}
-              onClick={() => router.push(LOCAL_WORKTREE_HREF)}
-            >
-              <IconBranch className="size-4 md:size-3" />
-            </Button>
-          )}
           <div className="flex items-center">
             <Button
               type="button"
