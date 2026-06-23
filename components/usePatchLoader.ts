@@ -26,6 +26,7 @@ import {
   snapshotDiffsHubTreeSource,
   takePendingDiffsHubItems,
 } from '@/lib/diffsHubDataAccumulator';
+import { EMPTY_DIFFSHUB_FILE_TREE_SOURCE } from '@/lib/emptyDiffsHubFileTreeSource';
 import { getPatchTreePathPrefix } from '@/lib/gitPatchMetadata';
 import {
   type DiffsHubLineHashTarget,
@@ -275,16 +276,23 @@ export function usePatchLoader({
         // streaming state as soon as the local transport opens.
         if (!response.ok) {
           // 422 from the local-worktree endpoint means "no local changes".
-          // That isn't an error — render the page with an empty file list
-          // so the header / chrome stay visible and the user can refresh
-          // after editing.
+          // That isn't an error — settle into the ready state with an empty
+          // file tree so the header / sidebar / system monitor stay visible
+          // and the diff content area renders a blank surface. The empty
+          // source is a frozen module-level constant, so React state updates
+          // are no-ops and downstream effects see a stable reference.
           if (response.status === 422) {
-            setTreeSource(null);
-            setCommentFileByItemId(null);
-            setDiffStats(null);
+            setTreeSource(EMPTY_DIFFSHUB_FILE_TREE_SOURCE);
+            setCommentFileByItemId(new Map());
+            setDiffStats({
+              addedLines: 0,
+              deletedLines: 0,
+              fileCount: 0,
+              totalLinesOfCode: 0,
+            });
             setInitialItems([]);
             setErrorMessage(null);
-            setLoadState('empty');
+            setLoadState('ready');
             return;
           }
 

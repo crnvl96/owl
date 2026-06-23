@@ -9,6 +9,7 @@ import {
   useState,
 } from 'react';
 
+import { DiffsHubBlankArea } from './DiffsHubBlankArea';
 import { DiffsHubHeader } from './DiffsHubHeader';
 import { DiffsHubSidebar } from './DiffsHubSidebar';
 import { DiffsHubStatusPanel } from './DiffsHubStatusPanel';
@@ -149,6 +150,11 @@ function ReviewUIBody() {
     isWorkerPoolReadyOrDisable &&
     (loadState === 'ready' ||
       (loadState === 'streaming' && initialItems.length > 0));
+  // `treeSource` is now an empty-but-valid file tree source (not null) once
+  // the worktree is clean, so the chrome stays mounted. We render the viewer
+  // only when there are diff items to show; otherwise a blank area takes its
+  // grid slot so the user sees a consistent UI shell.
+  const hasDiffItems = initialItems.length > 0;
 
   return (
     <ReviewGrid>
@@ -178,20 +184,24 @@ function ReviewUIBody() {
             streaming={loadState === 'streaming'}
             onSelectItem={handleSelectTreeItem}
           />
-          <DiffsHubViewer
-            key={viewerKey}
-            className="[grid-area:viewer]"
-            diffStyle={diffStyle}
-            overflow={overflow}
-            scrollRef={scrollRef}
-            themeType={ACTIVE_THEME_SCHEME}
-            viewerRef={viewerRef}
-            initialItems={initialItems}
-            onCommentDeleted={handleCommentDeleted}
-            onCommentSaved={handleCommentSaved}
-            onLineLinkChange={onLineLinkChange}
-            onViewerReady={onViewerReady}
-          />
+          {hasDiffItems ? (
+            <DiffsHubViewer
+              key={viewerKey}
+              className="[grid-area:viewer]"
+              diffStyle={diffStyle}
+              overflow={overflow}
+              scrollRef={scrollRef}
+              themeType={ACTIVE_THEME_SCHEME}
+              viewerRef={viewerRef}
+              initialItems={initialItems}
+              onCommentDeleted={handleCommentDeleted}
+              onCommentSaved={handleCommentSaved}
+              onLineLinkChange={onLineLinkChange}
+              onViewerReady={onViewerReady}
+            />
+          ) : (
+            <DiffsHubBlankArea />
+          )}
         </>
       ) : (
         <DiffsHubStatusPanel

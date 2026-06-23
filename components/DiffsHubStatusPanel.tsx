@@ -26,26 +26,21 @@ export function DiffsHubStatusPanel({
   const themeChromeStyle =
     Object.keys(chromeStyle).length > 0 ? chromeStyle : undefined;
   const isError = state === 'error';
-  const isEmpty = state === 'empty';
   const title = isError
     ? 'Couldn’t load diff'
-    : isEmpty
-      ? 'Worktree is clean'
-      : state === 'parsing'
-        ? 'Preparing diff'
-        : state === 'fetching'
-          ? 'Fetching diff'
-          : 'Streaming diff';
+    : state === 'parsing'
+      ? 'Preparing diff'
+      : state === 'fetching'
+        ? 'Fetching diff'
+        : 'Streaming diff';
 
   const message = isError
     ? (errorMessage ?? 'Failed to fetch the diff, please try again.')
-    : isEmpty
-      ? 'There are no local changes to show. Edit a file, then check again to refresh the diff.'
-      : state === 'parsing'
-        ? 'Parsing the patch and building the file tree…'
-        : state === 'fetching'
-          ? 'Fetching the patch from GitHub…'
-          : 'Reading the patch and showing files as they arrive…';
+    : state === 'parsing'
+      ? 'Parsing the patch and building the file tree…'
+      : state === 'fetching'
+        ? 'Fetching the patch from GitHub…'
+        : 'Reading the patch and showing files as they arrive…';
 
   return (
     <div
@@ -58,14 +53,10 @@ export function DiffsHubStatusPanel({
       <section
         role={isError ? 'alert' : 'status'}
         aria-live="polite"
-        aria-busy={!isError && !isEmpty ? true : undefined}
+        aria-busy={!isError ? true : undefined}
         className="w-full max-w-md p-5 text-center"
       >
-        {isEmpty ? (
-          // Reserve the icon row's vertical space so the title doesn't
-          // jump up vs. the loading/error variants.
-          <div aria-hidden="true" className="mb-3" />
-        ) : !isError ? (
+        {!isError ? (
           <IconRefresh
             aria-hidden="true"
             className="text-muted-foreground mx-auto mb-3 size-5 -scale-x-100 animate-spin [animation-direction:reverse]"
@@ -77,9 +68,9 @@ export function DiffsHubStatusPanel({
         <p className="text-muted-foreground mt-1 text-sm text-pretty">
           {message}
         </p>
-        {(isError || isEmpty) && (
+        {isError && (
           <Button type="button" className="mt-4" onClick={onRetry}>
-            {isEmpty ? 'Check again' : 'Try again'}
+            Try again
           </Button>
         )}
       </section>
