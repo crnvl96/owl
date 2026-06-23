@@ -14,6 +14,7 @@ import {
 } from '@pierre/icons';
 
 import { CHROME_ICON_BUTTON_CLASS } from './chromeButtonStyles';
+import { DiffsHubDiffModePicker } from './DiffsHubDiffModePicker';
 import { DiffsHubLogo } from './DiffsHubLogo';
 import { useChromeThemeProps } from './useChromeThemeProps';
 import { Button } from '@/components/Button';
@@ -27,6 +28,7 @@ import { Switch } from '@/components/Switch';
 import { cn } from '@/lib/cn';
 import { diffshubChromeMapping } from '@/lib/theme/diffshubChromeMapping';
 import { getDropdownThemeStyle } from '@/lib/theme/dropdownChromeStyle';
+import type { DiffSource } from '@/lib/types';
 
 const SETTING_ROW_CLASS =
   'w-full flex cursor-pointer items-center justify-between gap-4 px-2 py-1.5 text-sm';
@@ -34,10 +36,12 @@ const SETTING_ROW_CLASS =
 interface HeaderProps {
   className?: string;
   collapseMode: 'expanded' | 'collapsed';
+  diffSource: DiffSource;
   diffStyle: 'split' | 'unified';
   fileTreeAvailable: boolean;
   fileTreeOverlayOpen: boolean;
   overflow: 'wrap' | 'scroll';
+  onSelectDiffSource(source: DiffSource): void;
   onToggleCollapseMode(): void;
   onToggleFileTreeOverlay(): void;
   setDiffStyle: Dispatch<SetStateAction<'split' | 'unified'>>;
@@ -47,10 +51,12 @@ interface HeaderProps {
 export const DiffsHubHeader = memo(function DiffsHubHeader({
   className,
   collapseMode,
+  diffSource,
   diffStyle,
   fileTreeAvailable,
   fileTreeOverlayOpen,
   overflow,
+  onSelectDiffSource,
   onToggleCollapseMode,
   onToggleFileTreeOverlay,
   setDiffStyle,
@@ -78,6 +84,11 @@ export const DiffsHubHeader = memo(function DiffsHubHeader({
       style={themeChromeStyle}
     >
       <DiffsHubLogo className="absolute top-4 left-[50%] -translate-x-1/2 md:static md:translate-x-0" />
+      <DiffsHubDiffModePicker
+        source={diffSource}
+        onSelectSource={onSelectDiffSource}
+        className="hidden md:flex"
+      />
       <div className="flex w-full items-center justify-between gap-2 md:ml-auto md:w-auto md:justify-end">
         <Button
           type="button"
@@ -91,7 +102,13 @@ export const DiffsHubHeader = memo(function DiffsHubHeader({
         >
           <IconFileTreeFill className="size-4 md:size-3" />
         </Button>
+        <DiffsHubDiffModePicker
+          source={diffSource}
+          onSelectSource={onSelectDiffSource}
+          className="md:hidden"
+        />
         <div className="flex items-center gap-2">
+          <div className="bg-border/60 hidden h-5 w-px md:block" aria-hidden="true" />
           <div className="flex items-center">
             <Button
               type="button"

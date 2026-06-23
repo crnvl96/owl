@@ -19,6 +19,16 @@ export type ViewerLoadState =
   | 'ready'
   | 'error';
 
+// What diff the viewer is currently rendering. The two modes are mutually
+// exclusive: `worktree` shows the local uncommitted changes of the resolved
+// worktree, `pastCommit` shows the diff introduced by a specific commit
+// resolved from the same worktree's object database. Past-commit diffs
+// are independent of the working tree (git reads from the object database),
+// so a dirty worktree does not gate switching between the two.
+export type DiffSource =
+  | { kind: 'worktree' }
+  | { kind: 'pastCommit'; hash: string };
+
 export interface SavedCommentMetadata {
   kind: 'saved';
   key: string;

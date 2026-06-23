@@ -39,6 +39,7 @@ import {
 } from '@/lib/streamGitPatchFiles';
 import type {
   CommentMetadata,
+  DiffSource,
   DiffsHubCommentFileByItemId,
   DiffsHubDiffStats,
   DiffsHubFileTreeSource,
@@ -57,6 +58,7 @@ const GENERIC_PATCH_LOAD_ERROR_MESSAGE =
 interface UsePatchLoaderOptions {
   collapseMode: 'expanded' | 'collapsed';
   onLoadStart(): void;
+  source: DiffSource;
   viewerRef: RefObject<CodeViewHandle<CommentMetadata> | null>;
 }
 
@@ -79,6 +81,7 @@ interface UsePatchLoaderResult {
 export function usePatchLoader({
   collapseMode,
   onLoadStart,
+  source,
   viewerRef,
 }: UsePatchLoaderOptions): UsePatchLoaderResult {
   const [initialItems, setInitialItems] = useState<
@@ -209,11 +212,12 @@ export function usePatchLoader({
   );
 
   useEffect(() => {
-    // The app always shows the local worktree's diff, so the URL and cache
-    // key are fixed. `loadAttempt` (in the dep array) is what triggers
-    // retries — the key just needs to stay stable across them.
-    const patchRequestKey = 'local-worktree';
-    const apiURL = '/api/local-worktree-diff';
+    // The diff source drives both the URL we fetch and the cache key the
+    // viewer uses to memoize parse results. `loadAttempt` (in the dep array)
+    // is what triggers retries — the key just needs to stay stable across
+    // them for a given source.
+    const patchRequestKey = getPatchRequestKey(source);
+    const apiURL = getDiffSourceApiURL(source);
 
     const controller = new AbortController();
     const requestId = ++requestIdRef.current;
@@ -506,6 +510,7 @@ export function usePatchLoader({
   }, [
     loadAttempt,
     onLoadStart,
+    source,
     tryApplyLineHashTarget,
     viewerRef,
   ]);
@@ -620,4 +625,24 @@ function yieldToBrowser(): Promise<void> {
     const timeout = window.setTimeout(resolveOnce, 50);
     window.requestAnimationFrame(resolveOnce);
   });
+}
+
+// Maps a DiffSource to the API route that serves its unified-diff body.
+// Kept as a free function so the URL logic stays in one place; the viewer
+// pipeline (fetch + stream) is identical for both modes.
+function getDiffSourceApiURL(source: DiffSource): string {
+  if (source.kind === 'worktree') {
+    return '/api/local-worktree-diff';
+  }
+  return `/api/past-commit-diff?hash=${encodeURIComponent(source.hash)}`;
+}
+
+// Stable cache key for the given source. Used by `@pierre/diffs` to memoize
+// parsed file diffs so a re-visit (or a back-and-forth toggle) doesn't redo
+// the parse. Includes the full hash so different commits don't share a key.
+function getPatchRequestKey(source: DiffSource): string {
+  if (source.kind === 'worktree') {
+    return 'local-worktree';
+  }
+  return `past-commit:${source.hash}`;
 }

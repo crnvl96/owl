@@ -19,6 +19,7 @@ import { ACTIVE_THEME_SCHEME } from '@/lib/theme/activeTheme';
 import { removeSavedCommentSidebarEntry } from '@/lib/removeSavedCommentSidebarEntry';
 import type {
   CommentMetadata,
+  DiffSource,
   DiffsHubDeletedCommentEvent,
   DiffsHubSavedCommentEntry,
   DiffsHubSavedCommentEvent,
@@ -39,6 +40,12 @@ function ReviewUIBody() {
   );
   const [fileTreeOverlayOpen, setFileTreeOverlayOpen] = useState(false);
   const [overflow, setOverflow] = useState<'wrap' | 'scroll'>('scroll');
+  // `worktree` is the default per the spec; `pastCommit` requires the user
+  // to pick a hash from the dropdown. The viewer pipeline and the patch
+  // loader both react to this via the `source` prop.
+  const [diffSource, setDiffSource] = useState<DiffSource>({
+    kind: 'worktree',
+  });
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<CodeViewHandle<CommentMetadata> | null>(null);
@@ -62,6 +69,7 @@ function ReviewUIBody() {
   } = usePatchLoader({
     collapseMode,
     onLoadStart: handlePatchLoadStart,
+    source: diffSource,
     viewerRef,
   });
 
@@ -158,10 +166,12 @@ function ReviewUIBody() {
       <DiffsHubHeader
         className="[grid-area:header]"
         collapseMode={collapseMode}
+        diffSource={diffSource}
         diffStyle={diffStyle}
         overflow={overflow}
         fileTreeOverlayOpen={fileTreeOverlayOpen}
         fileTreeAvailable={treeSource != null}
+        onSelectDiffSource={setDiffSource}
         onToggleCollapseMode={handleToggleCollapseMode}
         onToggleFileTreeOverlay={handleToggleFileTreeOverlay}
         setDiffStyle={setDiffStyle}
