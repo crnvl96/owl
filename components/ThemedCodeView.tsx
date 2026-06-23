@@ -9,12 +9,10 @@ import { type Ref, useMemo } from 'react';
 
 import { useDiffThemeProps } from './useDiffThemeProps';
 import { useWorkerDiffTheme } from './useWorkerDiffTheme';
-import type { DiffThemeInput } from '@/lib/theme/diffThemeProps';
 
 type ThemedCodeViewComponent = <LAnnotation = undefined>(
   props: CodeViewProps<LAnnotation> & {
     ref?: Ref<CodeViewHandle<LAnnotation>>;
-    theme?: DiffThemeInput;
   }
 ) => React.JSX.Element;
 
@@ -24,13 +22,11 @@ export const ThemedCodeView: ThemedCodeViewComponent = <
   disableWorkerPool = false,
   options,
   ref,
-  theme,
   ...props
 }: CodeViewProps<LAnnotation> & {
   ref?: Ref<CodeViewHandle<LAnnotation>>;
-  theme?: DiffThemeInput;
 }): React.JSX.Element => {
-  const diffTheme = useDiffThemeProps(theme);
+  const diffTheme = useDiffThemeProps();
   useWorkerDiffTheme(diffTheme.theme, disableWorkerPool);
   const themedOptions = useMemo(
     () => ({

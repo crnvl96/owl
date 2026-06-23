@@ -27,7 +27,6 @@ import { DiffsHubCommentsList } from './DiffsHubCommentsList';
 import { DiffsHubDiffStats } from './DiffsHubDiffStats';
 import { DiffsHubFileTree } from './DiffsHubFileTree';
 import { useChromeThemeProps } from './useChromeThemeProps';
-import type { ThemeCycleControls } from './useThemeCycle';
 import { WorkerPoolStatus } from './WorkerPoolStatus';
 import { Button } from '@/components/Button';
 import { ButtonGroup, ButtonGroupItem } from '@/components/ButtonGroup';
@@ -68,7 +67,6 @@ interface DiffsHubSidebarProps {
   scrollRef: RefObject<HTMLDivElement | null>;
   source: DiffsHubFileTreeSource;
   streaming: boolean;
-  themeCycle: ThemeCycleControls;
 }
 
 export const DiffsHubSidebar = memo(function DiffsHubSidebar({
@@ -82,7 +80,6 @@ export const DiffsHubSidebar = memo(function DiffsHubSidebar({
   scrollRef,
   source,
   streaming,
-  themeCycle,
 }: DiffsHubSidebarProps) {
   const [activeTab, setActiveTab] = useState<SidebarTab>('files');
   let totalCommentCount = 0;
@@ -315,7 +312,6 @@ export const DiffsHubSidebar = memo(function DiffsHubSidebar({
           expanded={activeStatusPanel === 'systemMonitor'}
           onToggle={() => toggleStatusPanel('systemMonitor')}
           scrollRef={scrollRef}
-          themeCycle={themeCycle}
         />
       </SidebarWrapper>
     </>

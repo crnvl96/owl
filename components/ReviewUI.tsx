@@ -2,8 +2,6 @@
 
 import { type DiffIndicators } from '@pierre/diffs';
 import { type CodeViewHandle, useWorkerPool } from '@pierre/diffs/react';
-import { type ColorMode } from '@pierre/theming';
-import { useThemeController } from '@pierre/theming/react';
 import {
   type ReactNode,
   useCallback,
@@ -16,16 +14,10 @@ import { DiffsHubHeader } from './DiffsHubHeader';
 import { DiffsHubSidebar } from './DiffsHubSidebar';
 import { DiffsHubStatusPanel } from './DiffsHubStatusPanel';
 import { DiffsHubViewer } from './DiffsHubViewer';
-import { ThemeSourceProvider } from './ThemeSourceProvider';
 import { usePatchLoader } from './usePatchLoader';
-import { useThemeCycle } from './useThemeCycle';
-import {
-  docsThemeCatalog,
-  themeController,
-} from '@/components/themeController';
+import { ACTIVE_THEME_SCHEME } from '@/lib/theme/activeTheme';
 import { preloadAvatars } from '@/lib/annotation';
 import { removeSavedCommentSidebarEntry } from '@/lib/removeSavedCommentSidebarEntry';
-import type { DarkThemeName, LightThemeName } from '@/lib/themeNames';
 import type {
   CommentMetadata,
   DiffsHubDeletedCommentEvent,
@@ -34,16 +26,10 @@ import type {
 } from '@/lib/types';
 import { upsertSavedCommentSidebarEntry } from '@/lib/upsertSavedCommentSidebarEntry';
 
-// The app now always shows the local worktree's diff, so the viewer takes
-// no props — it sources its data from the local-worktree API on mount.
+// The viewer always shows the local worktree's diff. It takes no props and
+// draws its palette from the single hardcoded theme (see lib/theme/activeTheme).
 export function ReviewUI() {
-  // Provide the diffshub-scoped theme context, then render the body BELOW it so
-  // the diffs hook + selection hook can read the controller context.
-  return (
-    <ThemeSourceProvider controller={themeController}>
-      <ReviewUIBody />
-    </ThemeSourceProvider>
-  );
+  return <ReviewUIBody />;
 }
 
 function ReviewUIBody() {
@@ -59,57 +45,6 @@ function ReviewUIBody() {
   const [showBackgrounds, setShowBackgrounds] = useState(true);
   const [diffIndicators, setDiffIndicators] = useState<DiffIndicators>('bars');
   const [lineNumbers, setLineNumbers] = useState(true);
-  // All theming state — color mode and the light/dark theme-name picks — lives
-  // in the single @pierre/theming controller (the same instance the app-wide
-  // ThemeProvider is bound to). Reading it here means picking Auto/Light/Dark
-  // flips both the CodeView's `themeType` and the app's <html> class, and the
-  // theme-name picks persist with no separate local state.
-  const themeState = useThemeController(themeController);
-
-  // The controller reads persisted values synchronously when its module loads
-  // on the client, so useSyncExternalStore would surface them on the very first
-  // client render — but the server rendered the defaults. Gate every
-  // theme-derived value (rendered into inline chrome styles + the CodeView
-  // themeType) behind a client-mounted flag so the first client render matches
-  // the SSR markup, then flips to the user's selection. This also keeps the
-  // long-lived WorkerPool and the CodeView from mounting against the default
-  // palette before the persisted values apply.
-  const [themesHydrated, setThemesHydrated] = useState(false);
-  useEffect(() => {
-    setThemesHydrated(true);
-  }, []);
-
-  const colorMode: ColorMode = themesHydrated ? themeState.mode : 'system';
-  const appResolvedTheme = themesHydrated
-    ? themeState.resolvedColorScheme
-    : undefined;
-  const lightThemeName = themesHydrated
-    ? themeState.lightThemeName
-    : docsThemeCatalog.defaultLightThemeName;
-  const darkThemeName = themesHydrated
-    ? themeState.darkThemeName
-    : docsThemeCatalog.defaultDarkThemeName;
-  const setColorMode = useCallback((mode: ColorMode) => {
-    themeController.setColorMode(mode);
-  }, []);
-  const setLightThemeName = useCallback((name: LightThemeName) => {
-    themeController.setThemeNameForScheme('light', name);
-  }, []);
-  const setDarkThemeName = useCallback((name: DarkThemeName) => {
-    themeController.setThemeNameForScheme('dark', name);
-  }, []);
-  // The cycle button in the System Monitor sweeps through every Shiki
-  // theme so reviewers can preview the full set without manually picking
-  // each one. The hook captures the user's current pick when cycling
-  // starts so the visible theme anchors the rotation.
-  const themeCycle = useThemeCycle({
-    lightThemeName,
-    darkThemeName,
-    resolvedThemeMode: appResolvedTheme,
-    setLightThemeName,
-    setDarkThemeName,
-    setColorMode,
-  });
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<CodeViewHandle<CommentMetadata> | null>(null);
@@ -214,14 +149,8 @@ function ReviewUIBody() {
     },
     []
   );
-  // Withhold the viewer until the persisted themes have been read from
-  // localStorage. Otherwise on client-side navigation back into a diff the
-  // CodeView would mount during the brief render where lightThemeName/darkThemeName
-  // are still at their `DEFAULT_*_THEME` initial values and tokenize the
-  // first batch of files against the wrong palette.
   const viewerAvailable =
     isWorkerPoolReadyOrDisable &&
-    themesHydrated &&
     (loadState === 'ready' ||
       (loadState === 'streaming' && initialItems.length > 0));
 
@@ -230,22 +159,16 @@ function ReviewUIBody() {
       <DiffsHubHeader
         className="[grid-area:header]"
         collapseMode={collapseMode}
-        colorMode={colorMode}
-        darkThemeName={darkThemeName}
         diffIndicators={diffIndicators}
         diffStyle={diffStyle}
-        lightThemeName={lightThemeName}
         lineNumbers={lineNumbers}
         overflow={overflow}
         fileTreeOverlayOpen={fileTreeOverlayOpen}
         fileTreeAvailable={treeSource != null}
         onToggleCollapseMode={handleToggleCollapseMode}
         onToggleFileTreeOverlay={handleToggleFileTreeOverlay}
-        setColorMode={setColorMode}
-        setDarkThemeName={setDarkThemeName}
         setDiffIndicators={setDiffIndicators}
         setDiffStyle={setDiffStyle}
-        setLightThemeName={setLightThemeName}
         setLineNumbers={setLineNumbers}
         setOverflow={setOverflow}
         setShowBackgrounds={setShowBackgrounds}
@@ -263,7 +186,6 @@ function ReviewUIBody() {
             scrollRef={scrollRef}
             source={treeSource}
             streaming={loadState === 'streaming'}
-            themeCycle={themeCycle}
             onSelectItem={handleSelectTreeItem}
           />
           <DiffsHubViewer
@@ -275,7 +197,7 @@ function ReviewUIBody() {
             diffIndicators={diffIndicators}
             lineNumbers={lineNumbers}
             scrollRef={scrollRef}
-            themeType={colorMode}
+            themeType={ACTIVE_THEME_SCHEME}
             viewerRef={viewerRef}
             initialItems={initialItems}
             onCommentDeleted={handleCommentDeleted}

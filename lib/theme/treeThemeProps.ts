@@ -4,9 +4,10 @@
 // from the previous buildResolvedTheme so file rows match the chrome instead of
 // a dim sideBar.foreground).
 import { themeToTreeStyles, type TreeThemeStyles } from '@pierre/trees';
+import type { CSSProperties } from 'react';
 
+import type { ChromeThemeInput } from './chromeThemeProps';
 import { deriveChromeTokens } from './deriveChromeTokens';
-import type { ActiveThemeSnapshot } from './ThemeSource';
 
 export interface TreeThemePropsOptions {
   // When true, compare deriveChromeTokens(active.theme)?.fg against the theme's
@@ -18,11 +19,11 @@ export interface TreeThemePropsOptions {
 }
 
 export function treeThemeProps(
-  active: ActiveThemeSnapshot,
+  active: ChromeThemeInput,
   options: TreeThemePropsOptions = {}
 ): { style: TreeThemeStyles } {
   const theme = active.theme;
-  if (theme == null) return { style: {} };
+  if (theme == null) return { style: {} as TreeThemeStyles };
 
   const treeStyles = themeToTreeStyles(theme);
   if (options.reconcileForegroundFromChrome === true) {
@@ -59,3 +60,7 @@ export function treeThemeProps(
 
   return { style: treeStyles };
 }
+
+// Re-exported so consumers that already had a CSSProperties-shaped style
+// don't have to import it separately.
+export type { CSSProperties };
