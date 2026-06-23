@@ -2,13 +2,8 @@ import type { DiffLineAnnotation } from '@pierre/diffs';
 import { IconArrowRight } from '@pierre/icons';
 import { useEffect, useRef, useState } from 'react';
 
-import { CommentAuthorAvatar } from './CommentAuthorAvatar';
 import { Button } from '@/components/Button';
-import {
-  annotationCardBase,
-  type AvatarName,
-  getRandomPersona,
-} from '@/lib/annotation';
+import { annotationCardBase } from '@/lib/annotation';
 import { cn } from '@/lib/cn';
 import type { DraftCommentMetadata } from '@/lib/types';
 
@@ -16,12 +11,7 @@ interface DraftAnnotationProps {
   annotation: DiffLineAnnotation<DraftCommentMetadata>;
   itemId: string;
   onCancel(itemId: string, key: string): void;
-  onSave(
-    itemId: string,
-    key: string,
-    message: string,
-    author: AvatarName
-  ): void;
+  onSave(itemId: string, key: string, message: string): void;
 }
 
 export function DraftAnnotation({
@@ -31,7 +21,6 @@ export function DraftAnnotation({
   onSave,
 }: DraftAnnotationProps) {
   const [message, setMessage] = useState(annotation.metadata.message);
-  const [persona] = useState(getRandomPersona);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const trimmedMessage = message.trim();
 
@@ -39,7 +28,7 @@ export function DraftAnnotation({
     if (trimmedMessage.length === 0) {
       return;
     }
-    onSave(itemId, annotation.metadata.key, trimmedMessage, persona.name);
+    onSave(itemId, annotation.metadata.key, trimmedMessage);
   }
 
   function tryCancel() {
@@ -69,7 +58,6 @@ export function DraftAnnotation({
       }}
     >
       <div className="flex w-full gap-2.5">
-        <CommentAuthorAvatar seed={persona.name} />
         <textarea
           ref={textareaRef}
           value={message}
@@ -93,7 +81,7 @@ export function DraftAnnotation({
           className="field-sizing-content w-full resize-none rounded-sm bg-transparent py-1.5 text-[14px] text-inherit placeholder:text-[var(--diffshub-popover-muted-fg,var(--color-muted-foreground))] focus:outline-none"
         />
       </div>
-      <div className="flex w-full justify-between gap-3 pl-10.5 md:w-auto md:justify-end md:pl-0">
+      <div className="flex w-full justify-between gap-3 md:w-auto md:justify-end">
         <Button
           type="button"
           variant="muted"

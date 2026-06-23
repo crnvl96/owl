@@ -17,7 +17,6 @@ import { DraftAnnotation } from './DraftAnnotation';
 import { ExampleAnnotation } from './ExampleAnnotation';
 import { ThemedCodeView } from './ThemedCodeView';
 import { useChromeThemeProps } from './useChromeThemeProps';
-import type { AvatarName } from '@/lib/annotation';
 import { buildAnnotationThemeStyle } from '@/lib/annotationThemeStyle';
 import { classifyCommentLineType } from '@/lib/classifyCommentLineType';
 import { cn } from '@/lib/cn';
@@ -240,7 +239,7 @@ export const DiffsHubViewer = memo(function DiffsHubViewer({
   );
 
   const handleSaveDraftComment = useStableCallback(
-    (itemId: string, key: string, message: string, author: AvatarName) => {
+    (itemId: string, key: string, message: string) => {
       const trimmedMessage = message.trim();
       const { current: viewer } = viewerRef;
       if (trimmedMessage.length === 0 || viewer == null) {
@@ -278,7 +277,6 @@ export const DiffsHubViewer = memo(function DiffsHubViewer({
               metadata: {
                 kind: 'saved',
                 key,
-                author,
                 message: trimmedMessage,
                 range: annotation.metadata.range,
               },
@@ -313,7 +311,6 @@ export const DiffsHubViewer = memo(function DiffsHubViewer({
       setSelectedLines(null);
       onLineLinkChange(null);
       onCommentSaved({
-        author,
         itemId,
         key,
         lineNumber: draftAnnotation.lineNumber,

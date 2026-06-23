@@ -4,7 +4,6 @@ import type { AnnotationSide } from '@pierre/diffs';
 import { IconConvoFill, IconPlus } from '@pierre/icons';
 import { memo, type MouseEvent } from 'react';
 
-import { CommentAuthorAvatar } from './CommentAuthorAvatar';
 import { cn } from '@/lib/cn';
 import type {
   CommentLineType,
@@ -146,10 +145,9 @@ export const DiffsHubCommentsList = memo(function DiffsHubCommentsList({
                   handleRowClick(event, () => onSelectComment?.(comment))
                 }
               >
-                <CommentAuthorAvatar seed={comment.author} className="size-5" />
-                <div className="flex flex-col items-start gap-0.5 select-text">
+                <div className="flex min-w-0 flex-1 flex-col items-start gap-0.5 select-text">
                   <div className="text-muted-foreground flex gap-1">
-                    {comment.author} commented on{' '}
+                    Commented on{' '}
                     <span
                       className={cn(
                         getCommentLineClassName(comment.side, comment.lineType),

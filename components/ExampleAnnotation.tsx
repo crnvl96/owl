@@ -2,7 +2,6 @@ import type { CodeViewLineSelection, DiffLineAnnotation } from '@pierre/diffs';
 import { IconX } from '@pierre/icons';
 import { memo } from 'react';
 
-import { CommentAuthorAvatar } from './CommentAuthorAvatar';
 import { Button } from '@/components/Button';
 import { annotationCardBase } from '@/lib/annotation';
 import { cn } from '@/lib/cn';
@@ -39,7 +38,6 @@ export const ExampleAnnotation = memo(function ExampleAnnotation({
         onToggleSelection(selection);
       }}
     >
-      <CommentAuthorAvatar seed={annotation.metadata.author} />
       <Button
         variant="default"
         size="icon-sm"
@@ -52,10 +50,7 @@ export const ExampleAnnotation = memo(function ExampleAnnotation({
       >
         <IconX size={12} />
       </Button>
-      <div className="flex flex-col">
-        <strong className="mt-1 block text-[14px]">
-          {annotation.metadata.author}
-        </strong>
+      <div className="flex min-w-0 flex-1 flex-col">
         <p className="m-0 text-[14px] whitespace-pre-wrap">
           {annotation.metadata.message}
         </p>

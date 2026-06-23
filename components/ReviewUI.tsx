@@ -16,7 +16,6 @@ import { DiffsHubStatusPanel } from './DiffsHubStatusPanel';
 import { DiffsHubViewer } from './DiffsHubViewer';
 import { usePatchLoader } from './usePatchLoader';
 import { ACTIVE_THEME_SCHEME } from '@/lib/theme/activeTheme';
-import { preloadAvatars } from '@/lib/annotation';
 import { removeSavedCommentSidebarEntry } from '@/lib/removeSavedCommentSidebarEntry';
 import type {
   CommentMetadata,
@@ -33,8 +32,6 @@ export function ReviewUI() {
 }
 
 function ReviewUIBody() {
-  useEffect(preloadAvatars, []);
-
   const isWorkerPoolReadyOrDisable = useIsWorkerPoolReadyOrDisabled();
   const [diffStyle, setDiffStyle] = useState<'split' | 'unified'>('split');
   const [collapseMode, setCollapseMode] = useState<'expanded' | 'collapsed'>(

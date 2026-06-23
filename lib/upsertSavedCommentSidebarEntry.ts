@@ -17,7 +17,6 @@ export function upsertSavedCommentSidebarEntry(
   }
 
   const nextEntry: DiffsHubSavedCommentEntry = {
-    author: entry.author,
     itemId: entry.itemId,
     key: entry.key,
     lineNumber: entry.lineNumber,
