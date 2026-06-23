@@ -21,6 +21,14 @@ export async function DiffsHubViewByPathPage({
     redirect(route.target);
   }
 
+  if (route.kind === 'local-worktree') {
+    return (
+      <div className="flex h-dvh flex-col gap-2">
+        <ReviewUI localWorktree initialUrl="" path="" />
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-dvh flex-col gap-2">
       <ReviewUI

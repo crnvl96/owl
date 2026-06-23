@@ -37,20 +37,31 @@ import { upsertSavedCommentSidebarEntry } from '@/lib/upsertSavedCommentSidebarE
 interface ReviewUIProps {
   domain?: string;
   initialUrl: string;
+  localWorktree?: boolean;
   path: string;
 }
 
-export function ReviewUI({ domain, initialUrl, path }: ReviewUIProps) {
+export function ReviewUI({ domain, initialUrl, localWorktree, path }: ReviewUIProps) {
   // Provide the diffshub-scoped theme context, then render the body BELOW it so
   // the diffs hook + selection hook can read the controller context.
   return (
     <ThemeSourceProvider controller={themeController}>
-      <ReviewUIInner domain={domain} initialUrl={initialUrl} path={path} />
+      <ReviewUIInner
+        domain={domain}
+        initialUrl={initialUrl}
+        localWorktree={localWorktree}
+        path={path}
+      />
     </ThemeSourceProvider>
   );
 }
 
-function ReviewUIInner({ domain, initialUrl, path }: ReviewUIProps) {
+function ReviewUIInner({
+  domain,
+  initialUrl,
+  localWorktree,
+  path,
+}: ReviewUIProps) {
   useEffect(preloadAvatars, []);
 
   const isWorkerPoolReadyOrDisable = useIsWorkerPoolReadyOrDisabled();
@@ -137,6 +148,7 @@ function ReviewUIInner({ domain, initialUrl, path }: ReviewUIProps) {
   } = usePatchLoader({
     collapseMode,
     domain,
+    localWorktree,
     onLoadStart: handlePatchLoadStart,
     path,
     viewerRef,

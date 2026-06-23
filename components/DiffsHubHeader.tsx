@@ -1,5 +1,6 @@
 import type { DiffIndicators } from '@pierre/diffs';
 import {
+  IconBranch,
   IconCheck,
   IconChevronSm,
   IconCodeStyleBars,
@@ -18,6 +19,7 @@ import {
 } from '@pierre/icons';
 import { type ColorMode } from '@pierre/theming';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   type CSSProperties,
   type Dispatch,
@@ -65,6 +67,7 @@ interface HeaderProps {
   initialUrl: string;
   lightThemeName: LightThemeName;
   lineNumbers: boolean;
+  localWorktree?: boolean;
   overflow: 'wrap' | 'scroll';
   onToggleCollapseMode(): void;
   onToggleFileTreeOverlay(): void;
@@ -91,6 +94,7 @@ export const DiffsHubHeader = memo(function DiffsHubHeader({
   initialUrl,
   lightThemeName,
   lineNumbers,
+  localWorktree,
   overflow,
   onToggleCollapseMode,
   onToggleFileTreeOverlay,
@@ -104,10 +108,19 @@ export const DiffsHubHeader = memo(function DiffsHubHeader({
   setShowBackgrounds,
   showBackgrounds,
 }: HeaderProps) {
+  const router = useRouter();
   const [currentUrl, setCurrentUrl] = useState(initialUrl);
   // Only show the external-link button when the input still reflects the
   // committed URL — otherwise we'd be pointing at a draft the user is editing.
-  const showExternalLink = currentUrl === initialUrl;
+  // Skip the share button entirely in local-worktree mode: there's no
+  // external URL to open and the input is replaced with a static label.
+  const showExternalLink = !localWorktree && currentUrl === initialUrl;
+  // The local-worktree button is hidden when already viewing the local
+  // worktree — re-navigating to the same place would be a visible no-op.
+  const showWorktreeButton = !localWorktree;
+  // The reserved path that selects local-worktree mode in the catch-all
+  // route. Kept in sync with the sentinel in resolveDiffshubViewerRoute.
+  const LOCAL_WORKTREE_HREF = '/__local_worktree__' as const;
   // Mirror the sidebar's themed chrome so the header bar lives on the same
   // Shiki surface (background, text, icons, borders) instead of the global
   // light/dark palette. Falls back to the diffshub-sidebar-bg CSS variable
@@ -137,13 +150,19 @@ export const DiffsHubHeader = memo(function DiffsHubHeader({
       >
         <DiffsHubLogo />
       </Link>
-      <DiffUrlForm
-        className="order-last md:order-none md:mr-auto"
-        initialUrl={initialUrl}
-        onUrlChange={setCurrentUrl}
-        placeholder="https://github.com/org/repo/123"
-        inputClassName="w-full md:w-auto"
-      />
+      {localWorktree ? (
+        <div className="text-muted-foreground order-last md:order-none md:mr-auto flex h-9 items-center text-sm">
+          Local worktree
+        </div>
+      ) : (
+        <DiffUrlForm
+          className="order-last md:order-none md:mr-auto"
+          initialUrl={initialUrl}
+          onUrlChange={setCurrentUrl}
+          placeholder="https://github.com/org/repo/123"
+          inputClassName="w-full md:w-auto"
+        />
+      )}
       <div className="flex w-full items-center justify-between gap-2 md:w-auto md:justify-end">
         <Button
           type="button"
@@ -174,6 +193,19 @@ export const DiffsHubHeader = memo(function DiffsHubHeader({
               </Button>
               <div className="bg-border hidden h-3 w-px md:block" />
             </>
+          )}
+          {showWorktreeButton && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-md"
+              aria-label="View current worktree diff"
+              title="View current worktree diff"
+              className={cn(CHROME_ICON_BUTTON_CLASS, 'hidden md:flex')}
+              onClick={() => router.push(LOCAL_WORKTREE_HREF)}
+            >
+              <IconBranch className="size-4 md:size-3" />
+            </Button>
           )}
           <div className="flex items-center">
             <Button

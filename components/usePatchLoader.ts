@@ -56,6 +56,7 @@ const GENERIC_PATCH_LOAD_ERROR_MESSAGE =
 interface UsePatchLoaderOptions {
   collapseMode: 'expanded' | 'collapsed';
   domain?: string;
+  localWorktree?: boolean;
   onLoadStart(): void;
   path: string;
   viewerRef: RefObject<CodeViewHandle<CommentMetadata> | null>;
@@ -80,6 +81,7 @@ interface UsePatchLoaderResult {
 export function usePatchLoader({
   collapseMode,
   domain,
+  localWorktree,
   onLoadStart,
   path,
   viewerRef,
@@ -212,12 +214,27 @@ export function usePatchLoader({
   );
 
   useEffect(() => {
-    const patchRequestKey =
-      domain == null || domain === '' ? path : `${domain}${path}`;
-    const patchSearchParams = new URLSearchParams({ path });
-    if (domain != null && domain !== '') {
-      patchSearchParams.set('domain', domain);
-    }
+    // The local-worktree source has no upstream path or domain; route the
+    // fetch at a different endpoint and use a stable cache key so retries
+    // and accumulator state don't collide with remote loads.
+    const isLocal = localWorktree === true;
+    const patchRequestKey = isLocal
+      ? 'local-worktree'
+      : domain == null || domain === ''
+        ? path
+        : `${domain}${path}`;
+    const patchSearchParams = isLocal
+      ? ''
+      : (() => {
+          const params = new URLSearchParams({ path });
+          if (domain != null && domain !== '') {
+            params.set('domain', domain);
+          }
+          return params.toString();
+        })();
+    const apiURL = isLocal
+      ? '/api/local-worktree-diff'
+      : `/api/diff?${patchSearchParams}`;
 
     const controller = new AbortController();
     const requestId = ++requestIdRef.current;
@@ -269,7 +286,7 @@ export function usePatchLoader({
         }
 
         console.time('--     request time');
-        const response = await fetch(`/api/diff?${patchSearchParams}`, {
+        const response = await fetch(apiURL, {
           cache: 'no-store',
           signal: controller.signal,
         });
@@ -489,6 +506,7 @@ export function usePatchLoader({
   }, [
     domain,
     loadAttempt,
+    localWorktree,
     onLoadStart,
     path,
     tryApplyLineHashTarget,
