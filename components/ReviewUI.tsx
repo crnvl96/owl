@@ -1,6 +1,5 @@
 'use client';
 
-import { type DiffIndicators } from '@pierre/diffs';
 import { type CodeViewHandle, useWorkerPool } from '@pierre/diffs/react';
 import {
   type ReactNode,
@@ -42,9 +41,6 @@ function ReviewUIBody() {
   );
   const [fileTreeOverlayOpen, setFileTreeOverlayOpen] = useState(false);
   const [overflow, setOverflow] = useState<'wrap' | 'scroll'>('scroll');
-  const [showBackgrounds, setShowBackgrounds] = useState(true);
-  const [diffIndicators, setDiffIndicators] = useState<DiffIndicators>('bars');
-  const [lineNumbers, setLineNumbers] = useState(true);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<CodeViewHandle<CommentMetadata> | null>(null);
@@ -159,20 +155,14 @@ function ReviewUIBody() {
       <DiffsHubHeader
         className="[grid-area:header]"
         collapseMode={collapseMode}
-        diffIndicators={diffIndicators}
         diffStyle={diffStyle}
-        lineNumbers={lineNumbers}
         overflow={overflow}
         fileTreeOverlayOpen={fileTreeOverlayOpen}
         fileTreeAvailable={treeSource != null}
         onToggleCollapseMode={handleToggleCollapseMode}
         onToggleFileTreeOverlay={handleToggleFileTreeOverlay}
-        setDiffIndicators={setDiffIndicators}
         setDiffStyle={setDiffStyle}
-        setLineNumbers={setLineNumbers}
         setOverflow={setOverflow}
-        setShowBackgrounds={setShowBackgrounds}
-        showBackgrounds={showBackgrounds}
       />
       {viewerAvailable && treeSource != null ? (
         <>
@@ -193,9 +183,6 @@ function ReviewUIBody() {
             className="[grid-area:viewer]"
             diffStyle={diffStyle}
             overflow={overflow}
-            showBackgrounds={showBackgrounds}
-            diffIndicators={diffIndicators}
-            lineNumbers={lineNumbers}
             scrollRef={scrollRef}
             themeType={ACTIVE_THEME_SCHEME}
             viewerRef={viewerRef}

@@ -1,27 +1,22 @@
-import type { DiffIndicators } from '@pierre/diffs';
-import {
-  IconCodeStyleBars,
-  IconCollapsedRow,
-  IconDiffSplit,
-  IconDiffUnified,
-  IconExpandAll,
-  IconEyeSlash,
-  IconFileTreeFill,
-  IconGearFill,
-  IconSymbolDiffstat,
-} from '@pierre/icons';
 import {
   type Dispatch,
   memo,
   type SetStateAction,
   useMemo,
 } from 'react';
+import {
+  IconCollapsedRow,
+  IconDiffSplit,
+  IconDiffUnified,
+  IconExpandAll,
+  IconFileTreeFill,
+  IconGearFill,
+} from '@pierre/icons';
 
 import { CHROME_ICON_BUTTON_CLASS } from './chromeButtonStyles';
 import { DiffsHubLogo } from './DiffsHubLogo';
 import { useChromeThemeProps } from './useChromeThemeProps';
 import { Button } from '@/components/Button';
-import { ButtonGroup, ButtonGroupItem } from '@/components/ButtonGroup';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,39 +34,27 @@ const SETTING_ROW_CLASS =
 interface HeaderProps {
   className?: string;
   collapseMode: 'expanded' | 'collapsed';
-  diffIndicators: DiffIndicators;
   diffStyle: 'split' | 'unified';
   fileTreeAvailable: boolean;
   fileTreeOverlayOpen: boolean;
-  lineNumbers: boolean;
   overflow: 'wrap' | 'scroll';
   onToggleCollapseMode(): void;
   onToggleFileTreeOverlay(): void;
-  setDiffIndicators: Dispatch<SetStateAction<DiffIndicators>>;
   setDiffStyle: Dispatch<SetStateAction<'split' | 'unified'>>;
-  setLineNumbers: Dispatch<SetStateAction<boolean>>;
   setOverflow: Dispatch<SetStateAction<'wrap' | 'scroll'>>;
-  setShowBackgrounds: Dispatch<SetStateAction<boolean>>;
-  showBackgrounds: boolean;
 }
 
 export const DiffsHubHeader = memo(function DiffsHubHeader({
   className,
   collapseMode,
-  diffIndicators,
   diffStyle,
   fileTreeAvailable,
   fileTreeOverlayOpen,
-  lineNumbers,
   overflow,
   onToggleCollapseMode,
   onToggleFileTreeOverlay,
-  setDiffIndicators,
   setDiffStyle,
-  setLineNumbers,
   setOverflow,
-  setShowBackgrounds,
-  showBackgrounds,
 }: HeaderProps) {
   // Pull the resolved Shiki theme so the header bar lives on the same
   // surface (background, text, icons, borders) as the sidebar. Falls back to
@@ -171,30 +154,6 @@ export const DiffsHubHeader = memo(function DiffsHubHeader({
                   onSelect={(e) => e.preventDefault()}
                 >
                   <label className={SETTING_ROW_CLASS}>
-                    <span className="min-w-0 flex-1">Backgrounds</span>
-                    <Switch
-                      checked={showBackgrounds}
-                      onCheckedChange={setShowBackgrounds}
-                    />
-                  </label>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="cursor-default p-0"
-                  onSelect={(e) => e.preventDefault()}
-                >
-                  <label className={SETTING_ROW_CLASS}>
-                    <span className="min-w-0 flex-1">Line numbers</span>
-                    <Switch
-                      checked={lineNumbers}
-                      onCheckedChange={setLineNumbers}
-                    />
-                  </label>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="cursor-default p-0"
-                  onSelect={(e) => e.preventDefault()}
-                >
-                  <label className={SETTING_ROW_CLASS}>
                     <span className="min-w-0 flex-1">Word wrap</span>
                     <Switch
                       checked={overflow === 'wrap'}
@@ -203,29 +162,6 @@ export const DiffsHubHeader = memo(function DiffsHubHeader({
                       }
                     />
                   </label>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="w-full px-2 focus:bg-transparent"
-                  onSelect={(e) => e.preventDefault()}
-                >
-                  <span>Indicator style</span>
-                  <ButtonGroup
-                    className="ml-auto"
-                    value={diffIndicators}
-                    onValueChange={(value) =>
-                      setDiffIndicators(value as DiffIndicators)
-                    }
-                  >
-                    <ButtonGroupItem value="bars" className="size-7 p-0">
-                      <IconCodeStyleBars className="size-3" />
-                    </ButtonGroupItem>
-                    <ButtonGroupItem value="classic" className="size-7 p-0">
-                      <IconSymbolDiffstat className="size-3" />
-                    </ButtonGroupItem>
-                    <ButtonGroupItem value="none" className="size-7 p-0">
-                      <IconEyeSlash className="size-3" />
-                    </ButtonGroupItem>
-                  </ButtonGroup>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

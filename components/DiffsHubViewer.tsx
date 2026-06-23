@@ -4,7 +4,6 @@ import {
   type CodeViewItem,
   type CodeViewLineSelection,
   type CodeViewOptions,
-  type DiffIndicators,
   type DiffLineAnnotation,
   type LineAnnotation,
   type SelectedLineRange,
@@ -67,9 +66,6 @@ interface DiffsHubViewerProps {
   onCommentDeleted(comment: DiffsHubDeletedCommentEvent): void;
   onCommentSaved(comment: DiffsHubSavedCommentEvent): void;
   overflow: 'wrap' | 'scroll';
-  showBackgrounds: boolean;
-  diffIndicators: DiffIndicators;
-  lineNumbers: boolean;
   scrollRef: RefObject<HTMLDivElement | null>;
   themeType: ThemeTypes;
   viewerRef: RefObject<CodeViewHandle<CommentMetadata> | null>;
@@ -84,9 +80,6 @@ export const DiffsHubViewer = memo(function DiffsHubViewer({
   onCommentDeleted,
   onCommentSaved,
   overflow,
-  showBackgrounds,
-  diffIndicators,
-  lineNumbers,
   scrollRef,
   themeType,
   viewerRef,
@@ -421,6 +414,8 @@ export const DiffsHubViewer = memo(function DiffsHubViewer({
 
   // NOTE(amadeus): For some insane reason, the react compiler did not know how
   // to properly memoize this, so we pulled it into a `useMemo` for safety...
+  // Backgrounds and line numbers are always on; diff indicators are always
+  // off — the only toggle left in the display-settings dropdown is word wrap.
   const options: CodeViewOptions<CommentMetadata> = useMemo(
     () =>
       ({
@@ -429,10 +424,10 @@ export const DiffsHubViewer = memo(function DiffsHubViewer({
         layout: CODE_VIEW_LAYOUT,
         themeType,
         diffStyle,
-        diffIndicators,
+        diffIndicators: 'none',
         overflow,
-        disableBackground: !showBackgrounds,
-        disableLineNumbers: !lineNumbers,
+        disableBackground: false,
+        disableLineNumbers: false,
         lineHoverHighlight: 'number',
         // hunkSeparators: 'line-info-basic',
         enableLineSelection: true,
@@ -451,13 +446,10 @@ export const DiffsHubViewer = memo(function DiffsHubViewer({
         },
       }) satisfies CodeViewOptions<CommentMetadata>,
     [
-      diffIndicators,
       diffStyle,
       handleCreateDraftComment,
       handleLineSelectionEnd,
-      lineNumbers,
       overflow,
-      showBackgrounds,
       themeType,
     ]
   );
