@@ -274,6 +274,20 @@ export function usePatchLoader({
         // delivered while consuming the stream so the UI can enter the
         // streaming state as soon as the local transport opens.
         if (!response.ok) {
+          // 422 from the local-worktree endpoint means "no local changes".
+          // That isn't an error — render the page with an empty file list
+          // so the header / chrome stay visible and the user can refresh
+          // after editing.
+          if (response.status === 422) {
+            setTreeSource(null);
+            setCommentFileByItemId(null);
+            setDiffStats(null);
+            setInitialItems([]);
+            setErrorMessage(null);
+            setLoadState('empty');
+            return;
+          }
+
           const detail = (await response.text()).trim();
           throw new Error(
             detail.length > 0 ? detail : `Request failed (${response.status}).`
