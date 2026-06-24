@@ -199,10 +199,12 @@ export const DiffsHubViewer = memo(function DiffsHubViewer({
     if (viewer == null) {
       return;
     }
-    const item = viewer.getItem(itemId);
+    const existingItem = viewer.getItem(itemId);
     const removedAnnotation =
-      item != null && isDiffItem(item)
-        ? item.annotations?.find((annotation) => annotation.metadata.key === key)
+      existingItem != null && isDiffItem(existingItem)
+        ? existingItem.annotations?.find(
+            (annotation) => annotation.metadata.key === key,
+          )
         : undefined;
 
     updateViewerDiffItem(viewer, itemId, (item) => {
@@ -242,12 +244,12 @@ export const DiffsHubViewer = memo(function DiffsHubViewer({
         return;
       }
 
-      const item = viewer.getItem(itemId);
-      if (item == null || !isDiffItem(item)) {
+      const existingItem = viewer.getItem(itemId);
+      if (existingItem == null || !isDiffItem(existingItem)) {
         return;
       }
 
-      const draftAnnotation = item?.annotations?.find(
+      const draftAnnotation = existingItem?.annotations?.find(
         (annotation) => annotation.metadata.key === key,
       );
       if (draftAnnotation == null || !isDraftAnnotation(draftAnnotation)) {
@@ -308,7 +310,7 @@ export const DiffsHubViewer = memo(function DiffsHubViewer({
         key,
         lineNumber: draftAnnotation.lineNumber,
         lineType: classifyCommentLineType(
-          item.fileDiff,
+          existingItem.fileDiff,
           draftAnnotation.side,
           draftAnnotation.lineNumber,
         ),
