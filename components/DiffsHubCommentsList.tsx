@@ -1,6 +1,6 @@
 "use client";
 
-import type { AnnotationSide } from "@pierre/diffs";
+import type { SelectedLineRange, SelectionSide } from "@pierre/diffs";
 import { IconConvoFill, IconPlus } from "@pierre/icons";
 import { memo, type MouseEvent } from "react";
 
@@ -17,23 +17,44 @@ interface DiffsHubCommentsListProps {
   onSelectItem?(itemId: string): void;
 }
 
+// Renders a comment's "Line N" / "Line +N" / "Lines N-M" / "Lines +N-+M" label
+// from the saved range, so a multi-line comment is shown as the full range
+// it covers (with per-side sigils when start and end are on different sides
+// of the diff) instead of being collapsed to a single anchor line.
 function getCommentLineLabel(
-  side: AnnotationSide,
-  lineNumber: number,
+  range: SelectedLineRange,
   lineType: CommentLineType,
 ): string {
-  if (lineType === "context") {
-    return `Line ${lineNumber}`;
+  const startSide = range.side;
+  const endSide = range.endSide ?? range.side;
+  const isSingleLine = range.start === range.end && startSide === endSide;
+
+  if (isSingleLine) {
+    return `Line ${formatLineNumber(range.start, startSide, lineType)}`;
+  }
+
+  const startLabel = formatLineNumber(range.start, startSide, lineType);
+  const endLabel = formatLineNumber(range.end, endSide, lineType);
+  return `Lines ${startLabel}-${endLabel}`;
+}
+
+function formatLineNumber(
+  lineNumber: number,
+  side: SelectionSide | undefined,
+  lineType: CommentLineType,
+): string {
+  if (lineType === "context" || side == null) {
+    return `${lineNumber}`;
   }
   const sigil = side === "additions" ? "+" : "-";
-  return `Line ${sigil}${lineNumber}`;
+  return `${sigil}${lineNumber}`;
 }
 
 function getCommentLineClassName(
-  side: AnnotationSide,
+  side: SelectionSide | undefined,
   lineType: CommentLineType,
 ): string {
-  if (lineType === "context") {
+  if (lineType === "context" || side == null) {
     return "text-muted-foreground";
   }
   // The themed chrome sets --diffshub-comment-add-fg / -del-fg with a shade
@@ -145,15 +166,11 @@ export const DiffsHubCommentsList = memo(function DiffsHubCommentsList({
                     Commented on{" "}
                     <span
                       className={cn(
-                        getCommentLineClassName(comment.side, comment.lineType),
+                        getCommentLineClassName(comment.range.side, comment.lineType),
                         "font-medium",
                       )}
                     >
-                      {getCommentLineLabel(
-                        comment.side,
-                        comment.lineNumber,
-                        comment.lineType,
-                      )}
+                      {getCommentLineLabel(comment.range, comment.lineType)}
                     </span>
                   </div>
                   <p className="text-foreground w-full break-words whitespace-pre-wrap">

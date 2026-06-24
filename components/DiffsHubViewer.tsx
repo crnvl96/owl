@@ -305,17 +305,23 @@ export const DiffsHubViewer = memo(function DiffsHubViewer({
 
       setSelectedLines(null);
       onLineLinkChange(null);
+      // The annotation box is anchored at `range.end` so it sits at the last
+      // line of the selection, but the saved comment's `lineNumber` is the
+      // start of the range — that's the line the sidebar lists the comment
+      // under and the line that drives sort order, so it should reflect
+      // where the selection begins rather than where the annotation is
+      // rendered. The full range is preserved in `range` for display and
+      // for re-selecting on click.
+      const savedRange = draftAnnotation.metadata.range;
+      const startSide = savedRange.side ?? draftAnnotation.side;
+      const startLine = savedRange.start;
       onCommentSaved({
         itemId,
         key,
-        lineNumber: draftAnnotation.lineNumber,
-        lineType: classifyCommentLineType(
-          existingItem.fileDiff,
-          draftAnnotation.side,
-          draftAnnotation.lineNumber,
-        ),
+        lineNumber: startLine,
+        lineType: classifyCommentLineType(existingItem.fileDiff, startSide, startLine),
         message: trimmedMessage,
-        range: draftAnnotation.metadata.range,
+        range: savedRange,
         side: draftAnnotation.side,
       });
     },
