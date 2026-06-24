@@ -228,35 +228,36 @@ export function usePatchLoader({
     setLoadState("fetching");
 
     async function loadPatch() {
+      async function commitFullPatch(patchContent: string) {
+        if (!isCurrentRequest()) {
+          return;
+        }
+        setLoadState("parsing");
+        await new Promise<void>((resolve) => window.setTimeout(resolve, 0));
+
+        if (!isCurrentRequest()) {
+          return;
+        }
+        const loadedData = buildDiffsHubData(patchContent, patchRequestKey);
+        if (!isCurrentRequest()) {
+          return;
+        }
+
+        setTreeSource(loadedData.treeSource);
+        setCommentFileByItemId(loadedData.itemIdToFile);
+        setCommentSections([]);
+        setDiffStats(loadedData.diffStats);
+        prepareItemsForViewer(loadedData.items);
+        setInitialItems(loadedData.items);
+        setLoadState("ready");
+        await yieldToBrowser();
+        if (isCurrentRequest()) {
+          tryApplyLineHashTarget();
+        }
+      }
+
       try {
         const cacheKeyPrefix = encodeURIComponent(patchRequestKey);
-        async function commitFullPatch(patchContent: string) {
-          if (!isCurrentRequest()) {
-            return;
-          }
-          setLoadState("parsing");
-          await new Promise<void>((resolve) => window.setTimeout(resolve, 0));
-
-          if (!isCurrentRequest()) {
-            return;
-          }
-          const loadedData = buildDiffsHubData(patchContent, patchRequestKey);
-          if (!isCurrentRequest()) {
-            return;
-          }
-
-          setTreeSource(loadedData.treeSource);
-          setCommentFileByItemId(loadedData.itemIdToFile);
-          setCommentSections([]);
-          setDiffStats(loadedData.diffStats);
-          prepareItemsForViewer(loadedData.items);
-          setInitialItems(loadedData.items);
-          setLoadState("ready");
-          await yieldToBrowser();
-          if (isCurrentRequest()) {
-            tryApplyLineHashTarget();
-          }
-        }
 
         console.time("--     request time");
         const response = await fetch(apiURL, {

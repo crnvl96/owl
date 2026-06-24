@@ -33,10 +33,10 @@ export function useActiveTheme(): ThemeLike | undefined {
     resolver.getResolvedTheme(ACTIVE_THEME_NAME),
   );
   useEffect(() => {
-    if (theme != null) return;
+    if (theme != null) {return;}
     let cancelled = false;
     resolver.resolveTheme(ACTIVE_THEME_NAME).then((resolved) => {
-      if (!cancelled) setTheme(resolved);
+      if (!cancelled) {setTheme(resolved);}
     });
     return () => {
       cancelled = true;

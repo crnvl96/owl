@@ -23,6 +23,6 @@ export function chromeThemeProps(
   mapping: ChromeMapping,
 ): { style: CSSProperties } {
   const { theme } = active;
-  if (theme == null) return { style: {} };
+  if (theme == null) {return { style: {} };}
   return { style: mapping(deriveChromeTokens(theme), theme) ?? {} };
 }

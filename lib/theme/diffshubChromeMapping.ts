@@ -38,7 +38,7 @@ export const diffshubChromeMapping: ChromeMapping = (chrome, theme) => {
   // the previous `bg ?? 'transparent'` fallback exactly.
   const base = bg ?? "transparent";
   const style: CSSProperties & Record<string, string> = {};
-  if (bg != null) style.backgroundColor = bg;
+  if (bg != null) {style.backgroundColor = bg;}
   style.color = fg;
   style["--color-foreground"] = fg;
   style["--foreground"] = fg;

@@ -54,7 +54,7 @@ function pickReadableMuted(
   bg: string | undefined,
   mutedCandidate: string | undefined,
 ): string | undefined {
-  if (mutedCandidate == null || mutedCandidate === "") return undefined;
+  if (mutedCandidate == null || mutedCandidate === "") {return undefined;}
   const composited = colorUtils.compositeOverBg(mutedCandidate, bg) ?? mutedCandidate;
   const compositedL = colorUtils.relativeLuminance(composited);
   const bgL = colorUtils.relativeLuminance(bg);
@@ -73,7 +73,7 @@ function pickReadableMuted(
 // bg-only case — real themes always produce an fg).
 export function deriveChromeTokens(theme: ThemeLike): ChromeTokens | undefined {
   const cached = cache.get(theme);
-  if (cached !== undefined || cache.has(theme)) return cached;
+  if (cached !== undefined || cache.has(theme)) {return cached;}
 
   // Resolved surfaces (shared with trees) come from normalizeThemeColors; the
   // raw colors map drives the design-intent foreground candidate list.
