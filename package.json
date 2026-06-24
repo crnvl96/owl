@@ -6,7 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsgo --noEmit",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "check": "oxfmt --check && oxlint && tsgo --noEmit",
+    "fix": "oxfmt && oxlint --fix"
   },
   "dependencies": {
     "@pierre/diffs": "1.2.11",
@@ -36,6 +42,9 @@
     "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
     "babel-plugin-react-compiler": "1.0.0",
+    "@typescript/native-preview": "7.0.0-dev.20260623.1",
+    "oxfmt": "0.56.0",
+    "oxlint": "1.71.0",
     "typescript": "5.9.2"
   },
   "overrides": {
