@@ -421,7 +421,6 @@ export const DiffsHubViewer = memo(function DiffsHubViewer({
         enableGutterUtility: true,
         stickyHeaders: true,
         unsafeCSS: CODE_VIEW_CUSTOM_CSS,
-        // FIXME(amadeus): Move all `onX` methods onto the react component maybe?
         onGutterUtilityClick(range, context) {
           if (context.item.type !== "diff") {
             return;
