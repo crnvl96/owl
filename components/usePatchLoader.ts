@@ -605,10 +605,13 @@ function yieldToBrowser(): Promise<void> {
 
 // Maps a DiffSource to the API route that serves its unified-diff body.
 // Kept as a free function so the URL logic stays in one place; the viewer
-// pipeline (fetch + stream) is identical for both modes.
+// pipeline (fetch + stream) is identical for all modes.
 function getDiffSourceApiURL(source: DiffSource): string {
   if (source.kind === "worktree") {
     return "/api/local-worktree-diff";
+  }
+  if (source.kind === "branchCompare") {
+    return `/api/branch-comparison-diff?branch=${encodeURIComponent(source.branch)}`;
   }
   return `/api/past-commit-diff?hash=${encodeURIComponent(source.hash)}`;
 }
@@ -619,6 +622,9 @@ function getDiffSourceApiURL(source: DiffSource): string {
 function getPatchRequestKey(source: DiffSource): string {
   if (source.kind === "worktree") {
     return "local-worktree";
+  }
+  if (source.kind === "branchCompare") {
+    return `branch-compare:${source.branch}`;
   }
   return `past-commit:${source.hash}`;
 }

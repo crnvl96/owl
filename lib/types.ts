@@ -14,13 +14,19 @@ export interface FileTreeGitStatusPatch {
 
 export type ViewerLoadState = "fetching" | "streaming" | "parsing" | "ready" | "error";
 
-// What diff the viewer is currently rendering. The two modes are mutually
+// What diff the viewer is currently rendering. The three modes are mutually
 // exclusive: `worktree` shows the local uncommitted changes of the resolved
 // worktree, `pastCommit` shows the diff introduced by a specific commit
-// resolved from the same worktree's object database. Past-commit diffs
-// are independent of the working tree (git reads from the object database),
-// so a dirty worktree does not gate switching between the two.
-export type DiffSource = { kind: "worktree" } | { kind: "pastCommit"; hash: string };
+// resolved from the same worktree's object database, and `branchCompare`
+// shows the diff between the current branch and another branch (three-dot:
+// changes on HEAD since the merge base). Both `pastCommit` and
+// `branchCompare` are independent of the working tree (git reads from the
+// object database), so a dirty worktree does not gate switching between
+// modes.
+export type DiffSource =
+  | { kind: "worktree" }
+  | { kind: "pastCommit"; hash: string }
+  | { kind: "branchCompare"; branch: string };
 
 export interface SavedCommentMetadata {
   kind: "saved";

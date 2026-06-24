@@ -1,6 +1,6 @@
 "use client";
 
-import { IconBranch, IconCommit } from "@pierre/icons";
+import { IconBranch, IconCommit, IconCommitArrow } from "@pierre/icons";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/Button";
@@ -40,6 +40,21 @@ type CommitListState =
   | { kind: "ready"; commits: readonly CommitInfo[] }
   | { kind: "error"; message: string };
 
+interface BranchInfo {
+  isRemote: boolean;
+  name: string;
+}
+
+interface BranchListSuccessResponse {
+  branches: BranchInfo[];
+}
+
+type BranchListState =
+  | { kind: "idle" }
+  | { kind: "loading" }
+  | { kind: "ready"; branches: readonly BranchInfo[] }
+  | { kind: "error"; message: string };
+
 // Styling for the Worktree button and Past-commits dropdown trigger. Both
 // controls share the same chrome (icon + label + rounded rectangle). The
 // active state highlights via `aria-pressed`, which we style with
@@ -56,12 +71,13 @@ interface DiffsHubDiffModePickerProps {
   className?: string;
 }
 
-// Switches the viewer between the local worktree diff and the diff
-// introduced by one of the last 10 commits on the current branch. Both
+// Switches the viewer between the local worktree diff, the diff introduced
+// by one of the last 10 commits on the current branch, and a three-dot
+// diff of the current branch against another local or remote branch. All
 // controls are always visible; the active one is highlighted. Past-commit
-// diffs are sourced from git's object database so a dirty worktree does
-// not gate them — the user can compare uncommitted changes with a past
-// commit freely.
+// and branch-comparison diffs are sourced from git's object database so a
+// dirty worktree does not gate them — the user can compare uncommitted
+// changes with a past commit or another branch freely.
 export function DiffsHubDiffModePicker({
   source,
   onSelectSource,
@@ -79,6 +95,7 @@ export function DiffsHubDiffModePicker({
   );
   const isWorktreeActive = source.kind === "worktree";
   const isPastCommitActive = source.kind === "pastCommit";
+  const isBranchCompareActive = source.kind === "branchCompare";
   // The selected commit's metadata is needed for the dropdown trigger label
   // and the "current selection" checkmark in the menu. We keep a small
   // per-source cache so switching back to a previously-loaded commit
@@ -86,10 +103,16 @@ export function DiffsHubDiffModePicker({
   const [commits, setCommits] = useState<readonly CommitInfo[]>([]);
   const [listState, setListState] = useState<CommitListState>({ kind: "idle" });
   const requestIdRef = useRef(0);
+  const [branches, setBranches] = useState<readonly BranchInfo[]>([]);
+  const [branchListState, setBranchListState] = useState<BranchListState>({
+    kind: "idle",
+  });
+  const branchRequestIdRef = useRef(0);
 
   const selectedCommit = isPastCommitActive
     ? commits.find((commit) => commit.hash === source.hash)
     : undefined;
+  const selectedBranch = isBranchCompareActive ? source.branch : undefined;
 
   const loadCommits = useCallback(async () => {
     const requestId = ++requestIdRef.current;
@@ -129,6 +152,7 @@ export function DiffsHubDiffModePicker({
   useEffect(() => {
     return () => {
       requestIdRef.current++;
+      branchRequestIdRef.current++;
     };
   }, []);
 
@@ -149,6 +173,57 @@ export function DiffsHubDiffModePicker({
       onSelectSource({ kind: "pastCommit", hash: commit.hash });
     },
     [onSelectSource],
+  );
+
+  const loadBranches = useCallback(async () => {
+    const requestId = ++branchRequestIdRef.current;
+    setBranchListState({ kind: "loading" });
+    try {
+      const response = await fetch("/api/branches", {
+        cache: "no-store",
+      });
+      if (!response.ok) {
+        const detail = await readErrorMessage(response);
+        if (branchRequestIdRef.current !== requestId) {
+          return;
+        }
+        setBranchListState({
+          kind: "error",
+          message: detail ?? `Request failed (${response.status}).`,
+        });
+        return;
+      }
+      const payload = (await response.json()) as BranchListSuccessResponse;
+      if (branchRequestIdRef.current !== requestId) {
+        return;
+      }
+      setBranches(payload.branches);
+      setBranchListState({ kind: "ready", branches: payload.branches });
+    } catch (error) {
+      if (branchRequestIdRef.current !== requestId) {
+        return;
+      }
+      setBranchListState({
+        kind: "error",
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  }, []);
+
+  const handleSelectBranch = useCallback(
+    (branch: BranchInfo) => {
+      onSelectSource({ kind: "branchCompare", branch: branch.name });
+    },
+    [onSelectSource],
+  );
+
+  const handleBranchDropdownOpenChange = useCallback(
+    (open: boolean) => {
+      if (open && branchListState.kind !== "loading") {
+        void loadBranches();
+      }
+    },
+    [branchListState.kind, loadBranches],
   );
 
   const handleSelectWorktree = useCallback(() => {
@@ -208,6 +283,38 @@ export function DiffsHubDiffModePicker({
           {renderCommitList(listState, commits, source, handleSelectCommit)}
         </DropdownMenuContent>
       </DropdownMenu>
+      <DropdownMenu onOpenChange={handleBranchDropdownOpenChange}>
+        <DropdownMenuTrigger asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            aria-pressed={isBranchCompareActive}
+            aria-label={
+              selectedBranch == null
+                ? "Branch compare"
+                : `Branch compare — ${selectedBranch}`
+            }
+            title={
+              selectedBranch == null ? "Compare against another branch" : selectedBranch
+            }
+            className={cn(PICKER_CONTROL_CLASS, "text-muted-foreground max-w-[280px]")}
+          >
+            <IconCommitArrow className={ICON_CLASS} aria-hidden="true" />
+            <span className="truncate">{selectedBranch ?? "Compare"}</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          align="start"
+          className="w-[min(420px,calc(100vw-2rem))] p-1.5"
+          style={dropdownThemeStyle}
+        >
+          <DropdownMenuLabel className="px-2 py-1.5 text-xs font-normal text-muted-foreground">
+            Branches
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator className="mx-1 my-1" />
+          {renderBranchList(branchListState, branches, source, handleSelectBranch)}
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }
@@ -258,6 +365,57 @@ function renderCommitList(
               {commit.shortHash}
             </code>
             <span className="min-w-0 flex-1 break-words">{commit.subject}</span>
+          </DropdownMenuItem>
+        );
+      })}
+    </div>
+  );
+}
+
+function renderBranchList(
+  state: BranchListState,
+  branches: readonly BranchInfo[],
+  source: DiffSource,
+  onSelectBranch: (branch: BranchInfo) => void,
+) {
+  if (state.kind === "loading") {
+    return (
+      <DropdownMenuItem disabled className="text-muted-foreground text-xs">
+        Loading branches…
+      </DropdownMenuItem>
+    );
+  }
+  if (state.kind === "error") {
+    return (
+      <DropdownMenuItem disabled className="text-destructive text-xs">
+        {state.message}
+      </DropdownMenuItem>
+    );
+  }
+  if (state.kind === "ready" && branches.length === 0) {
+    return (
+      <DropdownMenuItem disabled className="text-muted-foreground text-xs">
+        No branches found.
+      </DropdownMenuItem>
+    );
+  }
+  const list = state.kind === "ready" ? state.branches : branches;
+  return (
+    <div className="max-h-[60vh] overflow-y-auto overscroll-contain">
+      {list.map((branch) => {
+        const isSelected =
+          source.kind === "branchCompare" && source.branch === branch.name;
+        return (
+          <DropdownMenuItem
+            key={branch.name}
+            selected={isSelected}
+            onSelect={() => onSelectBranch(branch)}
+            className="items-start gap-2 py-1.5"
+          >
+            <span className="min-w-0 flex-1 break-words">{branch.name}</span>
+            {branch.isRemote && (
+              <span className="text-muted-foreground text-[11px] shrink-0">remote</span>
+            )}
           </DropdownMenuItem>
         );
       })}
