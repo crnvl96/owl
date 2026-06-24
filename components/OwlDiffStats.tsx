@@ -5,21 +5,21 @@ import { memo, useEffect } from "react";
 
 import { StatItem } from "./StatItem";
 import { StatusRow } from "./StatusRow";
-import type { DiffsHubDiffStats as DiffsHubDiffStatsData } from "@/lib/types";
+import type { OwlDiffStats as OwlDiffStatsData } from "@/lib/types";
 
-interface DiffsHubDiffStatsProps {
+interface OwlDiffStatsProps {
   expanded: boolean;
   onToggle(): void;
-  stats: DiffsHubDiffStatsData | null;
+  stats: OwlDiffStatsData | null;
   streaming: boolean;
 }
 
-export const DiffsHubDiffStats = memo(function DiffsHubDiffStats({
+export const OwlDiffStats = memo(function OwlDiffStats({
   expanded,
   onToggle,
   stats,
   streaming,
-}: DiffsHubDiffStatsProps) {
+}: OwlDiffStatsProps) {
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "F2") {

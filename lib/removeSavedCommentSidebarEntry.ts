@@ -1,9 +1,9 @@
-import type { DiffsHubDeletedCommentEvent, DiffsHubSavedCommentItem } from "./types";
+import type { OwlDeletedCommentEvent, OwlSavedCommentItem } from "./types";
 
 export function removeSavedCommentSidebarEntry(
-  sections: readonly DiffsHubSavedCommentItem[],
-  entry: DiffsHubDeletedCommentEvent,
-): DiffsHubSavedCommentItem[] {
+  sections: readonly OwlSavedCommentItem[],
+  entry: OwlDeletedCommentEvent,
+): OwlSavedCommentItem[] {
   let sectionIndex = -1;
   for (let index = 0; index < sections.length; index++) {
     if (sections[index]?.itemId === entry.itemId) {

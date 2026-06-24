@@ -1,22 +1,22 @@
 import { insertCommentInLineOrder } from "./insertCommentInLineOrder";
 import type {
-  DiffsHubCommentFileByItemId,
-  DiffsHubSavedCommentEntry,
-  DiffsHubSavedCommentEvent,
-  DiffsHubSavedCommentItem,
+  OwlCommentFileByItemId,
+  OwlSavedCommentEntry,
+  OwlSavedCommentEvent,
+  OwlSavedCommentItem,
 } from "./types";
 
 export function upsertSavedCommentSidebarEntry(
-  sections: readonly DiffsHubSavedCommentItem[],
-  commentFileByItemId: DiffsHubCommentFileByItemId | null,
-  entry: DiffsHubSavedCommentEvent,
-): DiffsHubSavedCommentItem[] {
+  sections: readonly OwlSavedCommentItem[],
+  commentFileByItemId: OwlCommentFileByItemId | null,
+  entry: OwlSavedCommentEvent,
+): OwlSavedCommentItem[] {
   const file = commentFileByItemId?.get(entry.itemId);
   if (file == null) {
     return [...sections];
   }
 
-  const nextEntry: DiffsHubSavedCommentEntry = {
+  const nextEntry: OwlSavedCommentEntry = {
     itemId: entry.itemId,
     key: entry.key,
     lineNumber: entry.lineNumber,
@@ -36,7 +36,7 @@ export function upsertSavedCommentSidebarEntry(
   }
 
   if (sectionIndex === -1) {
-    const nextSection: DiffsHubSavedCommentItem = {
+    const nextSection: OwlSavedCommentItem = {
       comments: [nextEntry],
       fileOrder: file.fileOrder,
       itemId: entry.itemId,

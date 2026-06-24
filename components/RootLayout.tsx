@@ -26,7 +26,7 @@ export function RootLayout({
     // `dark` is hardcoded — night-owl is the only theme. globals.css scopes
     // its dark tokens to `.dark`, so this is what makes the body pick them up.
     <html lang="en" className={`dark ${berkeleyMono.variable} ${geistSans.variable}`}>
-      <body className="diffshub">
+      <body className="owl">
         <ScrollbarGutterVariables />
         <WorkerPoolContext>{children}</WorkerPoolContext>
         <Toaster />

@@ -15,7 +15,7 @@ import {
 import { cn } from "@/lib/cn";
 import { getDropdownThemeStyle } from "@/lib/theme/dropdownChromeStyle";
 import { useChromeThemeProps } from "./useChromeThemeProps";
-import { diffshubChromeMapping } from "@/lib/theme/diffshubChromeMapping";
+import { owlChromeMapping } from "@/lib/theme/owlChromeMapping";
 import type { DiffSource } from "@/lib/types";
 
 interface CommitInfo {
@@ -61,11 +61,11 @@ type BranchListState =
 // `aria-pressed:bg-accent` so the visual feedback is consistent across the
 // two controls.
 const PICKER_CONTROL_CLASS =
-  "h-8 gap-1.5 rounded-md px-2.5 text-sm font-medium aria-pressed:bg-[var(--diffshub-picker-active-bg,var(--color-muted))] aria-pressed:text-[var(--diffshub-picker-active-fg,var(--color-foreground))] hover:bg-[var(--diffshub-picker-hover-bg,transparent)] hover:text-[var(--diffshub-picker-hover-fg,var(--color-foreground))] focus-visible:ring-1 focus-visible:ring-[var(--color-ring)] focus-visible:ring-offset-0";
+  "h-8 gap-1.5 rounded-md px-2.5 text-sm font-medium aria-pressed:bg-[var(--owl-picker-active-bg,var(--color-muted))] aria-pressed:text-[var(--owl-picker-active-fg,var(--color-foreground))] hover:bg-[var(--owl-picker-hover-bg,transparent)] hover:text-[var(--owl-picker-hover-fg,var(--color-foreground))] focus-visible:ring-1 focus-visible:ring-[var(--color-ring)] focus-visible:ring-offset-0";
 
 const ICON_CLASS = "size-3.5";
 
-interface DiffsHubDiffModePickerProps {
+interface OwlDiffModePickerProps {
   source: DiffSource;
   onSelectSource(source: DiffSource): void;
   className?: string;
@@ -78,15 +78,15 @@ interface DiffsHubDiffModePickerProps {
 // and branch-comparison diffs are sourced from git's object database so a
 // dirty worktree does not gate them — the user can compare uncommitted
 // changes with a past commit or another branch freely.
-export function DiffsHubDiffModePicker({
+export function OwlDiffModePicker({
   source,
   onSelectSource,
   className,
-}: DiffsHubDiffModePickerProps) {
+}: OwlDiffModePickerProps) {
   // Mirror the resolved Shiki theme so the dropdown sits on the same
   // surface as the rest of the header chrome. Portaled menus render
   // outside the header wrapper, so we re-apply the chrome here.
-  const { style: chromeStyle } = useChromeThemeProps(diffshubChromeMapping);
+  const { style: chromeStyle } = useChromeThemeProps(owlChromeMapping);
   const themeChromeStyle =
     Object.keys(chromeStyle).length > 0 ? chromeStyle : undefined;
   const dropdownThemeStyle = useMemo(
@@ -361,7 +361,7 @@ function renderCommitList(
             onSelect={() => onSelectCommit(commit)}
             className="items-start gap-2 py-1.5"
           >
-            <code className="text-muted-foreground shrink-0 rounded bg-[var(--diffshub-picker-hash-bg,var(--color-muted))] px-1.5 py-0.5 font-mono text-[11px] leading-none">
+            <code className="text-muted-foreground shrink-0 rounded bg-[var(--owl-picker-hash-bg,var(--color-muted))] px-1.5 py-0.5 font-mono text-[11px] leading-none">
               {commit.shortHash}
             </code>
             <span className="min-w-0 flex-1 break-words">{commit.subject}</span>

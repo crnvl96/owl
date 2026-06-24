@@ -44,22 +44,19 @@ export interface DraftCommentMetadata {
 
 export type CommentMetadata = SavedCommentMetadata | DraftCommentMetadata;
 
-export interface DiffsHubCommentSidebarFile {
+export interface OwlCommentSidebarFile {
   fileOrder: number;
   path: string;
 }
 
-export type DiffsHubCommentFileByItemId = ReadonlyMap<
-  string,
-  DiffsHubCommentSidebarFile
->;
+export type OwlCommentFileByItemId = ReadonlyMap<string, OwlCommentSidebarFile>;
 
 // Whether the line the comment is anchored to is a real addition/deletion or
 // an unchanged context line shown in the diff. Tracked so the sidebar can
 // render "Line N" without a misleading + / - sigil for context lines.
 export type CommentLineType = "change" | "context";
 
-export interface DiffsHubSavedCommentEvent {
+export interface OwlSavedCommentEvent {
   itemId: string;
   key: string;
   lineNumber: number;
@@ -69,12 +66,12 @@ export interface DiffsHubSavedCommentEvent {
   side: AnnotationSide;
 }
 
-export interface DiffsHubDeletedCommentEvent {
+export interface OwlDeletedCommentEvent {
   itemId: string;
   key: string;
 }
 
-export interface DiffsHubSavedCommentEntry {
+export interface OwlSavedCommentEntry {
   itemId: string;
   key: string;
   lineNumber: number;
@@ -84,15 +81,15 @@ export interface DiffsHubSavedCommentEntry {
   side: AnnotationSide;
 }
 
-export interface DiffsHubSavedCommentItem {
-  comments: DiffsHubSavedCommentEntry[];
+export interface OwlSavedCommentItem {
+  comments: OwlSavedCommentEntry[];
   fileOrder: number;
   itemId: string;
   path: string;
 }
 
 // The fully pre-computed input this tree needs for a given fetch. It is built
-// once at fetch time by snapshotDiffsHubTreeSource and stored alongside the
+// once at fetch time by snapshotOwlTreeSource and stored alongside the
 // viewer items, so later per-item annotation updates do not feed into the
 // tree and do not cause it to rebuild.
 //
@@ -109,16 +106,16 @@ export interface DiffsHubSavedCommentItem {
 // iterating `paths`. The `readonly` markers and ReadonlyMap type enforce the
 // read-only side; pathCount is what keeps later in-place growth invisible to
 // this snapshot.
-export interface DiffsHubFileTreeSource {
+export interface OwlFileTreeSource {
   gitStatus: readonly GitStatusEntry[];
   gitStatusPatch?: FileTreeGitStatusPatch;
   pathCount: number;
   paths: readonly string[];
   pathToItemId: ReadonlyMap<string, string>;
-  previousSource?: DiffsHubFileTreeSource;
+  previousSource?: OwlFileTreeSource;
 }
 
-export interface DiffsHubDiffStats {
+export interface OwlDiffStats {
   addedLines: number;
   deletedLines: number;
   fileCount: number;

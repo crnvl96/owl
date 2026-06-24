@@ -12,7 +12,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: "DiffsHub, from Pierre",
+    default: "Owl",
     template: "%s",
   },
 };

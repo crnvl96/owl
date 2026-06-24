@@ -78,7 +78,7 @@ export function DraftAnnotation({
           }}
           placeholder="Add a comment…"
           rows={2}
-          className="field-sizing-content w-full resize-none rounded-sm bg-transparent py-1.5 text-[14px] text-inherit placeholder:text-[var(--diffshub-popover-muted-fg,var(--color-muted-foreground))] focus:outline-none"
+          className="field-sizing-content w-full resize-none rounded-sm bg-transparent py-1.5 text-[14px] text-inherit placeholder:text-[var(--owl-popover-muted-fg,var(--color-muted-foreground))] focus:outline-none"
         />
       </div>
       <div className="flex w-full justify-between gap-3 md:w-auto md:justify-end">

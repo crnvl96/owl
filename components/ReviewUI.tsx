@@ -11,11 +11,11 @@ import {
   useState,
 } from "react";
 
-import { DiffsHubBlankArea } from "./DiffsHubBlankArea";
-import { DiffsHubHeader } from "./DiffsHubHeader";
-import { DiffsHubSidebar } from "./DiffsHubSidebar";
-import { DiffsHubStatusPanel } from "./DiffsHubStatusPanel";
-import { DiffsHubViewer } from "./DiffsHubViewer";
+import { OwlBlankArea } from "./OwlBlankArea";
+import { OwlHeader } from "./OwlHeader";
+import { OwlSidebar } from "./OwlSidebar";
+import { OwlStatusPanel } from "./OwlStatusPanel";
+import { OwlViewer } from "./OwlViewer";
 import { usePatchLoader } from "./usePatchLoader";
 import type { FileContext } from "@/lib/generateReviewReport";
 import { removeSavedCommentSidebarEntry } from "@/lib/removeSavedCommentSidebarEntry";
@@ -23,9 +23,9 @@ import { ACTIVE_THEME_SCHEME } from "@/lib/theme/activeTheme";
 import type {
   CommentMetadata,
   DiffSource,
-  DiffsHubDeletedCommentEvent,
-  DiffsHubSavedCommentEntry,
-  DiffsHubSavedCommentEvent,
+  OwlDeletedCommentEvent,
+  OwlSavedCommentEntry,
+  OwlSavedCommentEvent,
 } from "@/lib/types";
 import { upsertSavedCommentSidebarEntry } from "@/lib/upsertSavedCommentSidebarEntry";
 
@@ -117,7 +117,7 @@ function ReviewUIBody() {
     applyCollapseModeToLoaded(next);
   }, [applyCollapseModeToLoaded, collapseMode]);
   const handleCommentSaved = useCallback(
-    (comment: DiffsHubSavedCommentEvent) => {
+    (comment: OwlSavedCommentEvent) => {
       setCommentSections((prev) =>
         upsertSavedCommentSidebarEntry(prev, commentFileByItemId, comment),
       );
@@ -125,7 +125,7 @@ function ReviewUIBody() {
     [commentFileByItemId, setCommentSections],
   );
   const handleCommentDeleted = useCallback(
-    (comment: DiffsHubDeletedCommentEvent) => {
+    (comment: OwlDeletedCommentEvent) => {
       setCommentSections((prev) => removeSavedCommentSidebarEntry(prev, comment));
     },
     [setCommentSections],
@@ -136,7 +136,7 @@ function ReviewUIBody() {
   const handleCloseFileTreeOverlay = useCallback(() => {
     setFileTreeOverlayOpen(false);
   }, []);
-  const handleSelectComment = useCallback((comment: DiffsHubSavedCommentEntry) => {
+  const handleSelectComment = useCallback((comment: OwlSavedCommentEntry) => {
     setFileTreeOverlayOpen(false);
     viewerRef.current?.setSelectedLines({
       id: comment.itemId,
@@ -197,7 +197,7 @@ function ReviewUIBody() {
 
   return (
     <ReviewGrid>
-      <DiffsHubHeader
+      <OwlHeader
         className="[grid-area:header]"
         collapseMode={collapseMode}
         commentSections={commentSections}
@@ -215,7 +215,7 @@ function ReviewUIBody() {
       />
       {viewerAvailable && treeSource != null ? (
         <>
-          <DiffsHubSidebar
+          <OwlSidebar
             className="[grid-area:viewer] md:[grid-area:tree]"
             commentSections={commentSections}
             diffStats={diffStats}
@@ -228,7 +228,7 @@ function ReviewUIBody() {
             onSelectItem={handleSelectTreeItem}
           />
           {hasDiffItems ? (
-            <DiffsHubViewer
+            <OwlViewer
               key={viewerKey}
               className="[grid-area:viewer]"
               diffStyle={diffStyle}
@@ -243,11 +243,11 @@ function ReviewUIBody() {
               onViewerReady={onViewerReady}
             />
           ) : (
-            <DiffsHubBlankArea />
+            <OwlBlankArea />
           )}
         </>
       ) : (
-        <DiffsHubStatusPanel
+        <OwlStatusPanel
           errorMessage={errorMessage}
           onRetry={retryLoad}
           state={loadState}

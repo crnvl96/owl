@@ -27,7 +27,7 @@ export const ExampleAnnotation = memo(function ExampleAnnotation({
       tabIndex={0}
       className={cn(
         annotationCardBase,
-        "group relative cursor-pointer hover:border-[var(--diffshub-annotation-hover-border,var(--diffshub-annotation-border,var(--color-border)))]",
+        "group relative cursor-pointer hover:border-[var(--owl-annotation-hover-border,var(--owl-annotation-border,var(--color-border)))]",
       )}
       onClick={() => onToggleSelection(selection)}
       onKeyDown={(event) => {

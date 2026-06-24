@@ -14,7 +14,7 @@ interface GitSpawnResult {
 // feature usable out of the box when you `cd` into a worktree and run
 // `pnpm dev` from there.
 export function resolveWorktreePath(): string {
-  return resolvePath(process.env.DIFFSHUB_WORKTREE_PATH ?? process.cwd());
+  return resolvePath(process.env.OWL_WORKTREE_PATH ?? process.cwd());
 }
 
 // Runs `git <args>` in the given cwd and resolves with captured output.

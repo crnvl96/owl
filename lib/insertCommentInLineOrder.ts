@@ -1,9 +1,9 @@
-import type { DiffsHubSavedCommentEntry } from "./types";
+import type { OwlSavedCommentEntry } from "./types";
 
 export function insertCommentInLineOrder(
-  comments: readonly DiffsHubSavedCommentEntry[],
-  entry: DiffsHubSavedCommentEntry,
-): DiffsHubSavedCommentEntry[] {
+  comments: readonly OwlSavedCommentEntry[],
+  entry: OwlSavedCommentEntry,
+): OwlSavedCommentEntry[] {
   let existingIndex = -1;
   for (let index = 0; index < comments.length; index++) {
     if (comments[index]?.key === entry.key) {

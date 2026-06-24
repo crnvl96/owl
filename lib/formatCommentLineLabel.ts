@@ -13,7 +13,7 @@ import type { CommentLineType } from "./types";
 // mis-tokenize as `-42` + `--` + `45`. `..` is also used by Python, Rust,
 // and jq for ranges, so it parses naturally for code-oriented models.
 //
-// Shared between the sidebar (DiffsHubCommentsList) and the review report
+// Shared between the sidebar (OwlCommentsList) and the review report
 // generator (generateReviewReport) so the line label an agent sees in the
 // markdown paste matches exactly what the user saw in the UI.
 export function formatCommentLineLabel(

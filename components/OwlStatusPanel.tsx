@@ -3,26 +3,22 @@ import { IconCiWarningFill, IconRefresh } from "@pierre/icons";
 import { useChromeThemeProps } from "./useChromeThemeProps";
 import { Button } from "@/components/Button";
 import { cn } from "@/lib/cn";
-import { diffshubChromeMapping } from "@/lib/theme/diffshubChromeMapping";
+import { owlChromeMapping } from "@/lib/theme/owlChromeMapping";
 import type { ViewerLoadState } from "@/lib/types";
 
-interface DiffsHubStatusPanelProps {
+interface OwlStatusPanelProps {
   errorMessage: string | null;
   onRetry(): void;
   state: ViewerLoadState;
 }
 
-export function DiffsHubStatusPanel({
-  errorMessage,
-  onRetry,
-  state,
-}: DiffsHubStatusPanelProps) {
-  // Mirror the rest of the diffshub chrome so the loading screen sits on the
+export function OwlStatusPanel({ errorMessage, onRetry, state }: OwlStatusPanelProps) {
+  // Mirror the rest of the owl chrome so the loading screen sits on the
   // active Shiki theme's surface instead of the global light/dark palette.
   // Mounted before the viewer is available, so we lean on the same provider
   // useChromeThemeProps the header/sidebar use — the controller source keeps the
   // last-resolved theme, so this stays on-palette without flashing the default.
-  const { style: chromeStyle } = useChromeThemeProps(diffshubChromeMapping);
+  const { style: chromeStyle } = useChromeThemeProps(owlChromeMapping);
   const themeChromeStyle =
     Object.keys(chromeStyle).length > 0 ? chromeStyle : undefined;
   const isError = state === "error";

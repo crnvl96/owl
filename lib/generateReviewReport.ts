@@ -1,11 +1,7 @@
 import type { GitStatus } from "@pierre/trees";
 
 import { formatCommentLineLabel } from "./formatCommentLineLabel";
-import type {
-  DiffSource,
-  DiffsHubSavedCommentEntry,
-  DiffsHubSavedCommentItem,
-} from "./types";
+import type { DiffSource, OwlSavedCommentEntry, OwlSavedCommentItem } from "./types";
 
 // Compact summary of a hunk's boundaries, extracted from the full
 // `FileDiffMetadata.hunks` array on the loaded diff items. We only keep
@@ -19,7 +15,7 @@ export interface HunkSummary {
 }
 
 // Per-file metadata the report generator needs that isn't already on
-// `DiffsHubSavedCommentItem`. The map is keyed by `itemId` so the report
+// `OwlSavedCommentItem`. The map is keyed by `itemId` so the report
 // can look up the right file's context in O(1) while iterating sections.
 export interface FileContext {
   hunks: readonly HunkSummary[];
@@ -28,7 +24,7 @@ export interface FileContext {
 
 interface GenerateReviewReportInput {
   fileContextByItemId: ReadonlyMap<string, FileContext>;
-  sections: readonly DiffsHubSavedCommentItem[];
+  sections: readonly OwlSavedCommentItem[];
   source: DiffSource;
 }
 
@@ -70,7 +66,7 @@ function formatHunkHeader(hunk: HunkSummary): string {
   return `@@ -${hunk.deletionStart},${hunk.deletionCount} +${hunk.additionStart},${hunk.additionCount} @@`;
 }
 
-function categorizeComment(entry: DiffsHubSavedCommentEntry): CommentBucket {
+function categorizeComment(entry: OwlSavedCommentEntry): CommentBucket {
   const startSide = entry.range.side;
   const endSide = entry.range.endSide ?? entry.range.side;
   if (startSide == null && endSide == null) {
@@ -107,7 +103,7 @@ function describeDiffSource(source: DiffSource): string {
 // hunk on the other side as long as the line falls in range.
 function findHunksForSection(
   hunks: readonly HunkSummary[],
-  comments: readonly DiffsHubSavedCommentEntry[],
+  comments: readonly OwlSavedCommentEntry[],
 ): HunkSummary[] {
   const usedHunkIndices = new Set<number>();
   for (const comment of comments) {
@@ -181,7 +177,7 @@ export function generateReviewReport(input: GenerateReviewReportInput): string {
     const statusTag =
       fileContext == null ? "M" : formatFileStatusTag(fileContext.status);
 
-    const buckets = new Map<CommentBucket, DiffsHubSavedCommentEntry[]>();
+    const buckets = new Map<CommentBucket, OwlSavedCommentEntry[]>();
     for (const comment of section.comments) {
       const bucket = categorizeComment(comment);
       let entries = buckets.get(bucket);

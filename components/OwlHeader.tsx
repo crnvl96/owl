@@ -9,9 +9,9 @@ import {
 } from "@pierre/icons";
 
 import { CHROME_ICON_BUTTON_CLASS } from "./chromeButtonStyles";
-import { DiffsHubDiffModePicker } from "./DiffsHubDiffModePicker";
-import { DiffsHubGenerateReportButton } from "./DiffsHubGenerateReportButton";
-import { DiffsHubLogo } from "./DiffsHubLogo";
+import { OwlDiffModePicker } from "./OwlDiffModePicker";
+import { OwlGenerateReportButton } from "./OwlGenerateReportButton";
+import { OwlLogo } from "./OwlLogo";
 import { useChromeThemeProps } from "./useChromeThemeProps";
 import { Button } from "@/components/Button";
 import {
@@ -23,9 +23,9 @@ import {
 import { Switch } from "@/components/Switch";
 import { cn } from "@/lib/cn";
 import type { FileContext } from "@/lib/generateReviewReport";
-import { diffshubChromeMapping } from "@/lib/theme/diffshubChromeMapping";
+import { owlChromeMapping } from "@/lib/theme/owlChromeMapping";
 import { getDropdownThemeStyle } from "@/lib/theme/dropdownChromeStyle";
-import type { DiffSource, DiffsHubSavedCommentItem } from "@/lib/types";
+import type { DiffSource, OwlSavedCommentItem } from "@/lib/types";
 
 const SETTING_ROW_CLASS =
   "w-full flex cursor-pointer items-center justify-between gap-4 px-2 py-1.5 text-sm";
@@ -33,7 +33,7 @@ const SETTING_ROW_CLASS =
 interface HeaderProps {
   className?: string;
   collapseMode: "expanded" | "collapsed";
-  commentSections: readonly DiffsHubSavedCommentItem[];
+  commentSections: readonly OwlSavedCommentItem[];
   diffSource: DiffSource;
   diffStyle: "split" | "unified";
   fileContextByItemId: ReadonlyMap<string, FileContext>;
@@ -47,7 +47,7 @@ interface HeaderProps {
   setOverflow: Dispatch<SetStateAction<"wrap" | "scroll">>;
 }
 
-export const DiffsHubHeader = memo(function DiffsHubHeader({
+export const OwlHeader = memo(function OwlHeader({
   className,
   collapseMode,
   commentSections,
@@ -65,9 +65,9 @@ export const DiffsHubHeader = memo(function DiffsHubHeader({
 }: HeaderProps) {
   // Pull the resolved Shiki theme so the header bar lives on the same
   // surface (background, text, icons, borders) as the sidebar. Falls back to
-  // the diffshub-sidebar-bg CSS variable on first render while the theme is
+  // the owl-sidebar-bg CSS variable on first render while the theme is
   // still resolving.
-  const { style: headerChromeStyle } = useChromeThemeProps(diffshubChromeMapping);
+  const { style: headerChromeStyle } = useChromeThemeProps(owlChromeMapping);
   const themeChromeStyle =
     Object.keys(headerChromeStyle).length > 0 ? headerChromeStyle : undefined;
   const dropdownThemeStyle = useMemo(
@@ -78,13 +78,13 @@ export const DiffsHubHeader = memo(function DiffsHubHeader({
     <div
       className={cn(
         "z-10 contain-layout contain-paint flex flex-wrap md:flex-nowrap items-center gap-2.5 pt-3 pb-2 px-4 md:px-3 md:py-1.5 border-b border-[var(--color-border-opaque)]",
-        themeChromeStyle == null && "bg-background md:bg-[var(--diffshub-sidebar-bg)]",
+        themeChromeStyle == null && "bg-background md:bg-[var(--owl-sidebar-bg)]",
         className,
       )}
       style={themeChromeStyle}
     >
-      <DiffsHubLogo className="absolute top-4 left-[50%] -translate-x-1/2 md:static md:translate-x-0" />
-      <DiffsHubDiffModePicker
+      <OwlLogo className="absolute top-4 left-[50%] -translate-x-1/2 md:static md:translate-x-0" />
+      <OwlDiffModePicker
         source={diffSource}
         onSelectSource={onSelectDiffSource}
         className="hidden md:flex"
@@ -102,7 +102,7 @@ export const DiffsHubHeader = memo(function DiffsHubHeader({
         >
           <IconFileTreeFill className="size-4 md:size-3" />
         </Button>
-        <DiffsHubDiffModePicker
+        <OwlDiffModePicker
           source={diffSource}
           onSelectSource={onSelectDiffSource}
           className="md:hidden"
@@ -145,7 +145,7 @@ export const DiffsHubHeader = memo(function DiffsHubHeader({
                 <IconCollapsedRow className="size-4 md:size-3" />
               )}
             </Button>
-            <DiffsHubGenerateReportButton
+            <OwlGenerateReportButton
               fileContextByItemId={fileContextByItemId}
               sections={commentSections}
               source={diffSource}

@@ -1,4 +1,4 @@
-import type { DiffsHubFileTreeSource } from "./types";
+import type { OwlFileTreeSource } from "./types";
 
 // A stable, module-level empty file tree source. Used by the clean-worktree
 // state (HTTP 422 from /api/local-worktree-diff) so the sidebar can mount
@@ -8,7 +8,7 @@ import type { DiffsHubFileTreeSource } from "./types";
 // Frozen so consumers can rely on its identity never changing — passing the
 // same reference to React state / props across renders avoids spurious
 // re-renders and re-runs of the tree's effect.
-export const EMPTY_DIFFSHUB_FILE_TREE_SOURCE: DiffsHubFileTreeSource = {
+export const EMPTY_OWL_FILE_TREE_SOURCE: OwlFileTreeSource = {
   gitStatus: [],
   pathCount: 0,
   paths: [],

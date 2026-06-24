@@ -8,7 +8,7 @@ import { CHROME_ICON_BUTTON_CLASS } from "./chromeButtonStyles";
 import { Button } from "@/components/Button";
 import { cn } from "@/lib/cn";
 import { generateReviewReport, type FileContext } from "@/lib/generateReviewReport";
-import type { DiffSource, DiffsHubSavedCommentItem } from "@/lib/types";
+import type { DiffSource, OwlSavedCommentItem } from "@/lib/types";
 
 type CopyState = "idle" | "copied" | "failed";
 
@@ -17,10 +17,10 @@ type CopyState = "idle" | "copied" | "failed";
 // be noticeable without becoming a sticky state.
 const COPIED_DURATION_MS = 1600;
 
-interface DiffsHubGenerateReportButtonProps {
+interface OwlGenerateReportButtonProps {
   className?: string;
   fileContextByItemId: ReadonlyMap<string, FileContext>;
-  sections: readonly DiffsHubSavedCommentItem[];
+  sections: readonly OwlSavedCommentItem[];
   source: DiffSource;
 }
 
@@ -33,12 +33,12 @@ interface DiffsHubGenerateReportButtonProps {
 // (insecure context, permission denied) leaves the title on "Copy failed"
 // for the same window so the user gets a clear signal that nothing was
 // written, without throwing or surfacing a dialog.
-export function DiffsHubGenerateReportButton({
+export function OwlGenerateReportButton({
   className,
   fileContextByItemId,
   sections,
   source,
-}: DiffsHubGenerateReportButtonProps) {
+}: OwlGenerateReportButtonProps) {
   const [copyState, setCopyState] = useState<CopyState>("idle");
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 

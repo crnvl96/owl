@@ -10,23 +10,23 @@ import { getPatchTreePathPrefix } from "./gitPatchMetadata";
 import { mapChangeTypeToGitStatus } from "./mapChangeTypeToGitStatus";
 import type {
   CommentMetadata,
-  DiffsHubCommentFileByItemId,
-  DiffsHubCommentSidebarFile,
-  DiffsHubDiffStats,
+  OwlCommentFileByItemId,
+  OwlCommentSidebarFile,
+  OwlDiffStats,
   FileTreeGitStatusPatch,
-  DiffsHubFileTreeSource,
+  OwlFileTreeSource,
 } from "./types";
 
-export interface DiffsHubDataAccumulator {
-  diffStats: DiffsHubDiffStats;
+export interface OwlDataAccumulator {
+  diffStats: OwlDiffStats;
   fileIndex: number;
   gitStatusByPath: Map<string, GitStatusEntry>;
-  itemIdToFile: Map<string, DiffsHubCommentSidebarFile>;
+  itemIdToFile: Map<string, OwlCommentSidebarFile>;
   items: CodeViewItem<CommentMetadata>[];
-  // The last tree source emitted by snapshotDiffsHubTreeSource for this
+  // The last tree source emitted by snapshotOwlTreeSource for this
   // accumulator. Each new snapshot links back to this so the consumer can
   // recognize append-only growth and skip the full PathStore rebuild.
-  lastTreeSource: DiffsHubFileTreeSource | undefined;
+  lastTreeSource: OwlFileTreeSource | undefined;
   nextCollisionSuffixByBase: Map<string, number>;
   pendingGitStatusRemovePaths: Set<string>;
   pendingGitStatusSetByPath: Map<string, GitStatusEntry>;
@@ -37,7 +37,7 @@ export interface DiffsHubDataAccumulator {
   paths: string[];
 }
 
-export interface DiffsHubItemIdRename {
+export interface OwlItemIdRename {
   oldId: string;
   newId: string;
 }
@@ -49,14 +49,14 @@ interface CodeViewPathState {
   sawDeleted: boolean;
 }
 
-export interface LoadedDiffsHubData {
-  itemIdToFile: DiffsHubCommentFileByItemId;
-  diffStats: DiffsHubDiffStats;
+export interface LoadedOwlData {
+  itemIdToFile: OwlCommentFileByItemId;
+  diffStats: OwlDiffStats;
   items: CodeViewItem<CommentMetadata>[];
-  treeSource: DiffsHubFileTreeSource;
+  treeSource: OwlFileTreeSource;
 }
 
-export function createDiffsHubDataAccumulator(): DiffsHubDataAccumulator {
+export function createOwlDataAccumulator(): OwlDataAccumulator {
   return {
     diffStats: {
       addedLines: 0,
@@ -80,11 +80,11 @@ export function createDiffsHubDataAccumulator(): DiffsHubDataAccumulator {
   };
 }
 
-export function appendFileDiffToDiffsHubData(
-  accumulator: DiffsHubDataAccumulator,
+export function appendFileDiffToOwlData(
+  accumulator: OwlDataAccumulator,
   fileDiff: FileDiffMetadata,
   treePathPrefix: string | undefined,
-): DiffsHubItemIdRename | undefined {
+): OwlItemIdRename | undefined {
   const { diffStats } = accumulator;
   diffStats.fileCount++;
   diffStats.totalLinesOfCode += fileDiff.unifiedLineCount;
@@ -144,8 +144,8 @@ export function appendFileDiffToDiffsHubData(
   return itemIdRename;
 }
 
-export function takePendingDiffsHubItems(
-  accumulator: DiffsHubDataAccumulator,
+export function takePendingOwlItems(
+  accumulator: OwlDataAccumulator,
 ): CodeViewItem<CommentMetadata>[] {
   const { pendingItems } = accumulator;
   accumulator.pendingItems = [];
@@ -159,12 +159,12 @@ export function takePendingDiffsHubItems(
 // delta with model.batch instead of rebuilding the whole PathStore. Consumers
 // that recreate the accumulator (e.g. a new request) discard the prior link
 // implicitly because lastTreeSource is undefined on a fresh accumulator.
-export function snapshotDiffsHubTreeSource(
-  accumulator: DiffsHubDataAccumulator,
-): DiffsHubFileTreeSource {
+export function snapshotOwlTreeSource(
+  accumulator: OwlDataAccumulator,
+): OwlFileTreeSource {
   const previousSource = accumulator.lastTreeSource;
   const gitStatusPatch = takePendingGitStatusPatch(accumulator);
-  const snapshot: DiffsHubFileTreeSource = {
+  const snapshot: OwlFileTreeSource = {
     gitStatus: Array.from(accumulator.gitStatusByPath.values()),
     gitStatusPatch: previousSource == null ? undefined : gitStatusPatch,
     pathCount: accumulator.paths.length,
@@ -177,7 +177,7 @@ export function snapshotDiffsHubTreeSource(
 }
 
 function takePendingGitStatusPatch(
-  accumulator: DiffsHubDataAccumulator,
+  accumulator: OwlDataAccumulator,
 ): FileTreeGitStatusPatch | undefined {
   const { pendingGitStatusRemovePaths, pendingGitStatusSetByPath } = accumulator;
   if (pendingGitStatusRemovePaths.size === 0 && pendingGitStatusSetByPath.size === 0) {
@@ -199,10 +199,10 @@ function takePendingGitStatusPatch(
 // Moves the current CodeView item for a path off the canonical tree id so the
 // next diff entry for that same path can own tree navigation without rebuilding.
 function renameCurrentPathItem(
-  accumulator: DiffsHubDataAccumulator,
+  accumulator: OwlDataAccumulator,
   treePath: string,
   pathState: CodeViewPathState,
-): DiffsHubItemIdRename | undefined {
+): OwlItemIdRename | undefined {
   const oldId = pathState.currentItemId;
   const newId = createSupersededItemId(accumulator, treePath, pathState.currentType);
   pathState.currentItem.id = newId;
@@ -225,7 +225,7 @@ function renameCurrentPathItem(
 }
 
 function createSupersededItemId(
-  accumulator: DiffsHubDataAccumulator,
+  accumulator: OwlDataAccumulator,
   treePath: string,
   changeType: ChangeTypes,
 ): string {
@@ -234,7 +234,7 @@ function createSupersededItemId(
 }
 
 function createFallbackItemId(
-  accumulator: DiffsHubDataAccumulator,
+  accumulator: OwlDataAccumulator,
   treePath: string,
 ): string {
   return createUniqueItemId(accumulator, `${treePath}?2`);
@@ -242,10 +242,7 @@ function createFallbackItemId(
 
 // Resolves rare id collisions by advancing a per-base suffix instead of scanning
 // accumulated items.
-function createUniqueItemId(
-  accumulator: DiffsHubDataAccumulator,
-  baseId: string,
-): string {
+function createUniqueItemId(accumulator: OwlDataAccumulator, baseId: string): string {
   if (!accumulator.itemIdToFile.has(baseId)) {
     return baseId;
   }
@@ -263,7 +260,7 @@ function createUniqueItemId(
 // Maintains the file tree status for a real path while repeated patch entries
 // replace the path's final CodeView item.
 function updateGitStatusByPath(
-  accumulator: DiffsHubDataAccumulator,
+  accumulator: OwlDataAccumulator,
   treePath: string,
   changeType: ChangeTypes,
   hadDeletedEntry: boolean,
@@ -298,54 +295,46 @@ function updateGitStatusByPath(
 }
 
 function recordGitStatusSet(
-  accumulator: DiffsHubDataAccumulator,
+  accumulator: OwlDataAccumulator,
   entry: GitStatusEntry,
 ): void {
   accumulator.pendingGitStatusRemovePaths.delete(entry.path);
   accumulator.pendingGitStatusSetByPath.set(entry.path, entry);
 }
 
-function recordGitStatusRemove(
-  accumulator: DiffsHubDataAccumulator,
-  path: string,
-): void {
+function recordGitStatusRemove(accumulator: OwlDataAccumulator, path: string): void {
   accumulator.pendingGitStatusSetByPath.delete(path);
   accumulator.pendingGitStatusRemovePaths.add(path);
 }
 
-export function snapshotDiffsHubData(
-  accumulator: DiffsHubDataAccumulator,
-): LoadedDiffsHubData {
+export function snapshotOwlData(accumulator: OwlDataAccumulator): LoadedOwlData {
   return {
     itemIdToFile: new Map(accumulator.itemIdToFile),
     diffStats: { ...accumulator.diffStats },
     items: accumulator.items.slice(),
-    treeSource: snapshotDiffsHubTreeSource(accumulator),
+    treeSource: snapshotOwlTreeSource(accumulator),
   };
 }
 
 // Converts raw patch text into the exact state slices consumed by the diff
 // viewer, sidebar tree, stats panel, and comment index in one linear pass.
-export function buildDiffsHubData(
-  patchContent: string,
-  githubPath: string,
-): LoadedDiffsHubData {
+export function buildOwlData(patchContent: string, githubPath: string): LoadedOwlData {
   const parsedPatches = parsePatchFiles(
     patchContent,
     // Use the url as a cache key
     encodeURIComponent(githubPath),
   );
 
-  const accumulator = createDiffsHubDataAccumulator();
+  const accumulator = createOwlDataAccumulator();
   const shouldPrefixTreePaths = parsedPatches.length > 1;
   for (const [patchIndex, patch] of parsedPatches.entries()) {
     const treePathPrefix = shouldPrefixTreePaths
       ? getPatchTreePathPrefix(patch.patchMetadata, patchIndex)
       : undefined;
     for (const fileDiff of patch.files) {
-      appendFileDiffToDiffsHubData(accumulator, fileDiff, treePathPrefix);
+      appendFileDiffToOwlData(accumulator, fileDiff, treePathPrefix);
     }
   }
 
-  return snapshotDiffsHubData(accumulator);
+  return snapshotOwlData(accumulator);
 }

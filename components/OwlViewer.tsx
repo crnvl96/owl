@@ -25,11 +25,11 @@ import { isDiffItem } from "@/lib/isDiffItem";
 import { isDraftAnnotation } from "@/lib/isDraftAnnotation";
 import { isDraftMetadata } from "@/lib/isDraftMetadata";
 import { isSavedAnnotation } from "@/lib/isSavedAnnotation";
-import { diffshubChromeMapping } from "@/lib/theme/diffshubChromeMapping";
+import { owlChromeMapping } from "@/lib/theme/owlChromeMapping";
 import type {
   CommentMetadata,
-  DiffsHubDeletedCommentEvent,
-  DiffsHubSavedCommentEvent,
+  OwlDeletedCommentEvent,
+  OwlSavedCommentEvent,
 } from "@/lib/types";
 
 function getNextItemVersion(item: CodeViewItem<CommentMetadata>): number {
@@ -59,11 +59,11 @@ interface ActiveDraftComment {
   key: string;
 }
 
-interface DiffsHubViewerProps {
+interface OwlViewerProps {
   className?: string;
   diffStyle: "split" | "unified";
-  onCommentDeleted(comment: DiffsHubDeletedCommentEvent): void;
-  onCommentSaved(comment: DiffsHubSavedCommentEvent): void;
+  onCommentDeleted(comment: OwlDeletedCommentEvent): void;
+  onCommentSaved(comment: OwlSavedCommentEvent): void;
   overflow: "wrap" | "scroll";
   scrollRef: RefObject<HTMLDivElement | null>;
   themeType: ThemeTypes;
@@ -73,7 +73,7 @@ interface DiffsHubViewerProps {
   onViewerReady(): void;
 }
 
-export const DiffsHubViewer = memo(function DiffsHubViewer({
+export const OwlViewer = memo(function OwlViewer({
   className,
   diffStyle,
   onCommentDeleted,
@@ -85,13 +85,13 @@ export const DiffsHubViewer = memo(function DiffsHubViewer({
   initialItems,
   onLineLinkChange,
   onViewerReady,
-}: DiffsHubViewerProps) {
+}: OwlViewerProps) {
   const nextCommentKeyRef = useRef(0);
   const activeDraftRef = useRef<ActiveDraftComment | null>(null);
   const [selectedLines, setSelectedLines] = useState<CodeViewLineSelection | null>(
     null,
   );
-  const { style: chromeStyle } = useChromeThemeProps(diffshubChromeMapping);
+  const { style: chromeStyle } = useChromeThemeProps(owlChromeMapping);
   // Preserve the previous `undefined`-means-not-resolved contract that
   // buildAnnotationThemeStyle and the className fallbacks depend on.
   const themeChromeStyle =
@@ -448,7 +448,7 @@ export const DiffsHubViewer = memo(function DiffsHubViewer({
       initialItems={initialItems}
       className={cn(
         className,
-        "cv-scrollbar relative h-full min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-clip overscroll-contain border-b border-border w-full [contain:strict] [overflow-anchor:none] [will-change:scroll-position] md:border-b-0 [&_diffs-container]:overflow-clip [&_diffs-container]:[contain:layout_paint_style] [&_diffs-container]:shadow-[0_-1px_0_var(--diffshub-diff-separator,var(--color-border-opaque)),0_1px_0_var(--diffshub-diff-separator,var(--color-border-opaque))]",
+        "cv-scrollbar relative h-full min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-clip overscroll-contain border-b border-border w-full [contain:strict] [overflow-anchor:none] [will-change:scroll-position] md:border-b-0 [&_diffs-container]:overflow-clip [&_diffs-container]:[contain:layout_paint_style] [&_diffs-container]:shadow-[0_-1px_0_var(--owl-diff-separator,var(--color-border-opaque)),0_1px_0_var(--owl-diff-separator,var(--color-border-opaque))]",
       )}
       options={options}
       style={annotationThemeStyle}

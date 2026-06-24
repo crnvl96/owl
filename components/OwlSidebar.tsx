@@ -23,9 +23,9 @@ import {
 } from "react";
 
 import { CHROME_ICON_BUTTON_CLASS } from "./chromeButtonStyles";
-import { DiffsHubCommentsList } from "./DiffsHubCommentsList";
-import { DiffsHubDiffStats } from "./DiffsHubDiffStats";
-import { DiffsHubFileTree } from "./DiffsHubFileTree";
+import { OwlCommentsList } from "./OwlCommentsList";
+import { OwlDiffStats } from "./OwlDiffStats";
+import { OwlFileTree } from "./OwlFileTree";
 import { useChromeThemeProps } from "./useChromeThemeProps";
 import { WorkerPoolStatus } from "./WorkerPoolStatus";
 import { Button } from "@/components/Button";
@@ -40,15 +40,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/DropdownMenu";
 import { cn } from "@/lib/cn";
-import { filterDiffsHubFileTreeSource } from "@/lib/filterDiffsHubFileTreeSource";
-import { getDiffsHubFileTreeAvailableStatuses } from "@/lib/getDiffsHubFileTreeAvailableStatuses";
-import { diffshubChromeMapping } from "@/lib/theme/diffshubChromeMapping";
+import { filterOwlFileTreeSource } from "@/lib/filterOwlFileTreeSource";
+import { getOwlFileTreeAvailableStatuses } from "@/lib/getOwlFileTreeAvailableStatuses";
+import { owlChromeMapping } from "@/lib/theme/owlChromeMapping";
 import { getDropdownThemeStyle } from "@/lib/theme/dropdownChromeStyle";
 import type {
-  DiffsHubDiffStats as DiffsHubDiffStatsData,
-  DiffsHubFileTreeSource,
-  DiffsHubSavedCommentEntry,
-  DiffsHubSavedCommentItem,
+  OwlDiffStats as OwlDiffStatsData,
+  OwlFileTreeSource,
+  OwlSavedCommentEntry,
+  OwlSavedCommentItem,
 } from "@/lib/types";
 
 type SidebarTab = "files" | "comments";
@@ -56,20 +56,20 @@ type SidebarStatusPanel = "diffStats" | "systemMonitor";
 
 const MOBILE_MEDIA_QUERY = "(max-width: 767px)";
 
-interface DiffsHubSidebarProps {
+interface OwlSidebarProps {
   className?: string;
-  commentSections: readonly DiffsHubSavedCommentItem[];
-  diffStats: DiffsHubDiffStatsData | null;
+  commentSections: readonly OwlSavedCommentItem[];
+  diffStats: OwlDiffStatsData | null;
   mobileOverlayOpen?: boolean;
   onMobileClose(): void;
-  onSelectComment(comment: DiffsHubSavedCommentEntry): void;
+  onSelectComment(comment: OwlSavedCommentEntry): void;
   onSelectItem(itemId: string): void;
   scrollRef: RefObject<HTMLDivElement | null>;
-  source: DiffsHubFileTreeSource;
+  source: OwlFileTreeSource;
   streaming: boolean;
 }
 
-export const DiffsHubSidebar = memo(function DiffsHubSidebar({
+export const OwlSidebar = memo(function OwlSidebar({
   className,
   commentSections,
   diffStats,
@@ -80,7 +80,7 @@ export const DiffsHubSidebar = memo(function DiffsHubSidebar({
   scrollRef,
   source,
   streaming,
-}: DiffsHubSidebarProps) {
+}: OwlSidebarProps) {
   const [activeTab, setActiveTab] = useState<SidebarTab>("files");
   let totalCommentCount = 0;
   for (const section of commentSections) {
@@ -91,7 +91,7 @@ export const DiffsHubSidebar = memo(function DiffsHubSidebar({
   // and its chrome text follows the theme's own foreground tokens
   // instead of an opacity-derived fade of the file-tree's muted text.
   // Shared with the header so both chrome surfaces stay in sync.
-  const { style: sidebarChromeStyle } = useChromeThemeProps(diffshubChromeMapping);
+  const { style: sidebarChromeStyle } = useChromeThemeProps(owlChromeMapping);
   const sidebarStyle =
     Object.keys(sidebarChromeStyle).length > 0 ? sidebarChromeStyle : undefined;
   // Portaled dropdowns (the Git-status filter) render outside the sidebar
@@ -112,11 +112,11 @@ export const DiffsHubSidebar = memo(function DiffsHubSidebar({
     () => new Set(),
   );
   const availableStatuses = useMemo(
-    () => getDiffsHubFileTreeAvailableStatuses(source),
+    () => getOwlFileTreeAvailableStatuses(source),
     [source],
   );
   const filteredSource = useMemo(
-    () => filterDiffsHubFileTreeSource(source, selectedStatuses),
+    () => filterOwlFileTreeSource(source, selectedStatuses),
     [source, selectedStatuses],
   );
   const handleModelReady = useCallback((model: FileTree | null) => {
@@ -277,7 +277,7 @@ export const DiffsHubSidebar = memo(function DiffsHubSidebar({
             hidden={activeTab !== "files"}
             className="h-full min-h-0"
           >
-            <DiffsHubFileTree
+            <OwlFileTree
               source={filteredSource}
               onModelReady={handleModelReady}
               onSelectItem={onSelectItem}
@@ -289,14 +289,14 @@ export const DiffsHubSidebar = memo(function DiffsHubSidebar({
             hidden={activeTab !== "comments"}
             className="h-full min-h-0"
           >
-            <DiffsHubCommentsList
+            <OwlCommentsList
               commentSections={commentSections}
               onSelectComment={onSelectComment}
               onSelectItem={onSelectItem}
             />
           </div>
         </div>
-        <DiffsHubDiffStats
+        <OwlDiffStats
           expanded={activeStatusPanel === "diffStats"}
           onToggle={() => toggleStatusPanel("diffStats")}
           stats={diffStats}
@@ -330,10 +330,10 @@ function SidebarWrapper({
       className={cn(
         className,
         "contain-strict z-30 flex h-full min-h-0 flex-col transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] will-change-transform motion-reduce:transition-none md:z-auto md:translate-y-0 md:will-change-auto",
-        // Fall back to the neutral diffshub chrome background when no Shiki
+        // Fall back to the neutral owl chrome background when no Shiki
         // theme bg is available yet (initial render before the resolver
         // returns).
-        themeStyle == null && "bg-[var(--diffshub-sidebar-bg)]",
+        themeStyle == null && "bg-[var(--owl-sidebar-bg)]",
         mobileOverlayOpen
           ? "pointer-events-auto translate-y-0 overflow-hidden rounded-t-xl shadow-[0_0_0_1px_var(--color-border-opaque),_0_16px_32px_rgb(0_0_0_/0.25)] md:h-full md:overflow-visible md:rounded-none md:border-0 md:shadow-none"
           : "pointer-events-none translate-y-[calc(100%+1.5rem)] overflow-hidden rounded-xl md:pointer-events-auto md:h-full md:overflow-visible md:rounded-none pt-3 border-r border-[var(--color-border-opaque)]",
@@ -420,7 +420,7 @@ function FileTreeFilterButton({
         >
           <IconFilter className="size-4 md:size-3" />
           {isFiltered && (
-            <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full border-[1px] border-[var(--diffshub-sidebar-bg)] bg-blue-500 dark:bg-blue-400" />
+            <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full border-[1px] border-[var(--owl-sidebar-bg)] bg-blue-500 dark:bg-blue-400" />
           )}
         </Button>
       </DropdownMenuTrigger>

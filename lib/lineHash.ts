@@ -9,14 +9,14 @@ interface LineHashPoint {
   side: SelectionSide;
 }
 
-export interface DiffsHubLineHashTarget {
+export interface OwlLineHashTarget {
   itemId: string;
   range: SelectedLineRange;
 }
 
 const LINE_POINT_PATTERN = /^([AD])(\d+)$/u;
 
-export function parseDiffsHubLineHash(hash: string): DiffsHubLineHashTarget | null {
+export function parseOwlLineHash(hash: string): OwlLineHashTarget | null {
   const text = hash.startsWith("#") ? hash.slice(1) : hash;
   if (text.length === 0) {
     return null;
@@ -41,9 +41,7 @@ export function parseDiffsHubLineHash(hash: string): DiffsHubLineHashTarget | nu
   };
 }
 
-export function formatDiffsHubLineHash(
-  selection: CodeViewLineSelection,
-): string | null {
+export function formatOwlLineHash(selection: CodeViewLineSelection): string | null {
   if (selection.id.length === 0) {
     return null;
   }

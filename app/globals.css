@@ -62,7 +62,7 @@
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
-  --border-opaque: color-mix(in oklch, var(--diffshub-sidebar-bg) 90%, oklch(1 0 0));
+  --border-opaque: color-mix(in oklch, var(--owl-sidebar-bg) 90%, oklch(1 0 0));
   --color-border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
@@ -79,12 +79,12 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
-  --diffshub-sidebar-bg: #101010;
+  --owl-sidebar-bg: #101010;
   color-scheme: dark;
 }
 
 @media (width <= 768px) {
-  body.diffshub {
+  body.owl {
     background-color: oklch(14.5% 0 0);
   }
 }
@@ -106,8 +106,8 @@
   body {
     @apply bg-background text-foreground font-geist;
   }
-  body.diffshub {
-    background-color: var(--diffshub-sidebar-bg);
+  body.owl {
+    background-color: var(--owl-sidebar-bg);
   }
   textarea {
     @apply outline-offset-1;
@@ -186,10 +186,10 @@
 }
 
 .cv-scrollbar {
-  /* Themed thumb from the diffshub chrome mapping (deriveChromeTokens);
+  /* Themed thumb from the owl chrome mapping (deriveChromeTokens);
      light-dark fallback for non-themed contexts. */
   --cv-scrollbar-thumb-bg: var(
-    --diffshub-scrollbar-thumb-bg,
+    --owl-scrollbar-thumb-bg,
     light-dark(
       color-mix(in lab, var(--background) 85%, black),
       color-mix(in lab, var(--background) 80%, white)
@@ -206,10 +206,10 @@
 .cv-scrollbar::-webkit-scrollbar-track {
   /* Themed editor surface so the gutter isn't a dark band beside the diff;
      transparent fallback keeps default behavior. */
-  background: var(--diffshub-scrollbar-track-bg, transparent);
+  background: var(--owl-scrollbar-track-bg, transparent);
   /* Reuse the inter-file separator so the gutter edge reads as one hairline
      with the file boundaries. */
-  border-left: 1px solid var(--diffshub-diff-separator, var(--color-border-opaque));
+  border-left: 1px solid var(--owl-diff-separator, var(--color-border-opaque));
   margin-top: -1px;
 }
 
@@ -251,7 +251,7 @@
 @supports (-moz-appearance: none) {
   .cv-scrollbar {
     scrollbar-color: var(--cv-scrollbar-thumb-bg)
-      var(--diffshub-scrollbar-track-bg, transparent);
+      var(--owl-scrollbar-track-bg, transparent);
   }
   .cv-mini-scrollbar {
     scrollbar-color: var(--cv-mini-scrollbar-thumb-bg) transparent;
@@ -304,12 +304,12 @@
   }
 }
 
-.diffshub-border-deleted {
+.owl-border-deleted {
   display: inline-flex;
   align-items: stretch;
 }
 
-.diffshub-border-deleted::before {
+.owl-border-deleted::before {
   flex-shrink: 0;
   display: block;
   content: "";

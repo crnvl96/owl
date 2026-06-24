@@ -19,19 +19,19 @@ import {
 
 import { CODE_VIEW_BATCH_COUNT, getInitialBatchSize } from "@/lib/constants";
 import {
-  appendFileDiffToDiffsHubData,
-  buildDiffsHubData,
-  createDiffsHubDataAccumulator,
-  type DiffsHubItemIdRename,
-  snapshotDiffsHubTreeSource,
-  takePendingDiffsHubItems,
-} from "@/lib/diffsHubDataAccumulator";
-import { EMPTY_DIFFSHUB_FILE_TREE_SOURCE } from "@/lib/emptyDiffsHubFileTreeSource";
+  appendFileDiffToOwlData,
+  buildOwlData,
+  createOwlDataAccumulator,
+  type OwlItemIdRename,
+  snapshotOwlTreeSource,
+  takePendingOwlItems,
+} from "@/lib/owlDataAccumulator";
+import { EMPTY_OWL_FILE_TREE_SOURCE } from "@/lib/emptyOwlFileTreeSource";
 import { getPatchTreePathPrefix } from "@/lib/gitPatchMetadata";
 import {
-  type DiffsHubLineHashTarget,
-  formatDiffsHubLineHash,
-  parseDiffsHubLineHash,
+  type OwlLineHashTarget,
+  formatOwlLineHash,
+  parseOwlLineHash,
 } from "@/lib/lineHash";
 import {
   getStreamedPatchMetadata,
@@ -40,10 +40,10 @@ import {
 import type {
   CommentMetadata,
   DiffSource,
-  DiffsHubCommentFileByItemId,
-  DiffsHubDiffStats,
-  DiffsHubFileTreeSource,
-  DiffsHubSavedCommentItem,
+  OwlCommentFileByItemId,
+  OwlDiffStats,
+  OwlFileTreeSource,
+  OwlSavedCommentItem,
   ViewerLoadState,
 } from "@/lib/types";
 
@@ -64,17 +64,17 @@ interface UsePatchLoaderOptions {
 
 interface UsePatchLoaderResult {
   applyCollapseModeToLoaded(mode: "expanded" | "collapsed"): void;
-  commentFileByItemId: DiffsHubCommentFileByItemId | null;
-  commentSections: DiffsHubSavedCommentItem[];
-  diffStats: DiffsHubDiffStats | null;
+  commentFileByItemId: OwlCommentFileByItemId | null;
+  commentSections: OwlSavedCommentItem[];
+  diffStats: OwlDiffStats | null;
   errorMessage: string | null;
   initialItems: CodeViewItem<CommentMetadata>[];
   loadState: ViewerLoadState;
   onLineLinkChange(selection: CodeViewLineSelection | null): void;
   onViewerReady(): void;
   retryLoad(): void;
-  setCommentSections: Dispatch<SetStateAction<DiffsHubSavedCommentItem[]>>;
-  treeSource: DiffsHubFileTreeSource | null;
+  setCommentSections: Dispatch<SetStateAction<OwlSavedCommentItem[]>>;
+  treeSource: OwlFileTreeSource | null;
   viewerKey: number;
 }
 
@@ -88,13 +88,11 @@ export function usePatchLoader({
   // Tree data is intentionally stored separately from items so annotation
   // updates do not cascade into the file tree and trigger needless rebuilds.
   // It is updated by fetch/stream batches in this viewer route.
-  const [treeSource, setTreeSource] = useState<DiffsHubFileTreeSource | null>(null);
-  const [diffStats, setDiffStats] = useState<DiffsHubDiffStats | null>(null);
+  const [treeSource, setTreeSource] = useState<OwlFileTreeSource | null>(null);
+  const [diffStats, setDiffStats] = useState<OwlDiffStats | null>(null);
   const [commentFileByItemId, setCommentFileByItemId] =
-    useState<DiffsHubCommentFileByItemId | null>(null);
-  const [commentSections, setCommentSections] = useState<DiffsHubSavedCommentItem[]>(
-    [],
-  );
+    useState<OwlCommentFileByItemId | null>(null);
+  const [commentSections, setCommentSections] = useState<OwlSavedCommentItem[]>([]);
   const [loadState, setLoadState] = useState<ViewerLoadState>("fetching");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loadAttempt, setLoadAttempt] = useState(0);
@@ -172,7 +170,7 @@ export function usePatchLoader({
 
   const tryApplyLineHashTarget = useStableCallback(() => {
     const { hash } = window.location;
-    const target = parseDiffsHubLineHash(hash);
+    const target = parseOwlLineHash(hash);
     if (target == null) {
       return;
     }
@@ -187,14 +185,14 @@ export function usePatchLoader({
       return;
     }
 
-    if (applyDiffsHubLineHashTarget(viewer, target)) {
+    if (applyOwlLineHashTarget(viewer, target)) {
       appliedLineHashKeyRef.current = applyKey;
     }
   });
 
   const handleLineLinkChange = useStableCallback(
     (selection: CodeViewLineSelection | null) => {
-      const nextHash = selection == null ? null : formatDiffsHubLineHash(selection);
+      const nextHash = selection == null ? null : formatOwlLineHash(selection);
       appliedLineHashKeyRef.current =
         nextHash == null ? null : getLineHashApplyKey(viewerKeyRef.current, nextHash);
       replaceLocationHash(nextHash);
@@ -238,7 +236,7 @@ export function usePatchLoader({
         if (!isCurrentRequest()) {
           return;
         }
-        const loadedData = buildDiffsHubData(patchContent, patchRequestKey);
+        const loadedData = buildOwlData(patchContent, patchRequestKey);
         if (!isCurrentRequest()) {
           return;
         }
@@ -275,7 +273,7 @@ export function usePatchLoader({
           // source is a frozen module-level constant, so React state updates
           // are no-ops and downstream effects see a stable reference.
           if (response.status === 422) {
-            setTreeSource(EMPTY_DIFFSHUB_FILE_TREE_SOURCE);
+            setTreeSource(EMPTY_OWL_FILE_TREE_SOURCE);
             setCommentFileByItemId(new Map());
             setDiffStats({
               addedLines: 0,
@@ -307,7 +305,7 @@ export function usePatchLoader({
           return;
         }
 
-        const accumulator = createDiffsHubDataAccumulator();
+        const accumulator = createOwlDataAccumulator();
         let streamPatchIndex = 0;
         let streamTreePathPrefix: string | undefined;
         let pendingPublishFileCount = 0;
@@ -330,7 +328,7 @@ export function usePatchLoader({
           lastTreePublishTime = performance.now();
           setCommentFileByItemId(accumulator.itemIdToFile);
           setDiffStats({ ...accumulator.diffStats });
-          setTreeSource(snapshotDiffsHubTreeSource(accumulator));
+          setTreeSource(snapshotOwlTreeSource(accumulator));
         };
 
         const publishPendingData = async () => {
@@ -340,7 +338,7 @@ export function usePatchLoader({
 
           pendingPublishFileCount = 0;
           lastPublishTime = performance.now();
-          const pendingItems = takePendingDiffsHubItems(accumulator);
+          const pendingItems = takePendingOwlItems(accumulator);
           prepareItemsForViewer(pendingItems);
           if (hasPublishedInitialItems) {
             const viewer = viewerRef.current;
@@ -430,13 +428,13 @@ export function usePatchLoader({
             return;
           }
 
-          const itemIdRename = appendFileDiffToDiffsHubData(
+          const itemIdRename = appendFileDiffToOwlData(
             accumulator,
             fileDiff,
             streamTreePathPrefix,
           );
           if (itemIdRename != null) {
-            applyDiffsHubItemIdRename(viewerRef.current, itemIdRename);
+            applyOwlItemIdRename(viewerRef.current, itemIdRename);
             if (loadedItemIdsRef.current.delete(itemIdRename.oldId)) {
               loadedItemIdsRef.current.add(itemIdRename.newId);
             }
@@ -524,9 +522,9 @@ function getLineHashApplyKey(viewerKey: number, hash: string): string {
   return `${viewerKey}:${hash}`;
 }
 
-function applyDiffsHubLineHashTarget(
+function applyOwlLineHashTarget(
   viewer: CodeViewHandle<CommentMetadata>,
-  target: DiffsHubLineHashTarget,
+  target: OwlLineHashTarget,
 ): boolean {
   const item = viewer.getItem(target.itemId);
   if (item == null) {
@@ -561,9 +559,9 @@ function applyDiffsHubLineHashTarget(
   return true;
 }
 
-function applyDiffsHubItemIdRename(
+function applyOwlItemIdRename(
   viewer: CodeViewHandle<CommentMetadata> | null,
-  rename: DiffsHubItemIdRename,
+  rename: OwlItemIdRename,
 ): void {
   viewer?.updateItemId(rename.oldId, rename.newId);
 }

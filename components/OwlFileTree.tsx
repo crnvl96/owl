@@ -15,7 +15,7 @@ import {
   CODE_VIEW_FILE_TREE_ITEM_HEIGHT,
   getInitialBatchSize,
 } from "@/lib/constants";
-import type { DiffsHubFileTreeSource } from "@/lib/types";
+import type { OwlFileTreeSource } from "@/lib/types";
 type FileTreeSortComparator = Exclude<NonNullable<FileTreeOptions["sort"]>, "default">;
 // Keeps @pierre/trees from applying its default semantic sort so the sidebar
 // follows the same patch path sequence that drives the code view.
@@ -23,7 +23,7 @@ const PRESERVE_INPUT_ORDER_SORT: FileTreeSortComparator = () => 0;
 
 // Layout-only overrides. Colors flow through from the resolved Shiki theme
 // (via themeToTreeStyles) so the sidebar matches the diff theme, but the
-// density and padding stay tuned for the diffshub layout regardless of
+// density and padding stay tuned for the owl layout regardless of
 // which theme the user picks. `--trees-git-renamed-color-override` is kept
 // because most Shiki themes don't define a "renamed" decoration color.
 const DENSITY_OVERRIDE_STYLES = {
@@ -32,20 +32,20 @@ const DENSITY_OVERRIDE_STYLES = {
   "--trees-git-renamed-color-override": "light-dark(#007aff, #007aff)",
 } as CSSProperties;
 
-interface DiffsHubFileTreeProps {
+interface OwlFileTreeProps {
   // Callback invoked with the underlying tree model once it's mounted, and
   // again with `null` on unmount. Lets parents drive imperative APIs like
   // search open/close without owning the model creation.
   onModelReady(model: FileTreeModel | null): void;
   onSelectItem(itemId: string): void;
-  source: DiffsHubFileTreeSource;
+  source: OwlFileTreeSource;
 }
 
-export const DiffsHubFileTree = memo(function DiffsHubFileTree({
+export const OwlFileTree = memo(function OwlFileTree({
   onModelReady,
   onSelectItem,
   source,
-}: DiffsHubFileTreeProps) {
+}: OwlFileTreeProps) {
   const sourceRef = useRef(source);
   const previousSourceRef = useRef(source);
   const [initialVisibleRowCount] = useState(getInitialBatchSize);
@@ -115,7 +115,7 @@ export const DiffsHubFileTree = memo(function DiffsHubFileTree({
     // The published @pierre/trees FileTree doesn't expose a delta-based
     // git status patch method, so fall back to the full setGitStatus on
     // each streaming publish. The `gitStatusPatch` field on the source
-    // is still built (see diffsHubDataAccumulator) for callers that want
+    // is still built (see owlDataAccumulator) for callers that want
     // it; the component just consumes the full array here.
     model.setGitStatus(source.gitStatus);
   }, [model, source]);
