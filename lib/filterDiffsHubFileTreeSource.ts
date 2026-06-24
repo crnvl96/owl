@@ -12,7 +12,9 @@ export function filterDiffsHubFileTreeSource(
   source: DiffsHubFileTreeSource,
   selectedStatuses: ReadonlySet<GitStatus>,
 ): DiffsHubFileTreeSource {
-  if (selectedStatuses.size === 0) {return source;}
+  if (selectedStatuses.size === 0) {
+    return source;
+  }
 
   const pathStatusMap = new Map<string, GitStatus>(
     source.gitStatus.map((e) => [e.path, e.status]),

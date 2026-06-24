@@ -31,7 +31,9 @@ class AutoScrollTester {
   ) {}
 
   start() {
-    if (this.running > 0) {return;}
+    if (this.running > 0) {
+      return;
+    }
     this.running = 1;
     this.onStateChange?.(true);
     this.render();
@@ -98,15 +100,14 @@ export const WorkerPoolStatus = memo(function WorkerPoolStatus({
       setStats(undefined);
       return undefined;
     }
-      return pool.subscribeToStatChanges((newStats) => {
-        setStats((prevStats): WorkerStats | undefined => {
-          if (areWorkerStatsEqual(prevStats, newStats)) {
-            return prevStats;
-          }
-          return newStats;
-        });
+    return pool.subscribeToStatChanges((newStats) => {
+      setStats((prevStats): WorkerStats | undefined => {
+        if (areWorkerStatsEqual(prevStats, newStats)) {
+          return prevStats;
+        }
+        return newStats;
       });
-    
+    });
   }, [pool]);
   return (
     stats != null && (

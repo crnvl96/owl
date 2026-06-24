@@ -71,7 +71,9 @@ function ReviewUIBody() {
     const mediaQuery = window.matchMedia("(max-width: 767px)");
     const updateMobileState = (matches: boolean) => {
       setDiffStyle(matches ? "unified" : "split");
-      if (!matches) {setFileTreeOverlayOpen(false);}
+      if (!matches) {
+        setFileTreeOverlayOpen(false);
+      }
     };
     const handleChange = (event: MediaQueryListEvent) => {
       updateMobileState(event.matches);

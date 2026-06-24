@@ -23,7 +23,9 @@ export function treeThemeProps(
   options: TreeThemePropsOptions = {},
 ): { style: TreeThemeStyles } {
   const theme = active.theme;
-  if (theme == null) {return { style: {} as TreeThemeStyles };}
+  if (theme == null) {
+    return { style: {} as TreeThemeStyles };
+  }
 
   const treeStyles = themeToTreeStyles(theme);
   if (options.reconcileForegroundFromChrome === true) {
