@@ -109,16 +109,15 @@ export const DiffsHubFileTree = memo(function DiffsHubFileTree({
           model.batch(operations);
         }
       }
-      // The published @pierre/trees FileTree doesn't expose a delta-based
-      // git status patch method, so fall back to the full setGitStatus on
-      // each streaming publish. The `gitStatusPatch` field on the source
-      // is still built (see diffsHubDataAccumulator) for callers that want
-      // it; the component just consumes the full array here.
-      model.setGitStatus(source.gitStatus);
     } else {
       model.resetPaths(source.paths.slice(0, source.pathCount));
-      model.setGitStatus(source.gitStatus);
     }
+    // The published @pierre/trees FileTree doesn't expose a delta-based
+    // git status patch method, so fall back to the full setGitStatus on
+    // each streaming publish. The `gitStatusPatch` field on the source
+    // is still built (see diffsHubDataAccumulator) for callers that want
+    // it; the component just consumes the full array here.
+    model.setGitStatus(source.gitStatus);
   }, [model, source]);
 
   useEffect(() => {

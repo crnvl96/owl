@@ -9,7 +9,7 @@
   },
   "rules": {
     "no-underscore-dangle": ["warn", { "allow": ["__dirname"] }],
-    "eqeqeq": "error",
+    "eqeqeq": ["error", "always", { "null": "ignore" }],
     "no-var": "error",
     "prefer-const": "error",
     "curly": ["error", "all"],
