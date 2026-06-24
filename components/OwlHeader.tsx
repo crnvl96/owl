@@ -11,6 +11,7 @@ import {
 import { CHROME_ICON_BUTTON_CLASS } from "./chromeButtonStyles";
 import { OwlDiffModePicker } from "./OwlDiffModePicker";
 import { OwlGenerateReportButton } from "./OwlGenerateReportButton";
+import { OwlImportFromClipboardButton } from "./OwlImportFromClipboardButton";
 import { OwlLogo } from "./OwlLogo";
 import { useChromeThemeProps } from "./useChromeThemeProps";
 import { Button } from "@/components/Button";
@@ -148,6 +149,10 @@ export const OwlHeader = memo(function OwlHeader({
             <OwlGenerateReportButton
               fileContextByItemId={fileContextByItemId}
               sections={commentSections}
+              source={diffSource}
+            />
+            <OwlImportFromClipboardButton
+              onSelectSource={onSelectDiffSource}
               source={diffSource}
             />
             <DropdownMenu>

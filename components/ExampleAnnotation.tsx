@@ -1,4 +1,8 @@
-import type { CodeViewLineSelection, DiffLineAnnotation } from "@pierre/diffs";
+import type {
+  CodeViewLineSelection,
+  DiffLineAnnotation,
+  LineAnnotation,
+} from "@pierre/diffs";
 import { IconX } from "@pierre/icons";
 import { memo } from "react";
 
@@ -8,7 +12,14 @@ import { cn } from "@/lib/cn";
 import type { SavedCommentMetadata } from "@/lib/types";
 
 interface ExampleAnnotationProps {
-  annotation: DiffLineAnnotation<SavedCommentMetadata>;
+  // Either a diff-line annotation (with side) or a file-line annotation
+  // (no side, used for clipboard imports). The card reads `metadata.range`
+  // (to re-select on click) and `metadata.message` (to render the body);
+  // both fields are populated regardless of which shape the viewer hands
+  // us, so the card renders identically for diff and file comments.
+  annotation:
+    | DiffLineAnnotation<SavedCommentMetadata>
+    | LineAnnotation<SavedCommentMetadata>;
   itemId: string;
   onDelete(itemId: string, key: string): void;
   onToggleSelection(selection: CodeViewLineSelection): void;

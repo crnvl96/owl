@@ -1,6 +1,6 @@
 import {
   areSelectionsEqual,
-  type CodeViewDiffItem,
+  type AnnotationSide,
   type CodeViewItem,
   type CodeViewLineSelection,
   type CodeViewOptions,
@@ -28,6 +28,7 @@ import { isSavedAnnotation } from "@/lib/isSavedAnnotation";
 import { owlChromeMapping } from "@/lib/theme/owlChromeMapping";
 import type {
   CommentMetadata,
+  DraftCommentMetadata,
   OwlDeletedCommentEvent,
   OwlSavedCommentEvent,
 } from "@/lib/types";
@@ -36,13 +37,41 @@ function getNextItemVersion(item: CodeViewItem<CommentMetadata>): number {
   return typeof item.version === "number" ? item.version + 1 : 1;
 }
 
-function updateViewerDiffItem(
+// Resolves the `side` of a draft/saved comment on a diff item. The
+// `SelectedLineRange` carries `side` (and `endSide` for multi-line
+// ranges) when the selection was made on a diff, but those fields are
+// optional at the type level. For a diff item the draft annotation
+// itself was created with a non-optional `side`; using that as the
+// fallback guarantees we always hand `classifyCommentLineType` (and
+// downstream consumers) a real `AnnotationSide` even if the range's
+// `side` is `undefined` for any reason.
+function resolveDiffSide(
+  range: SelectedLineRange,
+  draftAnnotation:
+    | DiffLineAnnotation<DraftCommentMetadata>
+    | LineAnnotation<DraftCommentMetadata>,
+): AnnotationSide {
+  if (range.endSide != null) {
+    return range.endSide;
+  }
+  if (range.side != null) {
+    return range.side;
+  }
+  return (draftAnnotation as DiffLineAnnotation<DraftCommentMetadata>).side;
+}
+
+// Generic replacement for the old `updateViewerDiffItem` that also
+// accepts file items. Both item shapes support `version` + `annotations`
+// updates; the updater callback decides what to mutate, and the helper
+// only handles the version bump and the `updateItem` call so callers
+// stay focused on the annotation logic.
+function updateViewerItem(
   viewer: CodeViewHandle<CommentMetadata>,
   itemId: string,
-  updateItem: (item: CodeViewDiffItem<CommentMetadata>) => boolean,
-): CodeViewDiffItem<CommentMetadata> | undefined {
+  updateItem: (item: CodeViewItem<CommentMetadata>) => boolean,
+): CodeViewItem<CommentMetadata> | undefined {
   const item = viewer.getItem(itemId);
-  if (item == null || !isDiffItem(item)) {
+  if (item == null) {
     return undefined;
   }
 
@@ -119,7 +148,10 @@ export const OwlViewer = memo(function OwlViewer({
 
   const handleLineSelectionEnd = useStableCallback(
     (range: SelectedLineRange | null, item: CodeViewItem<CommentMetadata>) => {
-      if (range == null || item.type !== "diff") {
+      // The line-hash deep link is meaningful for both diff and file items:
+      // it lets the user share a URL anchored at a specific line. Clear
+      // the link only when the selection itself was cleared.
+      if (range == null) {
         onLineLinkChange(null);
       } else {
         onLineLinkChange({ id: item.id, range });
@@ -138,11 +170,6 @@ export const OwlViewer = memo(function OwlViewer({
 
   const handleCreateDraftComment = useStableCallback(
     (range: SelectedLineRange, itemId: string) => {
-      const side = range.endSide ?? range.side;
-      if (side == null) {
-        return;
-      }
-
       const lineNumber = range.end;
       const commentKey = `draft-${nextCommentKeyRef.current++}`;
       const { current: viewer } = viewerRef;
@@ -150,20 +177,53 @@ export const OwlViewer = memo(function OwlViewer({
         return;
       }
 
-      const draftAnnotation: DiffLineAnnotation<CommentMetadata> = {
-        side,
-        lineNumber,
-        metadata: {
-          kind: "draft",
-          key: commentKey,
-          message: "",
-          range,
-        },
-      };
+      // Look up the target item so we can pick the right annotation shape.
+      // Diff items need a `side` (validated by the CodeView's diff gutter);
+      // file items (clipboard imports) get a plain `LineAnnotation` because
+      // there is no left/right distinction. The viewer handle is the only
+      // source of truth for the current item type, since the type can
+      // change between renders for the same id.
+      const targetItem = viewer.getItem(itemId);
+      if (targetItem == null) {
+        return;
+      }
+
+      let draftAnnotation:
+        | DiffLineAnnotation<CommentMetadata>
+        | LineAnnotation<CommentMetadata>;
+      if (isDiffItem(targetItem)) {
+        const side = range.endSide ?? range.side;
+        if (side == null) {
+          return;
+        }
+        draftAnnotation = {
+          side,
+          lineNumber,
+          metadata: {
+            kind: "draft",
+            key: commentKey,
+            message: "",
+            range,
+          },
+        };
+      } else {
+        // File items: no `side` on the range, no `side` on the annotation.
+        // The metadata is otherwise identical so the rest of the pipeline
+        // (save, render, sidebar) can be shared.
+        draftAnnotation = {
+          lineNumber,
+          metadata: {
+            kind: "draft",
+            key: commentKey,
+            message: "",
+            range,
+          },
+        };
+      }
 
       const { current: activeDraft } = activeDraftRef;
       if (activeDraft != null && activeDraft.itemId !== itemId) {
-        updateViewerDiffItem(viewer, activeDraft.itemId, (item) => {
+        updateViewerItem(viewer, activeDraft.itemId, (item) => {
           if (item.annotations == null) {
             return false;
           }
@@ -180,7 +240,7 @@ export const OwlViewer = memo(function OwlViewer({
         });
       }
 
-      const updatedItem = updateViewerDiffItem(viewer, itemId, (item) => {
+      const updatedItem = updateViewerItem(viewer, itemId, (item) => {
         const nonDraftAnnotations = (item.annotations ?? []).filter(
           (annotation) => !isDraftMetadata(annotation.metadata),
         );
@@ -200,14 +260,15 @@ export const OwlViewer = memo(function OwlViewer({
       return;
     }
     const existingItem = viewer.getItem(itemId);
-    const removedAnnotation =
-      existingItem != null && isDiffItem(existingItem)
-        ? existingItem.annotations?.find(
-            (annotation) => annotation.metadata.key === key,
-          )
-        : undefined;
+    // Annotations live on the item regardless of whether it's a diff or
+    // a file item, so the lookup is type-agnostic. The returned annotation
+    // is whatever shape the viewer stored (DiffLineAnnotation or
+    // LineAnnotation); we only need it to detect a saved vs draft remove.
+    const removedAnnotation = existingItem?.annotations?.find(
+      (annotation) => annotation.metadata.key === key,
+    );
 
-    updateViewerDiffItem(viewer, itemId, (item) => {
+    updateViewerItem(viewer, itemId, (item) => {
       if (item.annotations == null) {
         return false;
       }
@@ -245,51 +306,80 @@ export const OwlViewer = memo(function OwlViewer({
       }
 
       const existingItem = viewer.getItem(itemId);
-      if (existingItem == null || !isDiffItem(existingItem)) {
+      if (existingItem == null) {
         return;
       }
 
-      const draftAnnotation = existingItem?.annotations?.find(
+      const draftAnnotation = existingItem.annotations?.find(
         (annotation) => annotation.metadata.key === key,
       );
       if (draftAnnotation == null || !isDraftAnnotation(draftAnnotation)) {
         return;
       }
 
-      const updatedItem = updateViewerDiffItem(viewer, itemId, (item) => {
-        if (item.annotations == null) {
-          return false;
+      // The annotation upgrade (draft -> saved) needs to preserve the
+      // shape of the surrounding annotations array, which differs by item
+      // type: diff items hold `DiffLineAnnotation<CommentMetadata>[]`
+      // (with `side`), file items hold `LineAnnotation<CommentMetadata>[]`
+      // (without). The upgrade is structurally identical otherwise, so
+      // we branch on the item type and only assert the new annotation's
+      // shape in the case where TypeScript can't infer it through a
+      // spread of a `Draft` variant back into a `Saved` variant.
+      const upgradeMetadata = {
+        kind: "saved" as const,
+        key,
+        message: trimmedMessage,
+        range: draftAnnotation.metadata.range,
+      };
+
+      const updatedItem = updateViewerItem(viewer, itemId, (item) => {
+        if (isDiffItem(item)) {
+          // Diff items: `item.annotations` is `DiffLineAnnotation<CommentMetadata>[] | undefined`.
+          // The `null` check narrows it to the array form, and the map
+          // callback's explicit return annotation prevents the spread +
+          // new metadata from widening the element type to a union.
+          const annotations = item.annotations;
+          if (annotations == null) {
+            return false;
+          }
+          const nextAnnotations: DiffLineAnnotation<CommentMetadata>[] =
+            annotations.map((annotation): DiffLineAnnotation<CommentMetadata> => {
+              if (annotation.metadata.key !== key || !isDraftAnnotation(annotation)) {
+                return annotation;
+              }
+              return {
+                ...annotation,
+                metadata: upgradeMetadata,
+              };
+            });
+          if (nextAnnotations.every((a, i) => a === annotations[i])) {
+            return false;
+          }
+          item.annotations = nextAnnotations;
+          return true;
         }
 
-        const nextAnnotations: DiffLineAnnotation<CommentMetadata>[] =
-          item.annotations.map((annotation) => {
+        // File items: `LineAnnotation<CommentMetadata>[] | undefined`. No
+        // `side` to preserve. Same upgrade shape, no `side` in the
+        // return.
+        const annotations = item.annotations;
+        if (annotations == null) {
+          return false;
+        }
+        const nextAnnotations: LineAnnotation<CommentMetadata>[] = annotations.map(
+          (annotation): LineAnnotation<CommentMetadata> => {
             if (annotation.metadata.key !== key || !isDraftAnnotation(annotation)) {
               return annotation;
             }
-
             return {
               ...annotation,
-              metadata: {
-                kind: "saved",
-                key,
-                message: trimmedMessage,
-                range: annotation.metadata.range,
-              },
+              metadata: upgradeMetadata,
             };
-          });
-
-        let didChange = false;
-        for (let index = 0; index < nextAnnotations.length; index++) {
-          if (nextAnnotations[index] !== item.annotations[index]) {
-            didChange = true;
-            break;
-          }
-        }
-
-        if (!didChange) {
+          },
+        );
+        if (nextAnnotations.every((a, i) => a === annotations[i])) {
           return false;
         }
-
         item.annotations = nextAnnotations;
         return true;
       });
@@ -313,16 +403,38 @@ export const OwlViewer = memo(function OwlViewer({
       // rendered. The full range is preserved in `range` for display and
       // for re-selecting on click.
       const savedRange = draftAnnotation.metadata.range;
-      const startSide = savedRange.side ?? draftAnnotation.side;
       const startLine = savedRange.start;
+      // File items don't have an addition/deletion distinction, so their
+      // comments are always classified as `context` (no `+`/`-` sigil in
+      // the sidebar label). Diff items go through the hunk-aware
+      // classifier to decide whether the line is an actual change or a
+      // context line in the diff. We narrow on `isDiffItem` so the
+      // `fileDiff` access type-checks correctly, and cast the
+      // `draftAnnotation` once we know it's a diff-side annotation
+      // (its `side` is the one the viewer used to render it).
+      const lineType: OwlSavedCommentEvent["lineType"] = isDiffItem(existingItem)
+        ? classifyCommentLineType(
+            existingItem.fileDiff,
+            resolveDiffSide(savedRange, draftAnnotation),
+            startLine,
+          )
+        : "context";
+      // `side` is only meaningful for diff items. For file items, the
+      // `OwlSavedCommentEvent` type models it as optional and the report
+      // generator + sidebar both already handle the `undefined` case, so
+      // we just leave it off.
+      const side: OwlSavedCommentEvent["side"] = isDiffItem(existingItem)
+        ? (draftAnnotation as DiffLineAnnotation<DraftCommentMetadata>).side
+        : undefined;
+
       onCommentSaved({
         itemId,
         key,
         lineNumber: startLine,
-        lineType: classifyCommentLineType(existingItem.fileDiff, startSide, startLine),
+        lineType,
         message: trimmedMessage,
         range: savedRange,
-        side: draftAnnotation.side,
+        side,
       });
     },
   );
@@ -359,7 +471,12 @@ export const OwlViewer = memo(function OwlViewer({
       annotation: DiffLineAnnotation<CommentMetadata> | LineAnnotation<CommentMetadata>,
       item: CodeViewItem<CommentMetadata>,
     ) => {
-      if (!("side" in annotation) || item.type !== "diff") {
+      // The viewer hands us a `DiffLineAnnotation` for diff items and a
+      // `LineAnnotation` for file items. The shape is internally consistent
+      // (the metadata is identical), so the same draft/saved components
+      // render either. We only need to early-return for unknown item types
+      // (defensive — the viewer doesn't currently produce any).
+      if (item.type !== "diff" && item.type !== "file") {
         return null;
       }
 
@@ -430,7 +547,11 @@ export const OwlViewer = memo(function OwlViewer({
         stickyHeaders: true,
         unsafeCSS: CODE_VIEW_CUSTOM_CSS,
         onGutterUtilityClick(range, context) {
-          if (context.item.type !== "diff") {
+          // The gutter utility is wired up for both diff and file items.
+          // File items (clipboard imports) need the same + button to open
+          // a draft comment; the `handleCreateDraftComment` callback picks
+          // the right annotation shape based on the item type.
+          if (context.item.type !== "diff" && context.item.type !== "file") {
             return;
           }
           handleCreateDraftComment(range, context.item.id);

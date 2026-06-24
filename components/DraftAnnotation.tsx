@@ -1,4 +1,4 @@
-import type { DiffLineAnnotation } from "@pierre/diffs";
+import type { DiffLineAnnotation, LineAnnotation } from "@pierre/diffs";
 import { IconArrowRight } from "@pierre/icons";
 import { useEffect, useRef, useState } from "react";
 
@@ -8,7 +8,12 @@ import { cn } from "@/lib/cn";
 import type { DraftCommentMetadata } from "@/lib/types";
 
 interface DraftAnnotationProps {
-  annotation: DiffLineAnnotation<DraftCommentMetadata>;
+  // Either a diff-line annotation (with side) or a file-line annotation
+  // (no side, used for clipboard imports). The card only reads
+  // `metadata.key` and `metadata.message`, so both shapes are valid.
+  annotation:
+    | DiffLineAnnotation<DraftCommentMetadata>
+    | LineAnnotation<DraftCommentMetadata>;
   itemId: string;
   onCancel(itemId: string, key: string): void;
   onSave(itemId: string, key: string, message: string): void;

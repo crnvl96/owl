@@ -24,6 +24,12 @@ export interface FileContext {
 
 interface GenerateReviewReportInput {
   fileContextByItemId: ReadonlyMap<string, FileContext>;
+  // Path to a temp file on disk where the report's source content lives,
+  // populated only for the clipboard source. The report's header echoes
+  // it so an agent reading the markdown can `cat` the original to get more
+  // context (the spec asks for this on the clipboard flow specifically;
+  // diff sources never produce a file path).
+  importedFilePath?: string;
   sections: readonly OwlSavedCommentItem[];
   source: DiffSource;
 }
@@ -92,6 +98,8 @@ function describeDiffSource(source: DiffSource): string {
       return `Past commit ${source.hash.slice(0, 7)}`;
     case "branchCompare":
       return `Branch compare: ${source.branch}`;
+    case "clipboard":
+      return "Imported from clipboard";
   }
 }
 
@@ -149,7 +157,7 @@ function pluralize(count: number, singular: string, plural: string): string {
 // `Lines +N-+M` notation the sidebar already shows, and each comment is a
 // single bullet with the line label as a bold lead-in.
 export function generateReviewReport(input: GenerateReviewReportInput): string {
-  const { fileContextByItemId, sections, source } = input;
+  const { fileContextByItemId, importedFilePath, sections, source } = input;
   const generatedAt = new Date().toISOString();
 
   let totalComments = 0;
@@ -161,6 +169,13 @@ export function generateReviewReport(input: GenerateReviewReportInput): string {
   output.push("# Code Review Report");
   output.push("");
   output.push(`- **Diff source:** ${describeDiffSource(source)}`);
+  // Emitted only when the report came from the clipboard source. The
+  // path is the temp file written at report-generation time, so the
+  // agent can resolve the file the user was reviewing without having
+  // to re-derive it from the comments.
+  if (importedFilePath != null) {
+    output.push(`- **File path:** ${importedFilePath}`);
+  }
   output.push(`- **Generated:** ${generatedAt}`);
   output.push(`- **Files with comments:** ${sections.length}`);
   output.push(`- **Total comments:** ${totalComments}`);
@@ -170,12 +185,31 @@ export function generateReviewReport(input: GenerateReviewReportInput): string {
 
   for (const section of sections) {
     const fileContext = fileContextByItemId.get(section.itemId);
-    // Default to `M` when the file context isn't available (e.g. the
-    // comment was added before the tree finished hydrating). The tag is
-    // metadata, not load-bearing — the agent can still find the file by
-    // path — so a conservative default is fine.
+    // Status tags (`[A]/[M]/[D]/[R]`) are git-diff vocabulary and only
+    // make sense for diff sources. The clipboard source produces a
+    // single synthetic file saved under `importedFilePath`; tagging it
+    // `[M]` would actively mislead an agent into thinking the file
+    // exists in the worktree. So we omit the tag for clipboard sources
+    // and keep the existing `M` fallback for diff sources when context
+    // is missing (e.g. a comment added before the tree finished
+    // hydrating).
     const statusTag =
-      fileContext == null ? "M" : formatFileStatusTag(fileContext.status);
+      source.kind === "clipboard"
+        ? null
+        : fileContext == null
+          ? "M"
+          : formatFileStatusTag(fileContext.status);
+    // Section file name: for the clipboard source, use the full on-disk
+    // path verbatim so the section header is self-sufficient — the
+    // agent shouldn't have to combine information from two lines (the
+    // `**File path:**` header above and this section header) to find
+    // the file. The synthetic name the viewer used (`clipboard.md`)
+    // does not exist on disk, so naming the section after it would be
+    // misleading in the same way the `[M]` tag was.
+    const sectionFileName =
+      source.kind === "clipboard" && importedFilePath != null
+        ? importedFilePath
+        : section.path;
 
     const buckets = new Map<CommentBucket, OwlSavedCommentEntry[]>();
     for (const comment of section.comments) {
@@ -189,9 +223,11 @@ export function generateReviewReport(input: GenerateReviewReportInput): string {
     }
 
     const fileTotal = section.comments.length;
-    output.push(
-      `## [${statusTag}] ${section.path} (${fileTotal} ${pluralize(fileTotal, "comment", "comments")})`,
-    );
+    const fileHeader =
+      statusTag == null
+        ? `## ${sectionFileName} (${fileTotal} ${pluralize(fileTotal, "comment", "comments")})`
+        : `## [${statusTag}] ${sectionFileName} (${fileTotal} ${pluralize(fileTotal, "comment", "comments")})`;
+    output.push(fileHeader);
     output.push("");
 
     if (fileContext != null) {
