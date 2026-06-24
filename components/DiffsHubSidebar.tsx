@@ -402,7 +402,7 @@ function FileTreeFilterButton({
     availableStatuses.has(status),
   );
   const [isMac] = useState(
-    () => typeof navigator !== "undefined" && /mac/i.test(navigator.platform),
+    () => typeof navigator !== "undefined" && /mac/iu.test(navigator.platform),
   );
   // Track whether Alt was held on the most recent pointer-down so the
   // onCheckedChange handler (which receives no event) can branch on it.

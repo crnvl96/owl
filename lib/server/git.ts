@@ -1,7 +1,7 @@
 import { spawn } from "node:child_process";
 import { resolve as resolvePath } from "node:path";
 
-const NON_WHITESPACE_PATTERN = /\S/;
+const NON_WHITESPACE_PATTERN = /\S/u;
 
 interface GitSpawnResult {
   stdout: string;

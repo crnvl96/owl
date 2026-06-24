@@ -8,7 +8,7 @@ const SOURCE_LABEL = "past-commit";
 // 40-char SHAs. We never interpolate untrusted input into the spawned argv
 // (spawn is invoked with an array), so this is belt-and-suspenders validation
 // that also gives us a clean 400 response for malformed inputs.
-const HASH_PATTERN = /^[a-f0-9]{7,40}$/;
+const HASH_PATTERN = /^[a-f0-9]{7,40}$/u;
 
 interface PastCommitDiffQuery {
   hash: string;
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
     // that as 404 so the client can distinguish "no such commit" from a
     // generic git/server failure.
     const message = error instanceof Error ? error.message : "Unknown error";
-    if (/bad revision|unknown revision/i.test(message)) {
+    if (/bad revision|unknown revision/iu.test(message)) {
       return createTextResponse(message, { status: 404 });
     }
     return createTextResponse(message, { status: 500 });

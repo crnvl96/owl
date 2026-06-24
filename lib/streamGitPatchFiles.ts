@@ -3,7 +3,7 @@ import { COMMIT_HASH_METADATA_PATTERN } from "./gitPatchMetadata";
 const GIT_FILE_BOUNDARY = "diff --git ";
 const GIT_FILE_BOUNDARY_WITH_NEWLINE = `\n${GIT_FILE_BOUNDARY}`;
 const GIT_FILE_BOUNDARY_SCAN_OVERLAP = GIT_FILE_BOUNDARY_WITH_NEWLINE.length - 1;
-const NON_WHITESPACE_PATTERN = /\S/;
+const NON_WHITESPACE_PATTERN = /\S/u;
 
 export async function streamGitPatchFiles(
   body: ReadableStream<Uint8Array>,

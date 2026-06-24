@@ -14,7 +14,7 @@ export interface DiffsHubLineHashTarget {
   range: SelectedLineRange;
 }
 
-const LINE_POINT_PATTERN = /^([AD])(\d+)$/;
+const LINE_POINT_PATTERN = /^([AD])(\d+)$/u;
 
 export function parseDiffsHubLineHash(hash: string): DiffsHubLineHashTarget | null {
   const text = hash.startsWith("#") ? hash.slice(1) : hash;
