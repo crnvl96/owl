@@ -1,5 +1,5 @@
-import type { AnnotationSide, SelectedLineRange } from '@pierre/diffs';
-import type { GitStatusEntry } from '@pierre/trees';
+import type { AnnotationSide, SelectedLineRange } from "@pierre/diffs";
+import type { GitStatusEntry } from "@pierre/trees";
 
 // The workspace version of @pierre/trees exported this type and a
 // corresponding FileTree.applyGitStatusPatch method. The published
@@ -12,12 +12,7 @@ export interface FileTreeGitStatusPatch {
   set?: readonly GitStatusEntry[];
 }
 
-export type ViewerLoadState =
-  | 'fetching'
-  | 'streaming'
-  | 'parsing'
-  | 'ready'
-  | 'error';
+export type ViewerLoadState = "fetching" | "streaming" | "parsing" | "ready" | "error";
 
 // What diff the viewer is currently rendering. The two modes are mutually
 // exclusive: `worktree` shows the local uncommitted changes of the resolved
@@ -25,19 +20,17 @@ export type ViewerLoadState =
 // resolved from the same worktree's object database. Past-commit diffs
 // are independent of the working tree (git reads from the object database),
 // so a dirty worktree does not gate switching between the two.
-export type DiffSource =
-  | { kind: 'worktree' }
-  | { kind: 'pastCommit'; hash: string };
+export type DiffSource = { kind: "worktree" } | { kind: "pastCommit"; hash: string };
 
 export interface SavedCommentMetadata {
-  kind: 'saved';
+  kind: "saved";
   key: string;
   message: string;
   range: SelectedLineRange;
 }
 
 export interface DraftCommentMetadata {
-  kind: 'draft';
+  kind: "draft";
   key: string;
   message: string;
   range: SelectedLineRange;
@@ -58,7 +51,7 @@ export type DiffsHubCommentFileByItemId = ReadonlyMap<
 // Whether the line the comment is anchored to is a real addition/deletion or
 // an unchanged context line shown in the diff. Tracked so the sidebar can
 // render "Line N" without a misleading + / - sigil for context lines.
-export type CommentLineType = 'change' | 'context';
+export type CommentLineType = "change" | "context";
 
 export interface DiffsHubSavedCommentEvent {
   itemId: string;

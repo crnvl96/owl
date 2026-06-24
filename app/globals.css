@@ -1,5 +1,5 @@
-@import 'tailwindcss';
-@import 'tw-animate-css';
+@import "tailwindcss";
+@import "tw-animate-css";
 
 @custom-variant light (&:is(.light *));
 @custom-variant dark (&:is(.dark *, .dark));
@@ -62,11 +62,7 @@
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
-  --border-opaque: color-mix(
-    in oklch,
-    var(--diffshub-sidebar-bg) 90%,
-    oklch(1 0 0)
-  );
+  --border-opaque: color-mix(in oklch, var(--diffshub-sidebar-bg) 90%, oklch(1 0 0));
   --color-border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
@@ -213,8 +209,7 @@
   background: var(--diffshub-scrollbar-track-bg, transparent);
   /* Reuse the inter-file separator so the gutter edge reads as one hairline
      with the file boundaries. */
-  border-left: 1px solid
-    var(--diffshub-diff-separator, var(--color-border-opaque));
+  border-left: 1px solid var(--diffshub-diff-separator, var(--color-border-opaque));
   margin-top: -1px;
 }
 
@@ -264,10 +259,10 @@
   }
 }
 
-[data-slot='header'] {
+[data-slot="header"] {
   @apply border-b border-transparent transition-[border-color] duration-200;
 }
-[data-slot='header'].is-stuck {
+[data-slot="header"].is-stuck {
   @apply border-foreground/10;
 }
 
@@ -317,7 +312,7 @@
 .diffshub-border-deleted::before {
   flex-shrink: 0;
   display: block;
-  content: '';
+  content: "";
   width: 4px;
   height: 24px;
   background-image: linear-gradient(

@@ -1,10 +1,10 @@
-import { IconCiWarningFill, IconRefresh } from '@pierre/icons';
+import { IconCiWarningFill, IconRefresh } from "@pierre/icons";
 
-import { useChromeThemeProps } from './useChromeThemeProps';
-import { Button } from '@/components/Button';
-import { cn } from '@/lib/cn';
-import { diffshubChromeMapping } from '@/lib/theme/diffshubChromeMapping';
-import type { ViewerLoadState } from '@/lib/types';
+import { useChromeThemeProps } from "./useChromeThemeProps";
+import { Button } from "@/components/Button";
+import { cn } from "@/lib/cn";
+import { diffshubChromeMapping } from "@/lib/theme/diffshubChromeMapping";
+import type { ViewerLoadState } from "@/lib/types";
 
 interface DiffsHubStatusPanelProps {
   errorMessage: string | null;
@@ -25,33 +25,33 @@ export function DiffsHubStatusPanel({
   const { style: chromeStyle } = useChromeThemeProps(diffshubChromeMapping);
   const themeChromeStyle =
     Object.keys(chromeStyle).length > 0 ? chromeStyle : undefined;
-  const isError = state === 'error';
+  const isError = state === "error";
   const title = isError
-    ? 'Couldn’t load diff'
-    : state === 'parsing'
-      ? 'Preparing diff'
-      : state === 'fetching'
-        ? 'Fetching diff'
-        : 'Streaming diff';
+    ? "Couldn’t load diff"
+    : state === "parsing"
+      ? "Preparing diff"
+      : state === "fetching"
+        ? "Fetching diff"
+        : "Streaming diff";
 
   const message = isError
-    ? (errorMessage ?? 'Failed to fetch the diff, please try again.')
-    : state === 'parsing'
-      ? 'Parsing the patch and building the file tree…'
-      : state === 'fetching'
-        ? 'Fetching the patch from GitHub…'
-        : 'Reading the patch and showing files as they arrive…';
+    ? (errorMessage ?? "Failed to fetch the diff, please try again.")
+    : state === "parsing"
+      ? "Parsing the patch and building the file tree…"
+      : state === "fetching"
+        ? "Fetching the patch from GitHub…"
+        : "Reading the patch and showing files as they arrive…";
 
   return (
     <div
       className={cn(
-        'col-span-full flex min-h-0 items-center justify-center p-6',
-        themeChromeStyle == null && 'bg-background'
+        "col-span-full flex min-h-0 items-center justify-center p-6",
+        themeChromeStyle == null && "bg-background",
       )}
       style={themeChromeStyle}
     >
       <section
-        role={isError ? 'alert' : 'status'}
+        role={isError ? "alert" : "status"}
         aria-live="polite"
         aria-busy={!isError ? true : undefined}
         className="w-full max-w-md p-5 text-center"
@@ -65,9 +65,7 @@ export function DiffsHubStatusPanel({
           <IconCiWarningFill className="text-muted-foreground mx-auto mb-3 size-5" />
         )}
         <h2 className="text-foreground text-sm font-medium">{title}</h2>
-        <p className="text-muted-foreground mt-1 text-sm text-pretty">
-          {message}
-        </p>
+        <p className="text-muted-foreground mt-1 text-sm text-pretty">{message}</p>
         {isError && (
           <Button type="button" className="mt-4" onClick={onRetry}>
             Try again

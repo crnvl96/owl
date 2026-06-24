@@ -8,8 +8,8 @@
  * pass can compare sideBar.foreground vs editor.foreground vs theme.fg against
  * each other (the resolved/collapsed sidebar fg has already discarded that).
  */
-import type { ThemeLike } from '@pierre/theming';
-import { colorUtils, normalizeThemeColors } from '@pierre/theming/color';
+import type { ThemeLike } from "@pierre/theming";
+import { colorUtils, normalizeThemeColors } from "@pierre/theming/color";
 
 // The opinionated app-chrome token set diffshubChromeMapping maps onto its CSS
 // variables. Moved out of @pierre/theming (which now stays neutral); the shape
@@ -52,11 +52,10 @@ const cache = new WeakMap<ThemeLike, ChromeTokens | undefined>();
 // derived muted.
 function pickReadableMuted(
   bg: string | undefined,
-  mutedCandidate: string | undefined
+  mutedCandidate: string | undefined,
 ): string | undefined {
-  if (mutedCandidate == null || mutedCandidate === '') return undefined;
-  const composited =
-    colorUtils.compositeOverBg(mutedCandidate, bg) ?? mutedCandidate;
+  if (mutedCandidate == null || mutedCandidate === "") return undefined;
+  const composited = colorUtils.compositeOverBg(mutedCandidate, bg) ?? mutedCandidate;
   const compositedL = colorUtils.relativeLuminance(composited);
   const bgL = colorUtils.relativeLuminance(bg);
   if (compositedL == null || bgL == null) {
@@ -81,12 +80,12 @@ export function deriveChromeTokens(theme: ThemeLike): ChromeTokens | undefined {
   const rawColors = theme.colors ?? {};
   const resolved = normalizeThemeColors(theme).colors ?? {};
 
-  const sidebarBg = resolved['sideBar.background'];
+  const sidebarBg = resolved["sideBar.background"];
   // The contrast pass needs the raw candidate LIST (design-intent order), not
   // the collapsed sidebar fg, so it can compare each against the surface.
   const fg = colorUtils.pickReadableForeground(sidebarBg, [
-    rawColors['sideBar.foreground'],
-    rawColors['editor.foreground'],
+    rawColors["sideBar.foreground"],
+    rawColors["editor.foreground"],
     theme.fg,
   ]);
   // No foreground means no meaningful chrome.
@@ -95,17 +94,17 @@ export function deriveChromeTokens(theme: ThemeLike): ChromeTokens | undefined {
     return undefined;
   }
 
-  const editorBg = resolved['editor.background'] ?? sidebarBg;
-  const editorFg = resolved['editor.foreground'] ?? fg;
+  const editorBg = resolved["editor.background"] ?? sidebarBg;
+  const editorFg = resolved["editor.foreground"] ?? fg;
   // Cards layer the theme foreground onto its own background so they stay
   // on-palette regardless of whether the theme is "light" or "dark".
-  const cardBase = sidebarBg ?? 'transparent';
+  const cardBase = sidebarBg ?? "transparent";
   const muted =
-    pickReadableMuted(sidebarBg, rawColors['descriptionForeground']) ??
+    pickReadableMuted(sidebarBg, rawColors["descriptionForeground"]) ??
     colorUtils.deriveMutedFg(fg, sidebarBg);
   // Opaque chrome border (header bottom, sidebar edge); shares DIFF_BORDER_MIX
   // with the diff separator so the two read as one system.
-  const borderOpaque = `color-mix(in srgb, ${fg} ${DIFF_BORDER_MIX}%, ${sidebarBg ?? 'transparent'})`;
+  const borderOpaque = `color-mix(in srgb, ${fg} ${DIFF_BORDER_MIX}%, ${sidebarBg ?? "transparent"})`;
   const surfaceIsDark = colorUtils.isDarkSurface(sidebarBg, fg);
   // Hairline between diff files. When the editor surface matches the sidebar
   // (the common case) reuse the chrome border verbatim so the separator can't
@@ -117,11 +116,11 @@ export function deriveChromeTokens(theme: ThemeLike): ChromeTokens | undefined {
       : `color-mix(in srgb, ${editorFg} ${DIFF_BORDER_MIX}%, ${editorBg})`;
 
   const tokens = Object.freeze({
-    additionFg: surfaceIsDark ? '#34d399' : '#047857',
+    additionFg: surfaceIsDark ? "#34d399" : "#047857",
     background: sidebarBg ?? `color-mix(in srgb, ${fg} 7%, ${cardBase})`,
     border: `color-mix(in srgb, ${fg} 20%, transparent)`,
     borderOpaque,
-    deletionFg: surfaceIsDark ? '#fb7185' : '#be123c',
+    deletionFg: surfaceIsDark ? "#fb7185" : "#be123c",
     fg,
     mutedFg: muted,
     ring: fg,
@@ -137,7 +136,7 @@ export function deriveChromeTokens(theme: ThemeLike): ChromeTokens | undefined {
     surfaceBorder: `color-mix(in srgb, ${fg} 18%, ${cardBase})`,
     surfaceHover: `color-mix(in srgb, ${fg} 14%, ${cardBase})`,
     surfaceSelected: `color-mix(in srgb, ${fg} 20%, ${cardBase})`,
-    surfaceShadow: '0 8px 16px rgb(0 0 0 / 0.07), 0 2px 4px rgb(0 0 0 / 0.05)',
+    surfaceShadow: "0 8px 16px rgb(0 0 0 / 0.07), 0 2px 4px rgb(0 0 0 / 0.05)",
   });
   cache.set(theme, tokens);
   return tokens;

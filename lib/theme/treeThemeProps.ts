@@ -3,11 +3,11 @@
 // contrast-based foreground upgrade that diffshub relies on (preserved exactly
 // from the previous buildResolvedTheme so file rows match the chrome instead of
 // a dim sideBar.foreground).
-import { themeToTreeStyles, type TreeThemeStyles } from '@pierre/trees';
-import type { CSSProperties } from 'react';
+import { themeToTreeStyles, type TreeThemeStyles } from "@pierre/trees";
+import type { CSSProperties } from "react";
 
-import type { ChromeThemeInput } from './chromeThemeProps';
-import { deriveChromeTokens } from './deriveChromeTokens';
+import type { ChromeThemeInput } from "./chromeThemeProps";
+import { deriveChromeTokens } from "./deriveChromeTokens";
 
 export interface TreeThemePropsOptions {
   // When true, compare deriveChromeTokens(active.theme)?.fg against the theme's
@@ -20,7 +20,7 @@ export interface TreeThemePropsOptions {
 
 export function treeThemeProps(
   active: ChromeThemeInput,
-  options: TreeThemePropsOptions = {}
+  options: TreeThemePropsOptions = {},
 ): { style: TreeThemeStyles } {
   const theme = active.theme;
   if (theme == null) return { style: {} as TreeThemeStyles };
@@ -37,23 +37,23 @@ export function treeThemeProps(
     // their intended values — we only upgrade the unconditional fallbacks.
     if (
       primaryFg != null &&
-      primaryFg !== c['sideBar.foreground'] &&
-      primaryFg !== ''
+      primaryFg !== c["sideBar.foreground"] &&
+      primaryFg !== ""
     ) {
       treeStyles.color = primaryFg;
-      treeStyles['--trees-theme-sidebar-fg'] = primaryFg;
-      if (c['sideBarSectionHeader.foreground'] == null) {
-        treeStyles['--trees-theme-sidebar-header-fg'] = primaryFg;
+      treeStyles["--trees-theme-sidebar-fg"] = primaryFg;
+      if (c["sideBarSectionHeader.foreground"] == null) {
+        treeStyles["--trees-theme-sidebar-header-fg"] = primaryFg;
       }
-      if (c['list.activeSelectionForeground'] == null) {
-        treeStyles['--trees-theme-list-active-selection-fg'] = primaryFg;
+      if (c["list.activeSelectionForeground"] == null) {
+        treeStyles["--trees-theme-list-active-selection-fg"] = primaryFg;
       }
       if (
-        c['list.focusOutline'] == null &&
-        c['focusBorder'] == null &&
-        c['sideBar.foreground'] == null
+        c["list.focusOutline"] == null &&
+        c["focusBorder"] == null &&
+        c["sideBar.foreground"] == null
       ) {
-        treeStyles['--trees-theme-focus-ring'] = primaryFg;
+        treeStyles["--trees-theme-focus-ring"] = primaryFg;
       }
     }
   }

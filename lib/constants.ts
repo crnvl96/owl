@@ -1,5 +1,5 @@
-import type { CodeViewLayout } from '@pierre/diffs';
-import type { FileTreeOptions } from '@pierre/trees';
+import type { CodeViewLayout } from "@pierre/diffs";
+import type { FileTreeOptions } from "@pierre/trees";
 
 export const CODE_VIEW_LAYOUT: CodeViewLayout = {
   paddingTop: 0,
@@ -40,20 +40,18 @@ export function getInitialBatchSize(): number {
     CODE_VIEW_BATCH_COUNT_MAX,
     Math.max(
       CODE_VIEW_BATCH_COUNT,
-      Math.ceil(viewportHeight / CODE_VIEW_FILE_TREE_ITEM_HEIGHT)
-    )
+      Math.ceil(viewportHeight / CODE_VIEW_FILE_TREE_ITEM_HEIGHT),
+    ),
   );
 }
 
 function getViewportHeight(): number | null {
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     return null;
   }
 
   const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
-  return Number.isFinite(viewportHeight) && viewportHeight > 0
-    ? viewportHeight
-    : null;
+  return Number.isFinite(viewportHeight) && viewportHeight > 0 ? viewportHeight : null;
 }
 
 // Hide the built-in search input until the user opts into search via the
@@ -148,10 +146,10 @@ const FOLDER_LABEL_UNSAFE_CSS = `
 // reference stays stable and useFileTree() never churns its initial snapshot.
 export const BASE_FILE_TREE_OPTIONS = {
   flattenEmptyDirectories: true,
-  id: 'gh-code-view-tree',
-  initialExpansion: 'open',
+  id: "gh-code-view-tree",
+  initialExpansion: "open",
   presorted: true,
   search: true,
   stickyFolders: true,
   unsafeCSS: `${HIDDEN_SEARCH_UNSAFE_CSS}\n${SIDEBAR_VIRTUALIZED_SCROLL_UNSAFE_CSS}\n${SUPPRESS_FOLDER_DOT_UNSAFE_CSS}\n${FOLDER_LABEL_UNSAFE_CSS}`,
-} as const satisfies Omit<FileTreeOptions, 'paths' | 'preparedInput'>;
+} as const satisfies Omit<FileTreeOptions, "paths" | "preparedInput">;

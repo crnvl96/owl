@@ -1,11 +1,11 @@
-import { cn } from '@/lib/cn';
+import { cn } from "@/lib/cn";
 
 export function DiffsHubLogo({ className }: { className?: string }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 32 32"
-      className={cn('size-6 shrink-0', className)}
+      className={cn("size-6 shrink-0", className)}
       fill="none"
       role="img"
       aria-label="DiffsHub"

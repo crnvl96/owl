@@ -1,11 +1,11 @@
-import type { DiffLineAnnotation } from '@pierre/diffs';
-import { IconArrowRight } from '@pierre/icons';
-import { useEffect, useRef, useState } from 'react';
+import type { DiffLineAnnotation } from "@pierre/diffs";
+import { IconArrowRight } from "@pierre/icons";
+import { useEffect, useRef, useState } from "react";
 
-import { Button } from '@/components/Button';
-import { annotationCardBase } from '@/lib/annotation';
-import { cn } from '@/lib/cn';
-import type { DraftCommentMetadata } from '@/lib/types';
+import { Button } from "@/components/Button";
+import { annotationCardBase } from "@/lib/annotation";
+import { cn } from "@/lib/cn";
+import type { DraftCommentMetadata } from "@/lib/types";
 
 interface DraftAnnotationProps {
   annotation: DiffLineAnnotation<DraftCommentMetadata>;
@@ -32,7 +32,7 @@ export function DraftAnnotation({
   }
 
   function tryCancel() {
-    if (trimmedMessage.length > 0 && !window.confirm('Discard this comment?')) {
+    if (trimmedMessage.length > 0 && !window.confirm("Discard this comment?")) {
       return;
     }
     onCancel(itemId, annotation.metadata.key);
@@ -51,7 +51,7 @@ export function DraftAnnotation({
 
   return (
     <form
-      className={cn(annotationCardBase, 'flex-col md:flex-row')}
+      className={cn(annotationCardBase, "flex-col md:flex-row")}
       onSubmit={(event) => {
         event.preventDefault();
         handleSave();
@@ -63,13 +63,13 @@ export function DraftAnnotation({
           value={message}
           onChange={({ currentTarget }) => setMessage(currentTarget.value)}
           onKeyDown={(event) => {
-            if (event.key === 'Escape') {
+            if (event.key === "Escape") {
               event.preventDefault();
               tryCancel();
               return;
             }
 
-            if ((!event.shiftKey && !event.metaKey) || event.key !== 'Enter') {
+            if ((!event.shiftKey && !event.metaKey) || event.key !== "Enter") {
               return;
             }
 

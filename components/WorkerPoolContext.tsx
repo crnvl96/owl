@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { DEFAULT_THEMES } from '@pierre/diffs';
+import { DEFAULT_THEMES } from "@pierre/diffs";
 import {
   type WorkerInitializationRenderOptions,
   WorkerPoolContextProvider,
   type WorkerPoolOptions,
-} from '@pierre/diffs/react';
-import type { ReactNode } from 'react';
+} from "@pierre/diffs/react";
+import type { ReactNode } from "react";
 
 function isMobileBrowser(): boolean {
   const navigator = global.navigator;
@@ -16,14 +16,13 @@ function isMobileBrowser(): boolean {
 
   return (
     navigator.maxTouchPoints > 0 &&
-    global.matchMedia?.('(max-width: 767px), (pointer: coarse)').matches ===
-      true
+    global.matchMedia?.("(max-width: 767px), (pointer: coarse)").matches === true
   );
 }
 
 function getWorkerResourceLimits(): Pick<
   Required<WorkerPoolOptions>,
-  'poolSize' | 'totalASTLRUCacheSize'
+  "poolSize" | "totalASTLRUCacheSize"
 > {
   return isMobileBrowser()
     ? { poolSize: 1, totalASTLRUCacheSize: 10 }
@@ -36,13 +35,11 @@ const PoolOptions: WorkerPoolOptions = {
   // We really shouldn't let the pool get too big...
   poolSize: Math.min(
     Math.max(1, (global.navigator?.hardwareConcurrency ?? 1) - 1),
-    WorkerResourceLimits.poolSize
+    WorkerResourceLimits.poolSize,
   ),
   totalASTLRUCacheSize: WorkerResourceLimits.totalASTLRUCacheSize,
   workerFactory() {
-    return new Worker(
-      new URL('@pierre/diffs/worker/worker.js', import.meta.url)
-    );
+    return new Worker(new URL("@pierre/diffs/worker/worker.js", import.meta.url));
   },
 };
 
@@ -52,18 +49,18 @@ const HighlighterOptions: WorkerInitializationRenderOptions = {
   // every site initializes the pool with the same defaults.
   theme: DEFAULT_THEMES,
   langs: [
-    'cpp',
-    'css',
-    'go',
-    'python',
-    'rust',
-    'sh',
-    'swift',
-    'tsx',
-    'typescript',
-    'zig',
+    "cpp",
+    "css",
+    "go",
+    "python",
+    "rust",
+    "sh",
+    "swift",
+    "tsx",
+    "typescript",
+    "zig",
   ],
-  preferredHighlighter: 'shiki-wasm',
+  preferredHighlighter: "shiki-wasm",
 };
 
 interface WorkerPoolProps {

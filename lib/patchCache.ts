@@ -12,9 +12,6 @@ export function getCachedPatchText(githubPath: string): string | undefined {
   return patchTextByGitHubPath.get(githubPath);
 }
 
-export function setCachedPatchText(
-  githubPath: string,
-  patchText: string
-): void {
+export function setCachedPatchText(githubPath: string, patchText: string): void {
   patchTextByGitHubPath.set(githubPath, patchText);
 }

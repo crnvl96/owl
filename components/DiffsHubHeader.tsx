@@ -1,9 +1,4 @@
-import {
-  type Dispatch,
-  memo,
-  type SetStateAction,
-  useMemo,
-} from 'react';
+import { type Dispatch, memo, type SetStateAction, useMemo } from "react";
 import {
   IconCollapsedRow,
   IconDiffSplit,
@@ -11,41 +6,41 @@ import {
   IconExpandAll,
   IconFileTreeFill,
   IconGearFill,
-} from '@pierre/icons';
+} from "@pierre/icons";
 
-import { CHROME_ICON_BUTTON_CLASS } from './chromeButtonStyles';
-import { DiffsHubDiffModePicker } from './DiffsHubDiffModePicker';
-import { DiffsHubLogo } from './DiffsHubLogo';
-import { useChromeThemeProps } from './useChromeThemeProps';
-import { Button } from '@/components/Button';
+import { CHROME_ICON_BUTTON_CLASS } from "./chromeButtonStyles";
+import { DiffsHubDiffModePicker } from "./DiffsHubDiffModePicker";
+import { DiffsHubLogo } from "./DiffsHubLogo";
+import { useChromeThemeProps } from "./useChromeThemeProps";
+import { Button } from "@/components/Button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/DropdownMenu';
-import { Switch } from '@/components/Switch';
-import { cn } from '@/lib/cn';
-import { diffshubChromeMapping } from '@/lib/theme/diffshubChromeMapping';
-import { getDropdownThemeStyle } from '@/lib/theme/dropdownChromeStyle';
-import type { DiffSource } from '@/lib/types';
+} from "@/components/DropdownMenu";
+import { Switch } from "@/components/Switch";
+import { cn } from "@/lib/cn";
+import { diffshubChromeMapping } from "@/lib/theme/diffshubChromeMapping";
+import { getDropdownThemeStyle } from "@/lib/theme/dropdownChromeStyle";
+import type { DiffSource } from "@/lib/types";
 
 const SETTING_ROW_CLASS =
-  'w-full flex cursor-pointer items-center justify-between gap-4 px-2 py-1.5 text-sm';
+  "w-full flex cursor-pointer items-center justify-between gap-4 px-2 py-1.5 text-sm";
 
 interface HeaderProps {
   className?: string;
-  collapseMode: 'expanded' | 'collapsed';
+  collapseMode: "expanded" | "collapsed";
   diffSource: DiffSource;
-  diffStyle: 'split' | 'unified';
+  diffStyle: "split" | "unified";
   fileTreeAvailable: boolean;
   fileTreeOverlayOpen: boolean;
-  overflow: 'wrap' | 'scroll';
+  overflow: "wrap" | "scroll";
   onSelectDiffSource(source: DiffSource): void;
   onToggleCollapseMode(): void;
   onToggleFileTreeOverlay(): void;
-  setDiffStyle: Dispatch<SetStateAction<'split' | 'unified'>>;
-  setOverflow: Dispatch<SetStateAction<'wrap' | 'scroll'>>;
+  setDiffStyle: Dispatch<SetStateAction<"split" | "unified">>;
+  setOverflow: Dispatch<SetStateAction<"wrap" | "scroll">>;
 }
 
 export const DiffsHubHeader = memo(function DiffsHubHeader({
@@ -71,15 +66,14 @@ export const DiffsHubHeader = memo(function DiffsHubHeader({
     Object.keys(headerChromeStyle).length > 0 ? headerChromeStyle : undefined;
   const dropdownThemeStyle = useMemo(
     () => getDropdownThemeStyle(themeChromeStyle),
-    [themeChromeStyle]
+    [themeChromeStyle],
   );
   return (
     <div
       className={cn(
-        'z-10 contain-layout contain-paint flex flex-wrap md:flex-nowrap items-center gap-2.5 pt-3 pb-2 px-4 md:px-3 md:py-1.5 border-b border-[var(--color-border-opaque)]',
-        themeChromeStyle == null &&
-          'bg-background md:bg-[var(--diffshub-sidebar-bg)]',
-        className
+        "z-10 contain-layout contain-paint flex flex-wrap md:flex-nowrap items-center gap-2.5 pt-3 pb-2 px-4 md:px-3 md:py-1.5 border-b border-[var(--color-border-opaque)]",
+        themeChromeStyle == null && "bg-background md:bg-[var(--diffshub-sidebar-bg)]",
+        className,
       )}
       style={themeChromeStyle}
     >
@@ -96,8 +90,8 @@ export const DiffsHubHeader = memo(function DiffsHubHeader({
           size="icon-md"
           aria-pressed={fileTreeOverlayOpen}
           disabled={!fileTreeAvailable}
-          title={fileTreeOverlayOpen ? 'Hide file tree' : 'Show file tree'}
-          className={cn(CHROME_ICON_BUTTON_CLASS, 'md:hidden')}
+          title={fileTreeOverlayOpen ? "Hide file tree" : "Show file tree"}
+          className={cn(CHROME_ICON_BUTTON_CLASS, "md:hidden")}
           onClick={onToggleFileTreeOverlay}
         >
           <IconFileTreeFill className="size-4 md:size-3" />
@@ -115,16 +109,14 @@ export const DiffsHubHeader = memo(function DiffsHubHeader({
               variant="ghost"
               size="icon-md"
               title={
-                diffStyle === 'split'
-                  ? 'Switch to unified view'
-                  : 'Switch to split view'
+                diffStyle === "split"
+                  ? "Switch to unified view"
+                  : "Switch to split view"
               }
-              className={cn(CHROME_ICON_BUTTON_CLASS, 'hidden md:flex')}
-              onClick={() =>
-                setDiffStyle(diffStyle === 'split' ? 'unified' : 'split')
-              }
+              className={cn(CHROME_ICON_BUTTON_CLASS, "hidden md:flex")}
+              onClick={() => setDiffStyle(diffStyle === "split" ? "unified" : "split")}
             >
-              {diffStyle === 'split' ? (
+              {diffStyle === "split" ? (
                 <IconDiffSplit className="size-4 md:size-3" />
               ) : (
                 <IconDiffUnified className="size-4 md:size-3" />
@@ -134,16 +126,14 @@ export const DiffsHubHeader = memo(function DiffsHubHeader({
               type="button"
               variant="ghost"
               size="icon-md"
-              aria-pressed={collapseMode === 'collapsed'}
+              aria-pressed={collapseMode === "collapsed"}
               title={
-                collapseMode === 'expanded'
-                  ? 'Collapse all files'
-                  : 'Expand all files'
+                collapseMode === "expanded" ? "Collapse all files" : "Expand all files"
               }
               className={CHROME_ICON_BUTTON_CLASS}
               onClick={onToggleCollapseMode}
             >
-              {collapseMode === 'expanded' ? (
+              {collapseMode === "expanded" ? (
                 <IconExpandAll className="size-4 md:size-3" />
               ) : (
                 <IconCollapsedRow className="size-4 md:size-3" />
@@ -173,9 +163,9 @@ export const DiffsHubHeader = memo(function DiffsHubHeader({
                   <label className={SETTING_ROW_CLASS}>
                     <span className="min-w-0 flex-1">Word wrap</span>
                     <Switch
-                      checked={overflow === 'wrap'}
+                      checked={overflow === "wrap"}
                       onCheckedChange={(checked) =>
-                        setOverflow(checked ? 'wrap' : 'scroll')
+                        setOverflow(checked ? "wrap" : "scroll")
                       }
                     />
                   </label>

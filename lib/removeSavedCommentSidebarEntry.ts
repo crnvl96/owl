@@ -1,11 +1,8 @@
-import type {
-  DiffsHubDeletedCommentEvent,
-  DiffsHubSavedCommentItem,
-} from './types';
+import type { DiffsHubDeletedCommentEvent, DiffsHubSavedCommentItem } from "./types";
 
 export function removeSavedCommentSidebarEntry(
   sections: readonly DiffsHubSavedCommentItem[],
-  entry: DiffsHubDeletedCommentEvent
+  entry: DiffsHubDeletedCommentEvent,
 ): DiffsHubSavedCommentItem[] {
   let sectionIndex = -1;
   for (let index = 0; index < sections.length; index++) {
@@ -24,9 +21,7 @@ export function removeSavedCommentSidebarEntry(
     return sections.slice();
   }
 
-  const nextComments = section.comments.filter(
-    (comment) => comment.key !== entry.key
-  );
+  const nextComments = section.comments.filter((comment) => comment.key !== entry.key);
   if (nextComments.length === section.comments.length) {
     return sections.slice();
   }

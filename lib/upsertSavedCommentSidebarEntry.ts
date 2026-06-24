@@ -1,15 +1,15 @@
-import { insertCommentInLineOrder } from './insertCommentInLineOrder';
+import { insertCommentInLineOrder } from "./insertCommentInLineOrder";
 import type {
   DiffsHubCommentFileByItemId,
   DiffsHubSavedCommentEntry,
   DiffsHubSavedCommentEvent,
   DiffsHubSavedCommentItem,
-} from './types';
+} from "./types";
 
 export function upsertSavedCommentSidebarEntry(
   sections: readonly DiffsHubSavedCommentItem[],
   commentFileByItemId: DiffsHubCommentFileByItemId | null,
-  entry: DiffsHubSavedCommentEvent
+  entry: DiffsHubSavedCommentEvent,
 ): DiffsHubSavedCommentItem[] {
   const file = commentFileByItemId?.get(entry.itemId);
   if (file == null) {

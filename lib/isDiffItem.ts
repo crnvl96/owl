@@ -1,9 +1,9 @@
-import type { CodeViewDiffItem, CodeViewItem } from '@pierre/diffs';
+import type { CodeViewDiffItem, CodeViewItem } from "@pierre/diffs";
 
-import type { CommentMetadata } from './types';
+import type { CommentMetadata } from "./types";
 
 export function isDiffItem(
-  item: CodeViewItem<CommentMetadata>
+  item: CodeViewItem<CommentMetadata>,
 ): item is CodeViewDiffItem<CommentMetadata> {
-  return item.type === 'diff';
+  return item.type === "diff";
 }

@@ -2,7 +2,7 @@ import type {
   CodeViewLineSelection,
   SelectedLineRange,
   SelectionSide,
-} from '@pierre/diffs';
+} from "@pierre/diffs";
 
 interface LineHashPoint {
   lineNumber: number;
@@ -16,22 +16,20 @@ export interface DiffsHubLineHashTarget {
 
 const LINE_POINT_PATTERN = /^([AD])(\d+)$/;
 
-export function parseDiffsHubLineHash(
-  hash: string
-): DiffsHubLineHashTarget | null {
-  const text = hash.startsWith('#') ? hash.slice(1) : hash;
+export function parseDiffsHubLineHash(hash: string): DiffsHubLineHashTarget | null {
+  const text = hash.startsWith("#") ? hash.slice(1) : hash;
   if (text.length === 0) {
     return null;
   }
 
   const params = new URLSearchParams(text);
-  const itemId = params.get('target');
-  const startPoint = parseLineHashPoint(params.get('start'));
+  const itemId = params.get("target");
+  const startPoint = parseLineHashPoint(params.get("start"));
   if (itemId == null || itemId.length === 0 || startPoint == null) {
     return null;
   }
 
-  const endParam = params.get('end');
+  const endParam = params.get("end");
   const endPoint = endParam == null ? startPoint : parseLineHashPoint(endParam);
   if (endPoint == null) {
     return null;
@@ -44,19 +42,16 @@ export function parseDiffsHubLineHash(
 }
 
 export function formatDiffsHubLineHash(
-  selection: CodeViewLineSelection
+  selection: CodeViewLineSelection,
 ): string | null {
   if (selection.id.length === 0) {
     return null;
   }
 
-  const startPoint = createLineHashPoint(
-    selection.range.start,
-    selection.range.side
-  );
+  const startPoint = createLineHashPoint(selection.range.start, selection.range.side);
   const endPoint = createLineHashPoint(
     selection.range.end,
-    selection.range.endSide ?? selection.range.side
+    selection.range.endSide ?? selection.range.side,
   );
   if (startPoint == null || endPoint == null) {
     return null;
@@ -70,7 +65,7 @@ export function formatDiffsHubLineHash(
     params.push(`end=${formatLineHashPoint(endPoint)}`);
   }
 
-  return `#${params.join('&')}`;
+  return `#${params.join("&")}`;
 }
 
 function parseLineHashPoint(value: string | null): LineHashPoint | null {
@@ -84,7 +79,7 @@ function parseLineHashPoint(value: string | null): LineHashPoint | null {
   }
 
   const side = parseLineHashSide(match[1]);
-  const lineNumber = Number.parseInt(match[2] ?? '', 10);
+  const lineNumber = Number.parseInt(match[2] ?? "", 10);
   if (side == null || !Number.isSafeInteger(lineNumber) || lineNumber < 1) {
     return null;
   }
@@ -94,10 +89,10 @@ function parseLineHashPoint(value: string | null): LineHashPoint | null {
 
 function parseLineHashSide(value: string | undefined): SelectionSide | null {
   switch (value) {
-    case 'A':
-      return 'additions';
-    case 'D':
-      return 'deletions';
+    case "A":
+      return "additions";
+    case "D":
+      return "deletions";
     default:
       return null;
   }
@@ -105,7 +100,7 @@ function parseLineHashSide(value: string | undefined): SelectionSide | null {
 
 function createSelectedLineRange(
   startPoint: LineHashPoint,
-  endPoint: LineHashPoint
+  endPoint: LineHashPoint,
 ): SelectedLineRange {
   return {
     start: startPoint.lineNumber,
@@ -117,7 +112,7 @@ function createSelectedLineRange(
 
 function createLineHashPoint(
   lineNumber: number,
-  side: SelectionSide | undefined
+  side: SelectionSide | undefined,
 ): LineHashPoint | null {
   if (!Number.isSafeInteger(lineNumber) || lineNumber < 1 || side == null) {
     return null;
@@ -127,18 +122,13 @@ function createLineHashPoint(
 }
 
 function formatLineHashPoint(point: LineHashPoint): string {
-  return `${point.side === 'deletions' ? 'D' : 'A'}${point.lineNumber}`;
+  return `${point.side === "deletions" ? "D" : "A"}${point.lineNumber}`;
 }
 
 function encodeHashValue(value: string): string {
-  return encodeURIComponent(value)
-    .replaceAll('%2F', '/')
-    .replaceAll('%3F', '?');
+  return encodeURIComponent(value).replaceAll("%2F", "/").replaceAll("%3F", "?");
 }
 
-function areLineHashPointsEqual(
-  left: LineHashPoint,
-  right: LineHashPoint
-): boolean {
+function areLineHashPointsEqual(left: LineHashPoint, right: LineHashPoint): boolean {
   return left.lineNumber === right.lineNumber && left.side === right.side;
 }

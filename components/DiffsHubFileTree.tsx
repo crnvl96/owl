@@ -1,25 +1,22 @@
-'use client';
+"use client";
 
-import { useStableCallback } from '@pierre/diffs/react';
+import { useStableCallback } from "@pierre/diffs/react";
 import type {
   FileTreeBatchOperation,
   FileTree as FileTreeModel,
   FileTreeOptions,
-} from '@pierre/trees';
-import { useFileTree } from '@pierre/trees/react';
-import { type CSSProperties, memo, useEffect, useRef, useState } from 'react';
+} from "@pierre/trees";
+import { useFileTree } from "@pierre/trees/react";
+import { type CSSProperties, memo, useEffect, useRef, useState } from "react";
 
-import { ThemedFileTree } from './ThemedFileTree';
+import { ThemedFileTree } from "./ThemedFileTree";
 import {
   BASE_FILE_TREE_OPTIONS,
   CODE_VIEW_FILE_TREE_ITEM_HEIGHT,
   getInitialBatchSize,
-} from '@/lib/constants';
-import type { DiffsHubFileTreeSource } from '@/lib/types';
-type FileTreeSortComparator = Exclude<
-  NonNullable<FileTreeOptions['sort']>,
-  'default'
->;
+} from "@/lib/constants";
+import type { DiffsHubFileTreeSource } from "@/lib/types";
+type FileTreeSortComparator = Exclude<NonNullable<FileTreeOptions["sort"]>, "default">;
 // Keeps @pierre/trees from applying its default semantic sort so the sidebar
 // follows the same patch path sequence that drives the code view.
 const PRESERVE_INPUT_ORDER_SORT: FileTreeSortComparator = () => 0;
@@ -30,9 +27,9 @@ const PRESERVE_INPUT_ORDER_SORT: FileTreeSortComparator = () => 0;
 // which theme the user picks. `--trees-git-renamed-color-override` is kept
 // because most Shiki themes don't define a "renamed" decoration color.
 const DENSITY_OVERRIDE_STYLES = {
-  '--trees-density-override': 0.8,
-  '--trees-padding-inline-override': 8,
-  '--trees-git-renamed-color-override': 'light-dark(#007aff, #007aff)',
+  "--trees-density-override": 0.8,
+  "--trees-padding-inline-override": 8,
+  "--trees-git-renamed-color-override": "light-dark(#007aff, #007aff)",
 } as CSSProperties;
 
 interface DiffsHubFileTreeProps {
@@ -61,18 +58,16 @@ export const DiffsHubFileTree = memo(function DiffsHubFileTree({
   // ever-growing live array.
   const initialPathsRef = useRef<readonly string[] | null>(null);
   initialPathsRef.current ??= source.paths.slice(0, source.pathCount);
-  const onSelectionChange = useStableCallback(
-    (selectedPaths: readonly string[]) => {
-      if (selectedPaths.length !== 1 || onSelectItem == null) {
-        return;
-      }
-      const [path] = selectedPaths;
-      const itemId = sourceRef.current.pathToItemId.get(path);
-      if (itemId != null) {
-        onSelectItem(itemId);
-      }
+  const onSelectionChange = useStableCallback((selectedPaths: readonly string[]) => {
+    if (selectedPaths.length !== 1 || onSelectItem == null) {
+      return;
     }
-  );
+    const [path] = selectedPaths;
+    const itemId = sourceRef.current.pathToItemId.get(path);
+    if (itemId != null) {
+      onSelectItem(itemId);
+    }
+  });
 
   const { model } = useFileTree({
     ...BASE_FILE_TREE_OPTIONS,
@@ -103,15 +98,12 @@ export const DiffsHubFileTree = memo(function DiffsHubFileTree({
     // Both snapshots alias the live accumulator's paths array, so we read the
     // delta bounds from each snapshot's captured `pathCount` instead of the
     // shared array's current length.
-    if (
-      source.previousSource != null &&
-      source.previousSource === previousSource
-    ) {
+    if (source.previousSource != null && source.previousSource === previousSource) {
       const previousPathCount = previousSource.pathCount;
       if (source.pathCount > previousPathCount) {
         const operations: FileTreeBatchOperation[] = [];
         for (let index = previousPathCount; index < source.pathCount; index++) {
-          operations.push({ type: 'add', path: source.paths[index] });
+          operations.push({ type: "add", path: source.paths[index] });
         }
         if (operations.length > 0) {
           model.batch(operations);

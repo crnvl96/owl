@@ -1,14 +1,13 @@
-import { COMMIT_HASH_METADATA_PATTERN } from './gitPatchMetadata';
+import { COMMIT_HASH_METADATA_PATTERN } from "./gitPatchMetadata";
 
-const GIT_FILE_BOUNDARY = 'diff --git ';
+const GIT_FILE_BOUNDARY = "diff --git ";
 const GIT_FILE_BOUNDARY_WITH_NEWLINE = `\n${GIT_FILE_BOUNDARY}`;
-const GIT_FILE_BOUNDARY_SCAN_OVERLAP =
-  GIT_FILE_BOUNDARY_WITH_NEWLINE.length - 1;
+const GIT_FILE_BOUNDARY_SCAN_OVERLAP = GIT_FILE_BOUNDARY_WITH_NEWLINE.length - 1;
 const NON_WHITESPACE_PATTERN = /\S/;
 
 export async function streamGitPatchFiles(
   body: ReadableStream<Uint8Array>,
-  onFileText: (fileText: string) => Promise<void>
+  onFileText: (fileText: string) => Promise<void>,
 ): Promise<string | undefined> {
   const reader = body.getReader();
   const decoder = new TextDecoder();
@@ -68,7 +67,7 @@ interface GitPatchFileStreamParser {
 
 async function consumeAvailableStreamedFiles(
   parser: GitPatchFileStreamParser,
-  onFileText: (fileText: string) => Promise<void>
+  onFileText: (fileText: string) => Promise<void>,
 ): Promise<void> {
   let fileText: string | undefined;
   while ((fileText = parser.takeAvailableFile()) != null) {
@@ -79,7 +78,7 @@ async function consumeAvailableStreamedFiles(
 // Buffers the current file until the following `diff --git` header arrives so
 // each parsed file is complete before it is appended to the viewer.
 function createGitPatchFileStreamParser(): GitPatchFileStreamParser {
-  let buffer = '';
+  let buffer = "";
   let currentFileBoundaryIndex: number | undefined;
   let nextBoundarySearchIndex = 0;
   let sawFileBoundary = false;
@@ -88,7 +87,7 @@ function createGitPatchFileStreamParser(): GitPatchFileStreamParser {
     if (currentFileBoundaryIndex == null) {
       currentFileBoundaryIndex = findNextGitFileBoundary(
         buffer,
-        nextBoundarySearchIndex
+        nextBoundarySearchIndex,
       );
       if (currentFileBoundaryIndex == null) {
         nextBoundarySearchIndex = getNextBoundarySearchIndex(buffer, 0);
@@ -107,12 +106,12 @@ function createGitPatchFileStreamParser(): GitPatchFileStreamParser {
 
       const nextBoundaryIndex = findNextGitFileBoundary(
         buffer,
-        nextBoundarySearchIndex
+        nextBoundarySearchIndex,
       );
       if (nextBoundaryIndex == null) {
         nextBoundarySearchIndex = getNextBoundarySearchIndex(
           buffer,
-          fileBoundaryIndex + 1
+          fileBoundaryIndex + 1,
         );
         return undefined;
       }
@@ -120,7 +119,7 @@ function createGitPatchFileStreamParser(): GitPatchFileStreamParser {
       const splitIndex = getStreamedFileSplitIndex(
         buffer,
         fileBoundaryIndex,
-        nextBoundaryIndex
+        nextBoundaryIndex,
       );
       const fileText = buffer.slice(0, splitIndex);
 
@@ -149,63 +148,51 @@ function createGitPatchFileStreamParser(): GitPatchFileStreamParser {
       }
 
       if (!NON_WHITESPACE_PATTERN.test(buffer)) {
-        buffer = '';
+        buffer = "";
         return {};
       }
       if (!sawFileBoundary) {
         const fullPatchText = buffer;
-        buffer = '';
+        buffer = "";
         return { fallbackPatchContent: fullPatchText };
       }
 
       const finalFileText = buffer;
-      buffer = '';
+      buffer = "";
       return { fileText: finalFileText };
     },
   };
 }
 
-function getNextBoundarySearchIndex(
-  text: string,
-  minimumIndex: number
-): number {
+function getNextBoundarySearchIndex(text: string, minimumIndex: number): number {
   return Math.max(minimumIndex, text.length - GIT_FILE_BOUNDARY_SCAN_OVERLAP);
 }
 
-function findNextGitFileBoundary(
-  text: string,
-  fromIndex: number
-): number | undefined {
+function findNextGitFileBoundary(text: string, fromIndex: number): number | undefined {
   const startIndex = Math.max(fromIndex, 0);
   if (startIndex === 0 && text.startsWith(GIT_FILE_BOUNDARY)) {
     return 0;
   }
 
-  const boundaryIndex = text.indexOf(
-    GIT_FILE_BOUNDARY_WITH_NEWLINE,
-    startIndex
-  );
+  const boundaryIndex = text.indexOf(GIT_FILE_BOUNDARY_WITH_NEWLINE, startIndex);
   return boundaryIndex === -1 ? undefined : boundaryIndex + 1;
 }
 
 function getStreamedFileSplitIndex(
   text: string,
   firstBoundaryIndex: number,
-  nextBoundaryIndex: number
+  nextBoundaryIndex: number,
 ): number {
   return (
-    findLastCommitMetadataBoundary(
-      text,
-      firstBoundaryIndex + 1,
-      nextBoundaryIndex
-    ) ?? nextBoundaryIndex
+    findLastCommitMetadataBoundary(text, firstBoundaryIndex + 1, nextBoundaryIndex) ??
+    nextBoundaryIndex
   );
 }
 
 function findLastCommitMetadataBoundary(
   text: string,
   startIndex: number,
-  endIndex: number
+  endIndex: number,
 ): number | undefined {
   const minimumBoundaryIndex = Math.max(startIndex, 0);
   const maximumBoundaryIndex = Math.min(endIndex, text.length);
@@ -213,7 +200,7 @@ function findLastCommitMetadataBoundary(
     return undefined;
   }
 
-  let newlineIndex = text.lastIndexOf('\nFrom ', maximumBoundaryIndex - 1);
+  let newlineIndex = text.lastIndexOf("\nFrom ", maximumBoundaryIndex - 1);
   for (;;) {
     if (newlineIndex === -1) {
       return undefined;
@@ -224,20 +211,20 @@ function findLastCommitMetadataBoundary(
       return undefined;
     }
     if (boundaryIndex >= maximumBoundaryIndex) {
-      newlineIndex = text.lastIndexOf('\nFrom ', newlineIndex - 1);
+      newlineIndex = text.lastIndexOf("\nFrom ", newlineIndex - 1);
       continue;
     }
 
-    const lineEndIndex = text.indexOf('\n', boundaryIndex + 1);
+    const lineEndIndex = text.indexOf("\n", boundaryIndex + 1);
     const line = text.slice(
       boundaryIndex,
       lineEndIndex === -1 || lineEndIndex > maximumBoundaryIndex
         ? maximumBoundaryIndex
-        : lineEndIndex
+        : lineEndIndex,
     );
     if (COMMIT_HASH_METADATA_PATTERN.test(line)) {
       return boundaryIndex;
     }
-    newlineIndex = text.lastIndexOf('\nFrom ', newlineIndex - 1);
+    newlineIndex = text.lastIndexOf("\nFrom ", newlineIndex - 1);
   }
 }

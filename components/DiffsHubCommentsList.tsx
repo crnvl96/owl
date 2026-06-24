@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import type { AnnotationSide } from '@pierre/diffs';
-import { IconConvoFill, IconPlus } from '@pierre/icons';
-import { memo, type MouseEvent } from 'react';
+import type { AnnotationSide } from "@pierre/diffs";
+import { IconConvoFill, IconPlus } from "@pierre/icons";
+import { memo, type MouseEvent } from "react";
 
-import { cn } from '@/lib/cn';
+import { cn } from "@/lib/cn";
 import type {
   CommentLineType,
   DiffsHubSavedCommentEntry,
   DiffsHubSavedCommentItem,
-} from '@/lib/types';
+} from "@/lib/types";
 
 interface DiffsHubCommentsListProps {
   commentSections: readonly DiffsHubSavedCommentItem[];
@@ -20,21 +20,21 @@ interface DiffsHubCommentsListProps {
 function getCommentLineLabel(
   side: AnnotationSide,
   lineNumber: number,
-  lineType: CommentLineType
+  lineType: CommentLineType,
 ): string {
-  if (lineType === 'context') {
+  if (lineType === "context") {
     return `Line ${lineNumber}`;
   }
-  const sigil = side === 'additions' ? '+' : '-';
+  const sigil = side === "additions" ? "+" : "-";
   return `Line ${sigil}${lineNumber}`;
 }
 
 function getCommentLineClassName(
   side: AnnotationSide,
-  lineType: CommentLineType
+  lineType: CommentLineType,
 ): string {
-  if (lineType === 'context') {
-    return 'text-muted-foreground';
+  if (lineType === "context") {
+    return "text-muted-foreground";
   }
   // The themed chrome sets --diffshub-comment-add-fg / -del-fg with a shade
   // chosen from the active Shiki surface's luminance, so addition/deletion
@@ -43,9 +43,9 @@ function getCommentLineClassName(
   // `dark:` variant would otherwise leave us with low-contrast 700 shades
   // on a dark card). The Tailwind shades stay as fallbacks for the
   // first-render window before the chrome style applies.
-  return side === 'additions'
-    ? 'text-[var(--diffshub-comment-add-fg,#047857)] dark:text-[var(--diffshub-comment-add-fg,#34d399)]'
-    : 'text-[var(--diffshub-comment-del-fg,#be123c)] dark:text-[var(--diffshub-comment-del-fg,#fb7185)]';
+  return side === "additions"
+    ? "text-[var(--diffshub-comment-add-fg,#047857)] dark:text-[var(--diffshub-comment-add-fg,#34d399)]"
+    : "text-[var(--diffshub-comment-del-fg,#be123c)] dark:text-[var(--diffshub-comment-del-fg,#fb7185)]";
 }
 
 // Wraps a click handler so users can drag-select text inside the row without
@@ -53,21 +53,16 @@ function getCommentLineClassName(
 // button; bail out only when the resulting selection is anchored inside this
 // row, so a pre-existing selection elsewhere on the page (e.g. in the diff
 // viewer) does not block keyboard/mouse activation of the row.
-function handleRowClick(
-  event: MouseEvent<HTMLButtonElement>,
-  run: () => void
-): void {
+function handleRowClick(event: MouseEvent<HTMLButtonElement>, run: () => void): void {
   if (event.button !== 0) {
     return;
   }
-  const selection =
-    typeof window !== 'undefined' ? window.getSelection() : null;
+  const selection = typeof window !== "undefined" ? window.getSelection() : null;
   if (selection != null && selection.toString().length > 0) {
     const row = event.currentTarget;
     const anchorInRow =
       selection.anchorNode != null && row.contains(selection.anchorNode);
-    const focusInRow =
-      selection.focusNode != null && row.contains(selection.focusNode);
+    const focusInRow = selection.focusNode != null && row.contains(selection.focusNode);
     if (anchorInRow || focusInRow) {
       event.preventDefault();
       return;
@@ -88,10 +83,10 @@ export const DiffsHubCommentsList = memo(function DiffsHubCommentsList({
         <div className="flex flex-col">
           <strong className="font-medium">No comments yet</strong>
           <p>
-            Hover over a line and click the{' '}
+            Hover over a line and click the{" "}
             <span className="light:text-white light:bg-[rgb(0,159,255)] inline-flex h-[20px] w-[20px] items-center justify-center rounded-[4px] align-top dark:bg-[rgb(0,159,255)] dark:text-black">
               <IconPlus />
-            </span>{' '}
+            </span>{" "}
             button to add fake code comments.
           </p>
         </div>
@@ -102,8 +97,8 @@ export const DiffsHubCommentsList = memo(function DiffsHubCommentsList({
   return (
     <div
       className={cn(
-        'cv-mini-scrollbar',
-        'h-full min-h-0 overflow-auto overscroll-contain pl-3 pb-3 pr-[max(0px,calc(12px-var(--cv-mini-gutter-vertical)))]'
+        "cv-mini-scrollbar",
+        "h-full min-h-0 overflow-auto overscroll-contain pl-3 pb-3 pr-[max(0px,calc(12px-var(--cv-mini-gutter-vertical)))]",
       )}
     >
       {commentSections.map((section) => (
@@ -147,17 +142,17 @@ export const DiffsHubCommentsList = memo(function DiffsHubCommentsList({
               >
                 <div className="flex min-w-0 flex-1 flex-col items-start gap-0.5 select-text">
                   <div className="text-muted-foreground flex gap-1">
-                    Commented on{' '}
+                    Commented on{" "}
                     <span
                       className={cn(
                         getCommentLineClassName(comment.side, comment.lineType),
-                        'font-medium'
+                        "font-medium",
                       )}
                     >
                       {getCommentLineLabel(
                         comment.side,
                         comment.lineNumber,
-                        comment.lineType
+                        comment.lineType,
                       )}
                     </span>
                   </div>

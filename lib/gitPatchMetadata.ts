@@ -5,7 +5,7 @@ const commitPrefixDecoder = new TextDecoder();
 
 export function getPatchTreePathPrefix(
   patchMetadata: string | undefined,
-  patchIndex: number
+  patchIndex: number,
 ): string {
   const commitHash = patchMetadata?.match(COMMIT_HASH_METADATA_PATTERN)?.[1];
   return commitHash != null

@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
 import {
   createThemeResolver,
   type ThemeLike,
   type ThemeResolver,
-} from '@pierre/theming';
-import { shikiThemes } from '@pierre/theming/themes';
-import { useEffect, useState } from 'react';
+} from "@pierre/theming";
+import { shikiThemes } from "@pierre/theming/themes";
+import { useEffect, useState } from "react";
 
-import { ACTIVE_THEME_NAME } from '@/lib/theme/activeTheme';
+import { ACTIVE_THEME_NAME } from "@/lib/theme/activeTheme";
 
 // One resolver per process. The Shiki collection carries the theme loaders
 // (dynamic imports of each `@shikijs/themes/*` package); registerInto wires
@@ -30,7 +30,7 @@ function getSharedResolver(): ThemeResolver {
 export function useActiveTheme(): ThemeLike | undefined {
   const resolver = getSharedResolver();
   const [theme, setTheme] = useState<ThemeLike | undefined>(() =>
-    resolver.getResolvedTheme(ACTIVE_THEME_NAME)
+    resolver.getResolvedTheme(ACTIVE_THEME_NAME),
   );
   useEffect(() => {
     if (theme != null) return;

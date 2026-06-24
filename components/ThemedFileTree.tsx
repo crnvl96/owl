@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { FileTree, type FileTreeProps } from '@pierre/trees/react';
-import type { CSSProperties } from 'react';
-import { useMemo } from 'react';
+import { FileTree, type FileTreeProps } from "@pierre/trees/react";
+import type { CSSProperties } from "react";
+import { useMemo } from "react";
 
-import { useTreeThemeProps } from './useTreeThemeProps';
+import { useTreeThemeProps } from "./useTreeThemeProps";
 
 interface ThemedFileTreeProps extends FileTreeProps {
   // Preserves the contrast-based foreground upgrade the file rows depend on.
@@ -21,7 +21,7 @@ export function ThemedFileTree({
   const themeProps = useTreeThemeProps({ reconcileForegroundFromChrome });
   const mergedStyle = useMemo(
     () => ({ ...themeProps.style, ...style }) as CSSProperties,
-    [themeProps.style, style]
+    [themeProps.style, style],
   );
   return <FileTree {...props} style={mergedStyle} />;
 }

@@ -2,11 +2,11 @@
 // style. Runs deriveChromeTokens on the active theme and hands the derived
 // tokens to a caller-supplied mapping (diffshub uses diffshubChromeMapping).
 // Returns a spreadable { style } that is an empty object until a theme resolves.
-import type { ColorScheme, ThemeLike } from '@pierre/theming';
-import type { CSSProperties } from 'react';
+import type { ColorScheme, ThemeLike } from "@pierre/theming";
+import type { CSSProperties } from "react";
 
-import { deriveChromeTokens } from './deriveChromeTokens';
-import type { ChromeMapping } from './diffshubChromeMapping';
+import { deriveChromeTokens } from "./deriveChromeTokens";
+import type { ChromeMapping } from "./diffshubChromeMapping";
 
 export type { ChromeMapping };
 
@@ -20,7 +20,7 @@ export interface ChromeThemeInput {
 
 export function chromeThemeProps(
   active: ChromeThemeInput,
-  mapping: ChromeMapping
+  mapping: ChromeMapping,
 ): { style: CSSProperties } {
   const { theme } = active;
   if (theme == null) return { style: {} };

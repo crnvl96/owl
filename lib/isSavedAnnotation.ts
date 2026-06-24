@@ -1,9 +1,9 @@
-import type { DiffLineAnnotation } from '@pierre/diffs';
+import type { DiffLineAnnotation } from "@pierre/diffs";
 
-import type { CommentMetadata, SavedCommentMetadata } from './types';
+import type { CommentMetadata, SavedCommentMetadata } from "./types";
 
 export function isSavedAnnotation(
-  annotation: DiffLineAnnotation<CommentMetadata>
+  annotation: DiffLineAnnotation<CommentMetadata>,
 ): annotation is DiffLineAnnotation<SavedCommentMetadata> {
-  return annotation.metadata.kind === 'saved';
+  return annotation.metadata.kind === "saved";
 }

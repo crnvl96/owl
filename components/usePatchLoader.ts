@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
 import {
   areSelectionsEqual,
   type CodeViewItem,
   type CodeViewLineSelection,
   processFile,
-} from '@pierre/diffs';
-import { type CodeViewHandle, useStableCallback } from '@pierre/diffs/react';
+} from "@pierre/diffs";
+import { type CodeViewHandle, useStableCallback } from "@pierre/diffs/react";
 import {
   type Dispatch,
   type RefObject,
@@ -15,9 +15,9 @@ import {
   useEffect,
   useRef,
   useState,
-} from 'react';
+} from "react";
 
-import { CODE_VIEW_BATCH_COUNT, getInitialBatchSize } from '@/lib/constants';
+import { CODE_VIEW_BATCH_COUNT, getInitialBatchSize } from "@/lib/constants";
 import {
   appendFileDiffToDiffsHubData,
   buildDiffsHubData,
@@ -25,18 +25,18 @@ import {
   type DiffsHubItemIdRename,
   snapshotDiffsHubTreeSource,
   takePendingDiffsHubItems,
-} from '@/lib/diffsHubDataAccumulator';
-import { EMPTY_DIFFSHUB_FILE_TREE_SOURCE } from '@/lib/emptyDiffsHubFileTreeSource';
-import { getPatchTreePathPrefix } from '@/lib/gitPatchMetadata';
+} from "@/lib/diffsHubDataAccumulator";
+import { EMPTY_DIFFSHUB_FILE_TREE_SOURCE } from "@/lib/emptyDiffsHubFileTreeSource";
+import { getPatchTreePathPrefix } from "@/lib/gitPatchMetadata";
 import {
   type DiffsHubLineHashTarget,
   formatDiffsHubLineHash,
   parseDiffsHubLineHash,
-} from '@/lib/lineHash';
+} from "@/lib/lineHash";
 import {
   getStreamedPatchMetadata,
   streamGitPatchFiles,
-} from '@/lib/streamGitPatchFiles';
+} from "@/lib/streamGitPatchFiles";
 import type {
   CommentMetadata,
   DiffSource,
@@ -45,7 +45,7 @@ import type {
   DiffsHubFileTreeSource,
   DiffsHubSavedCommentItem,
   ViewerLoadState,
-} from '@/lib/types';
+} from "@/lib/types";
 
 const STREAM_PUBLISH_INTERVAL_MS = 100;
 const STREAM_INITIAL_PUBLISH_INTERVAL_MS = 500;
@@ -53,17 +53,17 @@ const STREAM_WORK_BUDGET_MS = 8;
 const STREAM_TREE_PUBLISH_FILE_BATCH_SIZE = 1_000;
 const STREAM_TREE_PUBLISH_INTERVAL_MS = 1_000;
 const GENERIC_PATCH_LOAD_ERROR_MESSAGE =
-  'We couldn’t load that diff. Check the URL and try again.';
+  "We couldn’t load that diff. Check the URL and try again.";
 
 interface UsePatchLoaderOptions {
-  collapseMode: 'expanded' | 'collapsed';
+  collapseMode: "expanded" | "collapsed";
   onLoadStart(): void;
   source: DiffSource;
   viewerRef: RefObject<CodeViewHandle<CommentMetadata> | null>;
 }
 
 interface UsePatchLoaderResult {
-  applyCollapseModeToLoaded(mode: 'expanded' | 'collapsed'): void;
+  applyCollapseModeToLoaded(mode: "expanded" | "collapsed"): void;
   commentFileByItemId: DiffsHubCommentFileByItemId | null;
   commentSections: DiffsHubSavedCommentItem[];
   diffStats: DiffsHubDiffStats | null;
@@ -84,22 +84,18 @@ export function usePatchLoader({
   source,
   viewerRef,
 }: UsePatchLoaderOptions): UsePatchLoaderResult {
-  const [initialItems, setInitialItems] = useState<
-    CodeViewItem<CommentMetadata>[]
-  >([]);
+  const [initialItems, setInitialItems] = useState<CodeViewItem<CommentMetadata>[]>([]);
   // Tree data is intentionally stored separately from items so annotation
   // updates do not cascade into the file tree and trigger needless rebuilds.
   // It is updated by fetch/stream batches in this viewer route.
-  const [treeSource, setTreeSource] = useState<DiffsHubFileTreeSource | null>(
-    null
-  );
+  const [treeSource, setTreeSource] = useState<DiffsHubFileTreeSource | null>(null);
   const [diffStats, setDiffStats] = useState<DiffsHubDiffStats | null>(null);
   const [commentFileByItemId, setCommentFileByItemId] =
     useState<DiffsHubCommentFileByItemId | null>(null);
-  const [commentSections, setCommentSections] = useState<
-    DiffsHubSavedCommentItem[]
-  >([]);
-  const [loadState, setLoadState] = useState<ViewerLoadState>('fetching');
+  const [commentSections, setCommentSections] = useState<DiffsHubSavedCommentItem[]>(
+    [],
+  );
+  const [loadState, setLoadState] = useState<ViewerLoadState>("fetching");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [viewerKey, setViewerKey] = useState(0);
@@ -123,20 +119,20 @@ export function usePatchLoader({
   // overwrite, those would stay collapsed even when the user is in expanded
   // mode.
   const prepareItemsForViewer = (
-    items: readonly CodeViewItem<CommentMetadata>[]
+    items: readonly CodeViewItem<CommentMetadata>[],
   ): void => {
-    const targetCollapsed = collapseModeRef.current === 'collapsed';
+    const targetCollapsed = collapseModeRef.current === "collapsed";
     for (const item of items) {
       loadedItemIdsRef.current.add(item.id);
-      if (item.type === 'diff') {
+      if (item.type === "diff") {
         item.collapsed = targetCollapsed;
       }
     }
   };
 
   const applyCollapseModeToLoaded = useStableCallback(
-    (mode: 'expanded' | 'collapsed') => {
-      const targetCollapsed = mode === 'collapsed';
+    (mode: "expanded" | "collapsed") => {
+      const targetCollapsed = mode === "collapsed";
       const viewer = viewerRef.current;
       if (viewer == null) {
         // The viewer hasn't mounted yet (e.g. the worker pool is still warming
@@ -147,10 +143,7 @@ export function usePatchLoader({
         setInitialItems((prev) => {
           let changed = false;
           const next = prev.map((item) => {
-            if (
-              item.type !== 'diff' ||
-              (item.collapsed === true) === targetCollapsed
-            ) {
+            if (item.type !== "diff" || (item.collapsed === true) === targetCollapsed) {
               return item;
             }
             changed = true;
@@ -163,7 +156,7 @@ export function usePatchLoader({
 
       for (const itemId of loadedItemIdsRef.current) {
         const item = viewer.getItem(itemId);
-        if (item == null || item.type !== 'diff') {
+        if (item == null || item.type !== "diff") {
           continue;
         }
         const current = item.collapsed === true;
@@ -174,7 +167,7 @@ export function usePatchLoader({
         item.version = getNextItemVersion(item);
         viewer.updateItem(item);
       }
-    }
+    },
   );
 
   const tryApplyLineHashTarget = useStableCallback(() => {
@@ -201,14 +194,11 @@ export function usePatchLoader({
 
   const handleLineLinkChange = useStableCallback(
     (selection: CodeViewLineSelection | null) => {
-      const nextHash =
-        selection == null ? null : formatDiffsHubLineHash(selection);
+      const nextHash = selection == null ? null : formatDiffsHubLineHash(selection);
       appliedLineHashKeyRef.current =
-        nextHash == null
-          ? null
-          : getLineHashApplyKey(viewerKeyRef.current, nextHash);
+        nextHash == null ? null : getLineHashApplyKey(viewerKeyRef.current, nextHash);
       replaceLocationHash(nextHash);
-    }
+    },
   );
 
   useEffect(() => {
@@ -235,7 +225,7 @@ export function usePatchLoader({
     setCommentSections([]);
     onLoadStart();
     setErrorMessage(null);
-    setLoadState('fetching');
+    setLoadState("fetching");
 
     async function loadPatch() {
       try {
@@ -244,7 +234,7 @@ export function usePatchLoader({
           if (!isCurrentRequest()) {
             return;
           }
-          setLoadState('parsing');
+          setLoadState("parsing");
           await new Promise<void>((resolve) => window.setTimeout(resolve, 0));
 
           if (!isCurrentRequest()) {
@@ -261,19 +251,19 @@ export function usePatchLoader({
           setDiffStats(loadedData.diffStats);
           prepareItemsForViewer(loadedData.items);
           setInitialItems(loadedData.items);
-          setLoadState('ready');
+          setLoadState("ready");
           await yieldToBrowser();
           if (isCurrentRequest()) {
             tryApplyLineHashTarget();
           }
         }
 
-        console.time('--     request time');
+        console.time("--     request time");
         const response = await fetch(apiURL, {
-          cache: 'no-store',
+          cache: "no-store",
           signal: controller.signal,
         });
-        console.timeEnd('--     request time');
+        console.timeEnd("--     request time");
 
         // This only catches route setup errors. GitHub fetch failures are
         // delivered while consuming the stream so the UI can enter the
@@ -296,25 +286,25 @@ export function usePatchLoader({
             });
             setInitialItems([]);
             setErrorMessage(null);
-            setLoadState('ready');
+            setLoadState("ready");
             return;
           }
 
           const detail = (await response.text()).trim();
           throw new Error(
-            detail.length > 0 ? detail : `Request failed (${response.status}).`
+            detail.length > 0 ? detail : `Request failed (${response.status}).`,
           );
         }
 
         if (response.body == null) {
-          console.time('--     reading patch');
+          console.time("--     reading patch");
           const patchContent = await response.text();
-          console.timeEnd('--     reading patch');
+          console.timeEnd("--     reading patch");
           await commitFullPatch(patchContent);
           return;
         }
 
-        setLoadState('streaming');
+        setLoadState("streaming");
         await yieldToBrowser();
         if (!isCurrentRequest()) {
           return;
@@ -425,14 +415,14 @@ export function usePatchLoader({
         const appendStreamedFile = async (fileText: string) => {
           if (!hasReceivedFirstStreamedFile) {
             hasReceivedFirstStreamedFile = true;
-            console.timeEnd('--     first streamed file');
+            console.timeEnd("--     first streamed file");
           }
 
           const patchMetadata = getStreamedPatchMetadata(fileText);
           if (patchMetadata != null) {
             streamTreePathPrefix = getPatchTreePathPrefix(
               patchMetadata,
-              streamPatchIndex++
+              streamPatchIndex++,
             );
           }
 
@@ -447,7 +437,7 @@ export function usePatchLoader({
           const itemIdRename = appendFileDiffToDiffsHubData(
             accumulator,
             fileDiff,
-            streamTreePathPrefix
+            streamTreePathPrefix,
           );
           if (itemIdRename != null) {
             applyDiffsHubItemIdRename(viewerRef.current, itemIdRename);
@@ -471,13 +461,13 @@ export function usePatchLoader({
           publishTreeSourceIfNeeded();
         };
 
-        console.time('--     first streamed file');
-        console.time('--     reading patch stream');
+        console.time("--     first streamed file");
+        console.time("--     reading patch stream");
         const fallbackPatchContent = await streamGitPatchFiles(
           response.body,
-          appendStreamedFile
+          appendStreamedFile,
         );
-        console.timeEnd('--     reading patch stream');
+        console.timeEnd("--     reading patch stream");
         if (!isCurrentRequest()) {
           return;
         }
@@ -491,14 +481,14 @@ export function usePatchLoader({
 
         setCommentFileByItemId(new Map(accumulator.itemIdToFile));
         setDiffStats({ ...accumulator.diffStats });
-        setLoadState('ready');
+        setLoadState("ready");
       } catch (error) {
         if (!isCurrentRequest()) {
           return;
         }
-        console.warn('Failed to load diff', error);
+        console.warn("Failed to load diff", error);
         setErrorMessage(GENERIC_PATCH_LOAD_ERROR_MESSAGE);
-        setLoadState('error');
+        setLoadState("error");
       }
     }
 
@@ -507,19 +497,13 @@ export function usePatchLoader({
     return () => {
       controller.abort();
     };
-  }, [
-    loadAttempt,
-    onLoadStart,
-    source,
-    tryApplyLineHashTarget,
-    viewerRef,
-  ]);
+  }, [loadAttempt, onLoadStart, source, tryApplyLineHashTarget, viewerRef]);
 
   useEffect(() => {
-    window.addEventListener('hashchange', tryApplyLineHashTarget);
+    window.addEventListener("hashchange", tryApplyLineHashTarget);
     tryApplyLineHashTarget();
     return () => {
-      window.removeEventListener('hashchange', tryApplyLineHashTarget);
+      window.removeEventListener("hashchange", tryApplyLineHashTarget);
     };
   }, [tryApplyLineHashTarget]);
 
@@ -550,7 +534,7 @@ function getLineHashApplyKey(viewerKey: number, hash: string): string {
 
 function applyDiffsHubLineHashTarget(
   viewer: CodeViewHandle<CommentMetadata>,
-  target: DiffsHubLineHashTarget
+  target: DiffsHubLineHashTarget,
 ): boolean {
   const item = viewer.getItem(target.itemId);
   if (item == null) {
@@ -576,37 +560,37 @@ function applyDiffsHubLineHashTarget(
 
   viewer.setSelectedLines({ id: target.itemId, range: target.range });
   viewer.scrollTo({
-    type: 'range',
+    type: "range",
     id: target.itemId,
     range: target.range,
-    align: 'center',
-    behavior: 'instant',
+    align: "center",
+    behavior: "instant",
   });
   return true;
 }
 
 function applyDiffsHubItemIdRename(
   viewer: CodeViewHandle<CommentMetadata> | null,
-  rename: DiffsHubItemIdRename
+  rename: DiffsHubItemIdRename,
 ): void {
   viewer?.updateItemId(rename.oldId, rename.newId);
 }
 
 function getNextItemVersion(item: { version?: string | number }): number {
-  return typeof item.version === 'number' ? item.version + 1 : 1;
+  return typeof item.version === "number" ? item.version + 1 : 1;
 }
 
 function replaceLocationHash(hash: string | null): void {
   const { pathname, search } = window.location;
-  const nextHash = hash ?? '';
+  const nextHash = hash ?? "";
   if (window.location.hash === nextHash) {
     return;
   }
 
   window.history.replaceState(
     window.history.state,
-    '',
-    `${pathname}${search}${nextHash}`
+    "",
+    `${pathname}${search}${nextHash}`,
   );
 }
 
@@ -631,8 +615,8 @@ function yieldToBrowser(): Promise<void> {
 // Kept as a free function so the URL logic stays in one place; the viewer
 // pipeline (fetch + stream) is identical for both modes.
 function getDiffSourceApiURL(source: DiffSource): string {
-  if (source.kind === 'worktree') {
-    return '/api/local-worktree-diff';
+  if (source.kind === "worktree") {
+    return "/api/local-worktree-diff";
   }
   return `/api/past-commit-diff?hash=${encodeURIComponent(source.hash)}`;
 }
@@ -641,8 +625,8 @@ function getDiffSourceApiURL(source: DiffSource): string {
 // parsed file diffs so a re-visit (or a back-and-forth toggle) doesn't redo
 // the parse. Includes the full hash so different commits don't share a key.
 function getPatchRequestKey(source: DiffSource): string {
-  if (source.kind === 'worktree') {
-    return 'local-worktree';
+  if (source.kind === "worktree") {
+    return "local-worktree";
   }
   return `past-commit:${source.hash}`;
 }

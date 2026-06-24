@@ -1,6 +1,6 @@
-import type { GitStatus } from '@pierre/trees';
+import type { GitStatus } from "@pierre/trees";
 
-import type { DiffsHubFileTreeSource } from './types';
+import type { DiffsHubFileTreeSource } from "./types";
 
 // Returns a filtered copy of the source keeping only paths whose effective git
 // status is in `selectedStatuses`. An empty selection means "no filter" and
@@ -10,21 +10,21 @@ import type { DiffsHubFileTreeSource } from './types';
 // the filtered `paths` keep their original relative order from the source.
 export function filterDiffsHubFileTreeSource(
   source: DiffsHubFileTreeSource,
-  selectedStatuses: ReadonlySet<GitStatus>
+  selectedStatuses: ReadonlySet<GitStatus>,
 ): DiffsHubFileTreeSource {
   if (selectedStatuses.size === 0) return source;
 
   const pathStatusMap = new Map<string, GitStatus>(
-    source.gitStatus.map((e) => [e.path, e.status])
+    source.gitStatus.map((e) => [e.path, e.status]),
   );
 
   const filteredPaths = source.paths.filter((path) => {
-    const status = pathStatusMap.get(path) ?? 'modified';
+    const status = pathStatusMap.get(path) ?? "modified";
     return selectedStatuses.has(status);
   });
 
   const filteredGitStatus = source.gitStatus.filter((e) =>
-    selectedStatuses.has(e.status)
+    selectedStatuses.has(e.status),
   );
 
   const filteredPathToItemId = new Map<string, string>();

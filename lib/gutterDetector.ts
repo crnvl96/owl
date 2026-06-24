@@ -5,9 +5,7 @@ export type ScrollbarGutterSize = {
 
 const cachedGutterSizes = new Map<string, ScrollbarGutterSize>();
 
-export function getGutterSize(
-  className: string
-): ScrollbarGutterSize | undefined {
+export function getGutterSize(className: string): ScrollbarGutterSize | undefined {
   return cachedGutterSizes.get(className);
 }
 
@@ -20,30 +18,30 @@ const PROBE_CHILD_SIZE = PROBE_SIZE * 2;
  */
 export function detectGutterSize(
   className: string,
-  ignoreCache = false
+  ignoreCache = false,
 ): ScrollbarGutterSize {
   const cached = cachedGutterSizes.get(className);
   if (!ignoreCache && cached != null) {
     return cached;
   }
 
-  const probe = document.createElement('div');
+  const probe = document.createElement("div");
   probe.className = className;
-  probe.style.position = 'absolute';
+  probe.style.position = "absolute";
   probe.style.top = `-${PROBE_CHILD_SIZE}px`;
   probe.style.left = `-${PROBE_CHILD_SIZE}px`;
   probe.style.width = `${PROBE_SIZE}px`;
   probe.style.height = `${PROBE_SIZE}px`;
-  probe.style.margin = '0';
-  probe.style.border = '0';
-  probe.style.padding = '0';
-  probe.style.boxSizing = 'content-box';
-  probe.style.display = 'block';
-  probe.style.overflow = 'scroll';
-  probe.style.visibility = 'hidden';
-  probe.style.pointerEvents = 'none';
+  probe.style.margin = "0";
+  probe.style.border = "0";
+  probe.style.padding = "0";
+  probe.style.boxSizing = "content-box";
+  probe.style.display = "block";
+  probe.style.overflow = "scroll";
+  probe.style.visibility = "hidden";
+  probe.style.pointerEvents = "none";
 
-  const child = document.createElement('div');
+  const child = document.createElement("div");
   child.style.width = `${PROBE_CHILD_SIZE}px`;
   child.style.height = `${PROBE_CHILD_SIZE}px`;
   probe.appendChild(child);

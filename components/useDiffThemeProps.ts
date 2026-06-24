@@ -1,11 +1,8 @@
-'use client';
+"use client";
 
-import type { ThemesType, ThemeTypes } from '@pierre/diffs';
+import type { ThemesType, ThemeTypes } from "@pierre/diffs";
 
-import {
-  ACTIVE_THEME_NAME,
-  ACTIVE_THEME_SCHEME,
-} from '@/lib/theme/activeTheme';
+import { ACTIVE_THEME_NAME, ACTIVE_THEME_SCHEME } from "@/lib/theme/activeTheme";
 
 // The single diff theme pair (night-owl for both light and dark slots; the
 // active scheme below picks which to render). Kept as a hook so callers don't

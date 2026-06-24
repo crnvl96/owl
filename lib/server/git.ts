@@ -1,5 +1,5 @@
-import { spawn } from 'node:child_process';
-import { resolve as resolvePath } from 'node:path';
+import { spawn } from "node:child_process";
+import { resolve as resolvePath } from "node:path";
 
 const NON_WHITESPACE_PATTERN = /\S/;
 
@@ -22,19 +22,19 @@ export function resolveWorktreePath(): string {
 // surface the raw git message to the client (per the agreed error policy).
 export function runGit(args: string[], cwd: string): Promise<GitSpawnResult> {
   return new Promise((resolve, reject) => {
-    const child = spawn('git', args, { cwd });
-    let stdout = '';
-    let stderr = '';
-    child.stdout.setEncoding('utf8');
-    child.stderr.setEncoding('utf8');
-    child.stdout.on('data', (chunk: string) => {
+    const child = spawn("git", args, { cwd });
+    let stdout = "";
+    let stderr = "";
+    child.stdout.setEncoding("utf8");
+    child.stderr.setEncoding("utf8");
+    child.stdout.on("data", (chunk: string) => {
       stdout += chunk;
     });
-    child.stderr.on('data', (chunk: string) => {
+    child.stderr.on("data", (chunk: string) => {
       stderr += chunk;
     });
-    child.on('error', (err) => reject(err));
-    child.on('close', (code) => {
+    child.on("error", (err) => reject(err));
+    child.on("close", (code) => {
       if (code === 0) {
         resolve({ stdout, stderr });
       } else {

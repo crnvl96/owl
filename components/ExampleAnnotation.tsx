@@ -1,11 +1,11 @@
-import type { CodeViewLineSelection, DiffLineAnnotation } from '@pierre/diffs';
-import { IconX } from '@pierre/icons';
-import { memo } from 'react';
+import type { CodeViewLineSelection, DiffLineAnnotation } from "@pierre/diffs";
+import { IconX } from "@pierre/icons";
+import { memo } from "react";
 
-import { Button } from '@/components/Button';
-import { annotationCardBase } from '@/lib/annotation';
-import { cn } from '@/lib/cn';
-import type { SavedCommentMetadata } from '@/lib/types';
+import { Button } from "@/components/Button";
+import { annotationCardBase } from "@/lib/annotation";
+import { cn } from "@/lib/cn";
+import type { SavedCommentMetadata } from "@/lib/types";
 
 interface ExampleAnnotationProps {
   annotation: DiffLineAnnotation<SavedCommentMetadata>;
@@ -27,11 +27,11 @@ export const ExampleAnnotation = memo(function ExampleAnnotation({
       tabIndex={0}
       className={cn(
         annotationCardBase,
-        'group relative cursor-pointer hover:border-[var(--diffshub-annotation-hover-border,var(--diffshub-annotation-border,var(--color-border)))]'
+        "group relative cursor-pointer hover:border-[var(--diffshub-annotation-hover-border,var(--diffshub-annotation-border,var(--color-border)))]",
       )}
       onClick={() => onToggleSelection(selection)}
       onKeyDown={(event) => {
-        if (event.key !== 'Enter' && event.key !== ' ') {
+        if (event.key !== "Enter" && event.key !== " ") {
           return;
         }
         event.preventDefault();

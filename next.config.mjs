@@ -7,7 +7,7 @@ const nextConfig = {
   reactCompiler: true,
   devIndicators: false,
   experimental: {
-    cssChunking: 'strict',
+    cssChunking: "strict",
   },
 };
 

@@ -1,30 +1,27 @@
-'use client';
+"use client";
 
-import type { TreeThemeStyles } from '@pierre/trees';
-import { useMemo } from 'react';
+import type { TreeThemeStyles } from "@pierre/trees";
+import { useMemo } from "react";
 
-import { useActiveTheme } from './useActiveTheme';
-import {
-  treeThemeProps,
-  type TreeThemePropsOptions,
-} from '@/lib/theme/treeThemeProps';
+import { useActiveTheme } from "./useActiveTheme";
+import { treeThemeProps, type TreeThemePropsOptions } from "@/lib/theme/treeThemeProps";
 
 // Returns the spreadable FileTree style props for the active (night-owl) theme.
 // Pass reconcileForegroundFromChrome to preserve the contrast-based foreground
 // upgrade the file rows depend on.
-export function useTreeThemeProps(
-  options?: TreeThemePropsOptions
-): { style: TreeThemeStyles } {
+export function useTreeThemeProps(options?: TreeThemePropsOptions): {
+  style: TreeThemeStyles;
+} {
   const theme = useActiveTheme();
   const reconcile = options?.reconcileForegroundFromChrome ?? false;
   return useMemo(
     () =>
       theme != null
         ? treeThemeProps(
-            { theme, colorScheme: 'dark' },
-            { reconcileForegroundFromChrome: reconcile }
+            { theme, colorScheme: "dark" },
+            { reconcileForegroundFromChrome: reconcile },
           )
         : { style: {} as TreeThemeStyles },
-    [theme, reconcile]
+    [theme, reconcile],
   );
 }

@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { IconSymbolDiffstatFill } from '@pierre/icons';
-import { memo, useEffect } from 'react';
+import { IconSymbolDiffstatFill } from "@pierre/icons";
+import { memo, useEffect } from "react";
 
-import { StatItem } from './StatItem';
-import { StatusRow } from './StatusRow';
-import type { DiffsHubDiffStats as DiffsHubDiffStatsData } from '@/lib/types';
+import { StatItem } from "./StatItem";
+import { StatusRow } from "./StatusRow";
+import type { DiffsHubDiffStats as DiffsHubDiffStatsData } from "@/lib/types";
 
 interface DiffsHubDiffStatsProps {
   expanded: boolean;
@@ -22,13 +22,13 @@ export const DiffsHubDiffStats = memo(function DiffsHubDiffStats({
 }: DiffsHubDiffStatsProps) {
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'F2') {
+      if (event.key === "F2") {
         event.preventDefault();
         onToggle();
       }
     };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
   }, [onToggle]);
 
   if (stats == null) {
@@ -45,9 +45,7 @@ export const DiffsHubDiffStats = memo(function DiffsHubDiffStats({
           aria-expanded={expanded}
         >
           Diff Stats
-          <span className="text-muted-foreground/50 hidden md:inline">
-            (F2)
-          </span>
+          <span className="text-muted-foreground/50 hidden md:inline">(F2)</span>
           {streaming && <StreamingIndicator />}
         </button>
       </StatusRow>

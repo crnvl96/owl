@@ -1,4 +1,4 @@
-import type { DiffsHubFileTreeSource } from './types';
+import type { DiffsHubFileTreeSource } from "./types";
 
 // A stable, module-level empty file tree source. Used by the clean-worktree
 // state (HTTP 422 from /api/local-worktree-diff) so the sidebar can mount

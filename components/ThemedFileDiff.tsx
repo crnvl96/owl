@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { FileDiff, type FileDiffProps } from '@pierre/diffs/react';
-import { useMemo } from 'react';
+import { FileDiff, type FileDiffProps } from "@pierre/diffs/react";
+import { useMemo } from "react";
 
-import { useDiffThemeProps } from './useDiffThemeProps';
-import { useWorkerDiffTheme } from './useWorkerDiffTheme';
+import { useDiffThemeProps } from "./useDiffThemeProps";
+import { useWorkerDiffTheme } from "./useWorkerDiffTheme";
 
 // Sugar over useDiffThemeProps: applies the active theme names + themeType to
 // the React <FileDiff> options and keeps the worker pool in step when present.
@@ -21,7 +21,7 @@ export function ThemedFileDiff<LAnnotation = undefined>({
       theme: diffTheme.theme,
       themeType: options?.themeType ?? diffTheme.themeType,
     }),
-    [diffTheme, options]
+    [diffTheme, options],
   );
   return (
     <FileDiff<LAnnotation>
