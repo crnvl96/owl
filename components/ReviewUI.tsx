@@ -1,7 +1,15 @@
 "use client";
 
 import { type CodeViewHandle, useWorkerPool } from "@pierre/diffs/react";
-import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import type { GitStatus } from "@pierre/trees";
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import { DiffsHubBlankArea } from "./DiffsHubBlankArea";
 import { DiffsHubHeader } from "./DiffsHubHeader";
@@ -9,8 +17,9 @@ import { DiffsHubSidebar } from "./DiffsHubSidebar";
 import { DiffsHubStatusPanel } from "./DiffsHubStatusPanel";
 import { DiffsHubViewer } from "./DiffsHubViewer";
 import { usePatchLoader } from "./usePatchLoader";
-import { ACTIVE_THEME_SCHEME } from "@/lib/theme/activeTheme";
+import type { FileContext } from "@/lib/generateReviewReport";
 import { removeSavedCommentSidebarEntry } from "@/lib/removeSavedCommentSidebarEntry";
+import { ACTIVE_THEME_SCHEME } from "@/lib/theme/activeTheme";
 import type {
   CommentMetadata,
   DiffSource,
@@ -150,14 +159,51 @@ function ReviewUIBody() {
   // only when there are diff items to show; otherwise a blank area takes its
   // grid slot so the user sees a consistent UI shell.
   const hasDiffItems = initialItems.length > 0;
+  // Joins the file tree's git-status array with the viewer items' hunk
+  // boundaries so the review-report generator can stamp each file section
+  // with a `[A]/[M]/[R]/[D]` tag and a `@@ -X,Y +A,B @@` hunk header.
+  // Built once per (initialItems, treeSource) pair so the generator's
+  // pure `O(1)` lookups don't pay a re-walk cost on every render.
+  const fileContextByItemId = useMemo<ReadonlyMap<string, FileContext>>(() => {
+    const map = new Map<string, FileContext>();
+    if (treeSource == null) {
+      return map;
+    }
+    const statusByPath = new Map<string, GitStatus>();
+    for (const entry of treeSource.gitStatus) {
+      statusByPath.set(entry.path, entry.status);
+    }
+    for (const item of initialItems) {
+      if (item.type !== "diff") {
+        continue;
+      }
+      // Default to `modified` when the tree hasn't reported a status for
+      // this path (e.g. a file appeared in the diff stream before the
+      // tree's status snapshot caught up). The tag is metadata, not
+      // load-bearing, so a conservative default keeps the report usable.
+      const status: GitStatus = statusByPath.get(item.fileDiff.name) ?? "modified";
+      map.set(item.id, {
+        status,
+        hunks: item.fileDiff.hunks.map((hunk) => ({
+          additionCount: hunk.additionCount,
+          additionStart: hunk.additionStart,
+          deletionCount: hunk.deletionCount,
+          deletionStart: hunk.deletionStart,
+        })),
+      });
+    }
+    return map;
+  }, [initialItems, treeSource]);
 
   return (
     <ReviewGrid>
       <DiffsHubHeader
         className="[grid-area:header]"
         collapseMode={collapseMode}
+        commentSections={commentSections}
         diffSource={diffSource}
         diffStyle={diffStyle}
+        fileContextByItemId={fileContextByItemId}
         overflow={overflow}
         fileTreeOverlayOpen={fileTreeOverlayOpen}
         fileTreeAvailable={treeSource != null}

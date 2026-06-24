@@ -10,6 +10,7 @@ import {
 
 import { CHROME_ICON_BUTTON_CLASS } from "./chromeButtonStyles";
 import { DiffsHubDiffModePicker } from "./DiffsHubDiffModePicker";
+import { DiffsHubGenerateReportButton } from "./DiffsHubGenerateReportButton";
 import { DiffsHubLogo } from "./DiffsHubLogo";
 import { useChromeThemeProps } from "./useChromeThemeProps";
 import { Button } from "@/components/Button";
@@ -21,9 +22,10 @@ import {
 } from "@/components/DropdownMenu";
 import { Switch } from "@/components/Switch";
 import { cn } from "@/lib/cn";
+import type { FileContext } from "@/lib/generateReviewReport";
 import { diffshubChromeMapping } from "@/lib/theme/diffshubChromeMapping";
 import { getDropdownThemeStyle } from "@/lib/theme/dropdownChromeStyle";
-import type { DiffSource } from "@/lib/types";
+import type { DiffSource, DiffsHubSavedCommentItem } from "@/lib/types";
 
 const SETTING_ROW_CLASS =
   "w-full flex cursor-pointer items-center justify-between gap-4 px-2 py-1.5 text-sm";
@@ -31,8 +33,10 @@ const SETTING_ROW_CLASS =
 interface HeaderProps {
   className?: string;
   collapseMode: "expanded" | "collapsed";
+  commentSections: readonly DiffsHubSavedCommentItem[];
   diffSource: DiffSource;
   diffStyle: "split" | "unified";
+  fileContextByItemId: ReadonlyMap<string, FileContext>;
   fileTreeAvailable: boolean;
   fileTreeOverlayOpen: boolean;
   overflow: "wrap" | "scroll";
@@ -46,8 +50,10 @@ interface HeaderProps {
 export const DiffsHubHeader = memo(function DiffsHubHeader({
   className,
   collapseMode,
+  commentSections,
   diffSource,
   diffStyle,
+  fileContextByItemId,
   fileTreeAvailable,
   fileTreeOverlayOpen,
   overflow,
@@ -139,6 +145,11 @@ export const DiffsHubHeader = memo(function DiffsHubHeader({
                 <IconCollapsedRow className="size-4 md:size-3" />
               )}
             </Button>
+            <DiffsHubGenerateReportButton
+              fileContextByItemId={fileContextByItemId}
+              sections={commentSections}
+              source={diffSource}
+            />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button

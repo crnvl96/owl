@@ -1,10 +1,11 @@
 "use client";
 
-import type { SelectedLineRange, SelectionSide } from "@pierre/diffs";
+import type { SelectionSide } from "@pierre/diffs";
 import { IconConvoFill, IconPlus } from "@pierre/icons";
 import { memo, type MouseEvent } from "react";
 
 import { cn } from "@/lib/cn";
+import { formatCommentLineLabel } from "@/lib/formatCommentLineLabel";
 import type {
   CommentLineType,
   DiffsHubSavedCommentEntry,
@@ -17,39 +18,10 @@ interface DiffsHubCommentsListProps {
   onSelectItem?(itemId: string): void;
 }
 
-// Renders a comment's "Line N" / "Line +N" / "Lines N-M" / "Lines +N-+M" label
+// Renders a comment's "Line N" / "Line +N" / "Lines N..M" / "Lines +N..+M" label
 // from the saved range, so a multi-line comment is shown as the full range
 // it covers (with per-side sigils when start and end are on different sides
 // of the diff) instead of being collapsed to a single anchor line.
-function getCommentLineLabel(
-  range: SelectedLineRange,
-  lineType: CommentLineType,
-): string {
-  const startSide = range.side;
-  const endSide = range.endSide ?? range.side;
-  const isSingleLine = range.start === range.end && startSide === endSide;
-
-  if (isSingleLine) {
-    return `Line ${formatLineNumber(range.start, startSide, lineType)}`;
-  }
-
-  const startLabel = formatLineNumber(range.start, startSide, lineType);
-  const endLabel = formatLineNumber(range.end, endSide, lineType);
-  return `Lines ${startLabel}-${endLabel}`;
-}
-
-function formatLineNumber(
-  lineNumber: number,
-  side: SelectionSide | undefined,
-  lineType: CommentLineType,
-): string {
-  if (lineType === "context" || side == null) {
-    return `${lineNumber}`;
-  }
-  const sigil = side === "additions" ? "+" : "-";
-  return `${sigil}${lineNumber}`;
-}
-
 function getCommentLineClassName(
   side: SelectionSide | undefined,
   lineType: CommentLineType,
@@ -170,7 +142,7 @@ export const DiffsHubCommentsList = memo(function DiffsHubCommentsList({
                         "font-medium",
                       )}
                     >
-                      {getCommentLineLabel(comment.range, comment.lineType)}
+                      {formatCommentLineLabel(comment.range, comment.lineType)}
                     </span>
                   </div>
                   <p className="text-foreground w-full break-words whitespace-pre-wrap">
