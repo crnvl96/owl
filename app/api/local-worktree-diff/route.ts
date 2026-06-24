@@ -65,14 +65,15 @@ export async function GET(_request: NextRequest) {
 
     // 3. For each untracked file, synthesize a diff against /dev/null so
     // the viewer sees it as a new file.
-    const untrackedDiffs: string[] = [];
-    for (const relativePath of untrackedFiles) {
-      const absolutePath = joinPath(worktreePath, relativePath);
-      const diff = await runGitNoIndexDiff(DEV_NULL_PATH, absolutePath);
-      if (hasNonWhitespaceContent(diff.stdout)) {
-        untrackedDiffs.push(diff.stdout);
-      }
-    }
+    const untrackedDiffs = (
+      await Promise.all(
+        untrackedFiles.map(async (relativePath) => {
+          const absolutePath = joinPath(worktreePath, relativePath);
+          const diff = await runGitNoIndexDiff(DEV_NULL_PATH, absolutePath);
+          return hasNonWhitespaceContent(diff.stdout) ? diff.stdout : null;
+        }),
+      )
+    ).filter((diff): diff is string => diff !== null);
 
     const fullDiff = [tracked.stdout, ...untrackedDiffs].join("");
     if (!hasNonWhitespaceContent(fullDiff)) {

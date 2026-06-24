@@ -15,12 +15,14 @@ export async function streamGitPatchFiles(
 
   try {
     for (;;) {
+      // eslint-disable-next-line no-await-in-loop -- stream reads are inherently sequential
       const result = await reader.read();
       if (result.done) {
         break;
       }
       if (result.value.byteLength > 0) {
         parser.push(decoder.decode(result.value, { stream: true }));
+        // eslint-disable-next-line no-await-in-loop -- files must be processed in order
         await consumeAvailableStreamedFiles(parser, onFileText);
       }
     }
@@ -36,6 +38,7 @@ export async function streamGitPatchFiles(
     }
     let fileText: string | undefined;
     while ((fileText = parser.takeAvailableFile()) != null) {
+      // eslint-disable-next-line no-await-in-loop -- files must be processed in order
       await onFileText(fileText);
     }
     return result.fallbackPatchContent;
@@ -71,6 +74,7 @@ async function consumeAvailableStreamedFiles(
 ): Promise<void> {
   let fileText: string | undefined;
   while ((fileText = parser.takeAvailableFile()) != null) {
+    // eslint-disable-next-line no-await-in-loop -- files must be processed in order
     await onFileText(fileText);
   }
 }
