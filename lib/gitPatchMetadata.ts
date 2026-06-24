@@ -8,9 +8,9 @@ export function getPatchTreePathPrefix(
   patchIndex: number,
 ): string {
   const commitHash = patchMetadata?.match(COMMIT_HASH_METADATA_PATTERN)?.[1];
-  return commitHash != null
-    ? detachCommitPrefix(commitHash.slice(0, 5))
-    : `Commit ${patchIndex + 1}`;
+  return commitHash == null
+    ? `Commit ${patchIndex + 1}`
+    : detachCommitPrefix(commitHash.slice(0, 5));
 }
 
 function detachCommitPrefix(value: string): string {

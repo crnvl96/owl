@@ -179,20 +179,20 @@ export function DiffsHubDiffModePicker({
             variant="ghost"
             aria-pressed={isPastCommitActive}
             aria-label={
-              selectedCommit != null
-                ? `Past commits — ${selectedCommit.shortHash} ${selectedCommit.subject}`
-                : "Past commits"
+              selectedCommit == null
+                ? "Past commits"
+                : `Past commits — ${selectedCommit.shortHash} ${selectedCommit.subject}`
             }
             title={
-              selectedCommit != null
-                ? `${selectedCommit.shortHash} ${selectedCommit.subject}`
-                : "Show diff for a past commit"
+              selectedCommit == null
+                ? "Show diff for a past commit"
+                : `${selectedCommit.shortHash} ${selectedCommit.subject}`
             }
             className={cn(PICKER_CONTROL_CLASS, "text-muted-foreground max-w-[280px]")}
           >
             <IconCommit className={ICON_CLASS} aria-hidden="true" />
             <span className="truncate">
-              {selectedCommit != null ? selectedCommit.shortHash : "Past commits"}
+              {selectedCommit == null ? "Past commits" : selectedCommit.shortHash}
             </span>
           </Button>
         </DropdownMenuTrigger>

@@ -342,17 +342,17 @@ export function usePatchLoader({
           lastPublishTime = performance.now();
           const pendingItems = takePendingDiffsHubItems(accumulator);
           prepareItemsForViewer(pendingItems);
-          if (!hasPublishedInitialItems) {
+          if (hasPublishedInitialItems) {
+            const viewer = viewerRef.current;
+            if (viewer == null) {
+              setInitialItems((prev) => [...prev, ...pendingItems]);
+            } else {
+              viewer.addItems(pendingItems);
+            }
+          } else {
             hasPublishedInitialItems = true;
             publishTreeSource();
             setInitialItems(pendingItems);
-          } else {
-            const viewer = viewerRef.current;
-            if (viewer != null) {
-              viewer.addItems(pendingItems);
-            } else {
-              setInitialItems((prev) => [...prev, ...pendingItems]);
-            }
           }
           await yieldToBrowser();
           if (isCurrentRequest()) {
@@ -475,7 +475,7 @@ export function usePatchLoader({
         setCommentFileByItemId(new Map(accumulator.itemIdToFile));
         setDiffStats({ ...accumulator.diffStats });
         setLoadState("ready");
-      } catch (error) {
+      } catch {
         if (!isCurrentRequest()) {
           return;
         }

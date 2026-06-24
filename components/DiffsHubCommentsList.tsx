@@ -57,7 +57,7 @@ function handleRowClick(event: MouseEvent<HTMLButtonElement>, run: () => void): 
   if (event.button !== 0) {
     return;
   }
-  const selection = typeof window !== "undefined" ? window.getSelection() : null;
+  const selection = typeof window === "undefined" ? null : window.getSelection();
   if (selection != null && selection.toString().length > 0) {
     const row = event.currentTarget;
     const anchorInRow =
@@ -103,7 +103,11 @@ export const DiffsHubCommentsList = memo(function DiffsHubCommentsList({
     >
       {commentSections.map((section) => (
         <section key={section.itemId}>
-          {onSelectItem != null ? (
+          {onSelectItem == null ? (
+            <div className="text-muted-foreground p-3 pb-2 text-sm font-medium break-all">
+              {section.path}
+            </div>
+          ) : (
             <button
               type="button"
               className="text-muted-foreground hover:text-foreground focus-visible:ring-ring block w-full cursor-pointer p-3 pb-2 text-left text-sm font-medium break-all outline-none focus-visible:ring-2"
@@ -113,10 +117,6 @@ export const DiffsHubCommentsList = memo(function DiffsHubCommentsList({
             >
               <span className="select-text">{section.path}</span>
             </button>
-          ) : (
-            <div className="text-muted-foreground p-3 pb-2 text-sm font-medium break-all">
-              {section.path}
-            </div>
           )}
           <div className="rounded-lg border border-[var(--diffshub-card-border,rgb(0_0_0_/_0.1))] dark:border-[var(--diffshub-card-border,rgb(255_255_255_/_0.15))]">
             {section.comments.map((comment) => (

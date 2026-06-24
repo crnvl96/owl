@@ -53,16 +53,16 @@ export function DiffsHubStatusPanel({
       <section
         role={isError ? "alert" : "status"}
         aria-live="polite"
-        aria-busy={!isError ? true : undefined}
+        aria-busy={isError ? undefined : true}
         className="w-full max-w-md p-5 text-center"
       >
-        {!isError ? (
+        {isError ? (
+          <IconCiWarningFill className="text-muted-foreground mx-auto mb-3 size-5" />
+        ) : (
           <IconRefresh
             aria-hidden="true"
             className="text-muted-foreground mx-auto mb-3 size-5 -scale-x-100 animate-spin [animation-direction:reverse]"
           />
-        ) : (
-          <IconCiWarningFill className="text-muted-foreground mx-auto mb-3 size-5" />
         )}
         <h2 className="text-foreground text-sm font-medium">{title}</h2>
         <p className="text-muted-foreground mt-1 text-sm text-pretty">{message}</p>

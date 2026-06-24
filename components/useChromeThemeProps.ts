@@ -14,9 +14,9 @@ export function useChromeThemeProps(mapping: ChromeMapping): { style: CSSPropert
   const theme = useActiveTheme();
   return useMemo(
     () =>
-      theme != null
-        ? chromeThemeProps({ theme, colorScheme: "dark" }, mapping)
-        : { style: {} },
+      theme == null
+        ? { style: {} }
+        : chromeThemeProps({ theme, colorScheme: "dark" }, mapping),
     [theme, mapping],
   );
 }

@@ -16,12 +16,12 @@ export function useTreeThemeProps(options?: TreeThemePropsOptions): {
   const reconcile = options?.reconcileForegroundFromChrome ?? false;
   return useMemo(
     () =>
-      theme != null
-        ? treeThemeProps(
+      theme == null
+        ? { style: {} as TreeThemeStyles }
+        : treeThemeProps(
             { theme, colorScheme: "dark" },
             { reconcileForegroundFromChrome: reconcile },
-          )
-        : { style: {} as TreeThemeStyles },
+          ),
     [theme, reconcile],
   );
 }
