@@ -16,6 +16,8 @@
     "no-console": "warn",
     "typescript/no-explicit-any": "warn",
     "require-await": "off",
-    "no-promise-executor-return": "off"
+    "no-promise-executor-return": "off",
+    "max-lines": "off",
+    "max-lines-per-function": "off"
   }
 }
