@@ -5,28 +5,31 @@ import {
   type ThemeLike,
   type ThemeResolver,
 } from "@pierre/theming";
-import { shikiThemes } from "@pierre/theming/themes";
+import { pierreThemes, shikiThemes } from "@pierre/theming/themes";
 import { useEffect, useState } from "react";
 
 import { ACTIVE_THEME_NAME } from "@/lib/theme/activeTheme";
 
-// One resolver per process. The Shiki collection carries the theme loaders
-// (dynamic imports of each `@shikijs/themes/*` package); registerInto wires
-// them into the resolver so resolveTheme('night-owl') knows how to load it.
-// createThemeResolver also owns its own resolved-theme cache, so all
-// consumers share the same in-flight + cached load.
+// One resolver per process. The Pierre and Shiki collections carry the theme
+// loaders (dynamic imports of each `@pierre/theme/*` and `@shikijs/themes/*`
+// package); registerInto wires them into the resolver so
+// resolveTheme('pierre-dark-soft') knows how to load it. createThemeResolver
+// also owns its own resolved-theme cache, so all consumers share the same
+// in-flight + cached load.
 let sharedResolver: ThemeResolver | undefined;
 function getSharedResolver(): ThemeResolver {
   if (sharedResolver == null) {
     sharedResolver = createThemeResolver();
+    pierreThemes.registerInto(sharedResolver);
     shikiThemes.registerInto(sharedResolver);
   }
   return sharedResolver;
 }
 
-// Returns the resolved `night-owl` theme, or undefined while it's still
-// loading. Resolves on first call (synchronous if the resolver already has it
-// cached, async otherwise) and re-renders the consumer once it settles.
+// Returns the resolved `pierre-dark-soft` theme, or undefined while it's
+// still loading. Resolves on first call (synchronous if the resolver already
+// has it cached, async otherwise) and re-renders the consumer once it
+// settles.
 export function useActiveTheme(): ThemeLike | undefined {
   const resolver = getSharedResolver();
   const [theme, setTheme] = useState<ThemeLike | undefined>(() =>

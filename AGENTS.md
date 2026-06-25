@@ -92,7 +92,7 @@ RootLayout (HTML shell, fonts, WorkerPoolContext provider)
 
 ### Theming System
 
-- Single hardcoded theme: **night-owl** (dark only) — no switching, no persistence
+- Single hardcoded theme: **pierre-dark-soft** (dark only) — no switching, no persistence
 - Flow: `useActiveTheme()` → `deriveChromeTokens()` → `owlChromeMapping()` → CSS variables on wrapper element
 - `@pierre/diffs` and `@pierre/trees` consume their own CSS variables, set by the chrome mapping
 - App-specific CSS variables are prefixed `--owl-`

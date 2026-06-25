@@ -7,9 +7,9 @@ import { type ChromeMapping, chromeThemeProps } from "@/lib/theme/chromeThemePro
 
 export type { ChromeMapping };
 
-// Returns the spreadable chrome style props for the active (night-owl) theme,
-// mapped to the app's CSS variables by the supplied mapping. Empty object
-// until the theme has resolved.
+// Returns the spreadable chrome style props for the active (pierre-dark-soft)
+// theme, mapped to the app's CSS variables by the supplied mapping. Empty
+// object until the theme has resolved.
 export function useChromeThemeProps(mapping: ChromeMapping): { style: CSSProperties } {
   const theme = useActiveTheme();
   return useMemo(

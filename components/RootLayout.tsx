@@ -23,8 +23,9 @@ export function RootLayout({
   children: ReactNode;
 }>) {
   return (
-    // `dark` is hardcoded — night-owl is the only theme. globals.css scopes
-    // its dark tokens to `.dark`, so this is what makes the body pick them up.
+    // `dark` is hardcoded — pierre-dark-soft is the only theme. globals.css
+    // scopes its dark tokens to `.dark`, so this is what makes the body pick
+    // them up.
     <html lang="en" className={`dark ${berkeleyMono.variable} ${geistSans.variable}`}>
       <body className="owl">
         <ScrollbarGutterVariables />

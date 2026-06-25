@@ -106,6 +106,30 @@
   body {
     @apply bg-background text-foreground font-geist;
   }
+  /* The user-adjustable global font size (see lib/appFontSize.ts). Mirrored
+     onto <html> from ReviewUI via useAppFontSize; set on the root here
+     because CSS `rem` units resolve relative to the html element, so this
+     is what makes Tailwind v4's rem-based typography scale (text-sm,
+     text-xs, etc.) follow the user's choice. Icons, button hit-targets
+     stay at their intrinsic sizes, but the diff body and the file tree
+     scale proportionally — see the rules on the host elements below. */
+  html {
+    font-size: var(--owl-app-font-size, 16px);
+  }
+
+  /* @pierre/diffs and @pierre/trees read their own font-size / line-height
+     CSS variables on `:host` (inside their shadow DOMs). The defaults are
+     13px / 20px; the chrome defaults to 16px, so we keep the 13/16 ratio
+     (`0.8125`) so the code body stays visually slightly smaller than the
+     chrome at every step. CSS variables inherit through shadow boundaries,
+     so setting them on the light-DOM host element is enough. */
+  diffs-container {
+    --diffs-font-size: calc(var(--owl-app-font-size, 16px) * 0.8125);
+    --diffs-line-height: calc(var(--diffs-font-size) * 1.5385);
+  }
+  file-tree-container {
+    --trees-font-size-override: calc(var(--owl-app-font-size, 16px) * 0.8125);
+  }
   body.owl {
     background-color: var(--owl-sidebar-bg);
   }
