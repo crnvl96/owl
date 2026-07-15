@@ -16,13 +16,7 @@ import { OwlHeader } from "./OwlHeader";
 import { OwlSidebar } from "./OwlSidebar";
 import { OwlStatusPanel } from "./OwlStatusPanel";
 import { OwlViewer } from "./OwlViewer";
-import { useAppFontSize } from "./useAppFontSize";
 import { usePatchLoader } from "./usePatchLoader";
-import {
-  APP_FONT_SIZE_DEFAULT,
-  type AppFontSizeStep,
-  clampAppFontSize,
-} from "@/lib/appFontSize";
 import type { FileContext } from "@/lib/generateReviewReport";
 import { removeSavedCommentSidebarEntry } from "@/lib/removeSavedCommentSidebarEntry";
 import { ACTIVE_THEME_SCHEME } from "@/lib/theme/activeTheme";
@@ -49,13 +43,6 @@ function ReviewUIBody() {
   );
   const [fileTreeOverlayOpen, setFileTreeOverlayOpen] = useState(false);
   const [overflow, setOverflow] = useState<"wrap" | "scroll">("scroll");
-  // User-adjustable global font size. The header control drives this and
-  // the value is mirrored onto <html> as `--owl-app-font-size`; `body` in
-  // globals.css reads it, so Tailwind v4's rem-based typography scale
-  // scales proportionally. Reset to APP_FONT_SIZE_DEFAULT on reload.
-  const [appFontSize, setAppFontSize] =
-    useState<AppFontSizeStep>(APP_FONT_SIZE_DEFAULT);
-  useAppFontSize(appFontSize);
   // `worktree` is the default per the spec; `pastCommit` requires the user
   // to pick a hash from the dropdown. The viewer pipeline and the patch
   // loader both react to this via the `source` prop.
@@ -212,7 +199,6 @@ function ReviewUIBody() {
     <ReviewGrid>
       <OwlHeader
         className="[grid-area:header]"
-        appFontSize={appFontSize}
         collapseMode={collapseMode}
         commentSections={commentSections}
         diffSource={diffSource}
@@ -221,9 +207,6 @@ function ReviewUIBody() {
         overflow={overflow}
         fileTreeOverlayOpen={fileTreeOverlayOpen}
         fileTreeAvailable={treeSource != null}
-        onChangeAppFontSize={(next) =>
-          setAppFontSize(clampAppFontSize(next) as AppFontSizeStep)
-        }
         onSelectDiffSource={setDiffSource}
         onToggleCollapseMode={handleToggleCollapseMode}
         onToggleFileTreeOverlay={handleToggleFileTreeOverlay}

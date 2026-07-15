@@ -10,7 +10,6 @@ import {
 
 import { CHROME_ICON_BUTTON_CLASS } from "./chromeButtonStyles";
 import { OwlDiffModePicker } from "./OwlDiffModePicker";
-import { OwlFontSizeControl } from "./OwlFontSizeControl";
 import { OwlGenerateReportButton } from "./OwlGenerateReportButton";
 import { OwlImportFromClipboardButton } from "./OwlImportFromClipboardButton";
 import { OwlLogo } from "./OwlLogo";
@@ -23,7 +22,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/DropdownMenu";
 import { Switch } from "@/components/Switch";
-import type { AppFontSizeStep } from "@/lib/appFontSize";
 import { cn } from "@/lib/cn";
 import type { FileContext } from "@/lib/generateReviewReport";
 import { owlChromeMapping } from "@/lib/theme/owlChromeMapping";
@@ -34,7 +32,6 @@ const SETTING_ROW_CLASS =
   "w-full flex cursor-pointer items-center justify-between gap-4 px-2 py-1.5 text-sm";
 
 interface HeaderProps {
-  appFontSize: AppFontSizeStep;
   className?: string;
   collapseMode: "expanded" | "collapsed";
   commentSections: readonly OwlSavedCommentItem[];
@@ -44,7 +41,6 @@ interface HeaderProps {
   fileTreeAvailable: boolean;
   fileTreeOverlayOpen: boolean;
   overflow: "wrap" | "scroll";
-  onChangeAppFontSize(next: AppFontSizeStep): void;
   onSelectDiffSource(source: DiffSource): void;
   onToggleCollapseMode(): void;
   onToggleFileTreeOverlay(): void;
@@ -53,7 +49,6 @@ interface HeaderProps {
 }
 
 export const OwlHeader = memo(function OwlHeader({
-  appFontSize,
   className,
   collapseMode,
   commentSections,
@@ -63,7 +58,6 @@ export const OwlHeader = memo(function OwlHeader({
   fileTreeAvailable,
   fileTreeOverlayOpen,
   overflow,
-  onChangeAppFontSize,
   onSelectDiffSource,
   onToggleCollapseMode,
   onToggleFileTreeOverlay,
@@ -152,11 +146,6 @@ export const OwlHeader = memo(function OwlHeader({
                 <IconCollapsedRow className="size-4 md:size-3" />
               )}
             </Button>
-            <OwlFontSizeControl
-              className="hidden md:flex"
-              value={appFontSize}
-              onChange={onChangeAppFontSize}
-            />
             <OwlGenerateReportButton
               fileContextByItemId={fileContextByItemId}
               sections={commentSections}
