@@ -1,7 +1,7 @@
 import { IconCiWarningFill, IconRefresh } from "@pierre/icons";
 
 import { useChromeThemeProps } from "@/hooks/useChromeThemeProps";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/atoms/Button";
 import { cn } from "@/lib/cn";
 import { owlChromeMapping } from "@/lib/theme/owlChromeMapping";
 import type { ViewerLoadState } from "@/lib/types";

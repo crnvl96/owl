@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 
 import { PreloadHighlighter } from "@/components/layout/PreloadHighlighter";
 import { ScrollbarGutterVariables } from "@/components/layout/ScrollbarGutterVariables";
-import { Toaster } from "@/components/ui/Toaster";
+import { Toaster } from "@/components/atoms/Toaster";
 import { WorkerPoolContext } from "@/components/layout/WorkerPoolContext";
 
 const geistSans = Geist({
@@ -13,7 +13,7 @@ const geistSans = Geist({
 });
 
 const berkeleyMono = localFont({
-  src: "../public/fonts/BerkeleyMonoVariable.woff2",
+  src: "../../public/fonts/BerkeleyMonoVariable.woff2",
   variable: "--font-berkeley-mono",
 });
 

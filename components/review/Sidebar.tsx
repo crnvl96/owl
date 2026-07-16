@@ -9,10 +9,10 @@ import {
   useEffect,
 } from "react";
 
-import { CHROME_ICON_BUTTON_CLASS } from "@/components/ui/chromeButtonStyles";
+import { CHROME_ICON_BUTTON_CLASS } from "@/components/atoms/chromeButtonStyles";
 import { FileTree } from "@/components/review/FileTree";
 import { useChromeThemeProps } from "@/hooks/useChromeThemeProps";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/atoms/Button";
 import { cn } from "@/lib/cn";
 import { owlChromeMapping } from "@/lib/theme/owlChromeMapping";
 import type { OwlFileTreeSource } from "@/lib/types";
