@@ -4,7 +4,6 @@ import { type CodeViewHandle, useWorkerPool } from "@pierre/diffs/react";
 import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 
 import { OwlBlankArea } from "./OwlBlankArea";
-import { OwlHeader } from "./OwlHeader";
 import { OwlSidebar } from "./OwlSidebar";
 import { OwlStatusPanel } from "./OwlStatusPanel";
 import { OwlViewer } from "./OwlViewer";
@@ -85,9 +84,6 @@ function ReviewUIBody() {
     },
     [setCommentSections],
   );
-  const handleToggleFileTreeOverlay = useCallback(() => {
-    setFileTreeOverlayOpen((open) => !open);
-  }, []);
   const handleCloseFileTreeOverlay = useCallback(() => {
     setFileTreeOverlayOpen(false);
   }, []);
@@ -117,12 +113,6 @@ function ReviewUIBody() {
 
   return (
     <ReviewGrid>
-      <OwlHeader
-        className="[grid-area:header]"
-        fileTreeOverlayOpen={fileTreeOverlayOpen}
-        fileTreeAvailable={treeSource != null}
-        onToggleFileTreeOverlay={handleToggleFileTreeOverlay}
-      />
       {viewerAvailable && treeSource != null ? (
         <>
           <OwlSidebar
@@ -189,7 +179,7 @@ interface ReviewGridProps {
 
 function ReviewGrid({ children }: ReviewGridProps) {
   return (
-    <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[auto_minmax(0,1fr)] overflow-hidden overscroll-contain contain-strict [grid-template-areas:'header''viewer'] md:grid-cols-[320px_minmax(0,1fr)] md:[grid-template-areas:'header_header''tree_viewer']">
+    <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)] overflow-hidden overscroll-contain contain-strict [grid-template-areas:'viewer'] md:grid-cols-[320px_minmax(0,1fr)] md:[grid-template-areas:'tree_viewer']">
       {children}
     </div>
   );
