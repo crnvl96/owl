@@ -1,9 +1,10 @@
 import { spawn } from "node:child_process";
 import { join as joinPath } from "node:path";
 
-import { type NextRequest } from "next/server";
+import { Hono } from "hono";
+import { serveStatic } from "hono/bun";
 
-import { hasNonWhitespaceContent, resolveWorktreePath, runGit } from "@/lib/server/git";
+import { hasNonWhitespaceContent, resolveWorktreePath, runGit } from "./lib/server/git";
 
 const CACHE_CONTROL = "no-store";
 const EMPTY_PATCH_MESSAGE = "No local changes in the current worktree.";
@@ -14,9 +15,6 @@ interface GitNoIndexResult {
   stdout: string;
 }
 
-// Runs `git diff --no-index <a> <b>` to synthesize a diff for an untracked
-// file. The command exits with code 1 when the two paths differ (the normal
-// case) and 0 when they are identical; we accept both.
 function runGitNoIndexDiff(a: string, b: string): Promise<GitNoIndexResult> {
   return new Promise((resolve, reject) => {
     const child = spawn("git", ["diff", "--no-color", "--no-index", a, b]);
@@ -41,12 +39,11 @@ function runGitNoIndexDiff(a: string, b: string): Promise<GitNoIndexResult> {
   });
 }
 
-// Returns the local diff (staged + unstaged + untracked) of the resolved
-// worktree. Accepts no user input — both the worktree path and the git
-// subcommand are server-side. Streams a unified-diff body in the same shape
-// as the existing /api/diff endpoint so the existing viewer pipeline can
-// consume it without modification.
-export async function GET(_request: NextRequest) {
+const app = new Hono();
+
+// --- API --------------------------------------------------------------------
+
+app.get("/api/local-worktree-diff", async (c) => {
   const worktreePath = resolveWorktreePath();
 
   try {
@@ -77,26 +74,29 @@ export async function GET(_request: NextRequest) {
 
     const fullDiff = [tracked.stdout, ...untrackedDiffs].join("");
     if (!hasNonWhitespaceContent(fullDiff)) {
-      return createTextResponse(EMPTY_PATCH_MESSAGE, { status: 422 });
+      c.header("Content-Type", "text/plain; charset=utf-8");
+      c.header("Cache-Control", CACHE_CONTROL);
+      c.header("X-Patch-Source", SOURCE_LABEL);
+      return c.body(EMPTY_PATCH_MESSAGE, 422);
     }
 
-    return createTextResponse(fullDiff);
+    c.header("Content-Type", "text/plain; charset=utf-8");
+    c.header("Cache-Control", CACHE_CONTROL);
+    c.header("X-Patch-Source", SOURCE_LABEL);
+    return c.body(fullDiff, 200);
   } catch (error) {
-    return createTextResponse(
-      error instanceof Error ? error.message : "Unknown error",
-      { status: 500 },
-    );
+    c.header("Content-Type", "text/plain; charset=utf-8");
+    c.header("Cache-Control", CACHE_CONTROL);
+    c.header("X-Patch-Source", SOURCE_LABEL);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return c.body(message, 500);
   }
-}
+});
 
-function createTextResponse(
-  body: string,
-  { status = 200 }: { status?: number } = {},
-): Response {
-  const headers = new Headers({
-    "Content-Type": "text/plain; charset=utf-8",
-    "Cache-Control": CACHE_CONTROL,
-    "X-Patch-Source": SOURCE_LABEL,
-  });
-  return new Response(body, { status, headers });
-}
+// --- Static files (production) ----------------------------------------------
+
+app.use("/assets/*", serveStatic({ root: "./dist" }));
+app.use("/fonts/*", serveStatic({ root: "./public" }));
+app.get("/*", serveStatic({ path: "./dist/index.html" }));
+
+export default app;

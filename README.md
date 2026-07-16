@@ -14,36 +14,38 @@ Owl renders unified and split diffs with syntax highlighting, a file tree sideba
 
 ## Stack
 
-Next.js 16 · React 19 · TypeScript (`tsgo`) · Tailwind v4 · [`@pierre/diffs`](https://github.com/pierrecomputer/diffs) · [`@pierre/trees`](https://github.com/pierrecomputer/trees)
+React 19 · Vite 7 · Hono 4 · Bun · TypeScript (`tsgo`) · Tailwind v4 · [`@pierre/diffs`](https://github.com/pierrecomputer/diffs) · [`@pierre/trees`](https://github.com/pierrecomputer/trees)
 
 ## Getting Started
 
-**Prerequisites:** Node.js 20+, [pnpm](https://pnpm.io/).
+**Prerequisites:** [Bun](https://bun.sh) 1.3+.
 
 ```sh
-pnpm install
+bun install
 export OWL_WORKTREE_PATH=/absolute/path/to/repo   # optional; defaults to cwd
-pnpm dev
+bun dev
 ```
 
-Open <http://localhost:3000>. The target directory must be a git working tree.
+Open <http://localhost:5173> (Vite dev server). The target directory must be a git working tree.
+
+The Hono API server runs on port 3000. In dev the Vite dev server proxies `/api` requests there automatically.
 
 ## Scripts
 
-| Command          | Description                       |
-| ---------------- | --------------------------------- |
-| `pnpm dev`       | Start the dev server              |
-| `pnpm build`     | Production build                  |
-| `pnpm start`     | Start the production server       |
-| `pnpm typecheck` | Run `tsgo --noEmit`               |
-| `pnpm lint`      | Run `oxlint`                      |
-| `pnpm lint:fix`  | Auto-fix lint issues              |
-| `pnpm fmt`       | Format all files                  |
-| `pnpm fmt:check` | Check formatting                  |
-| `pnpm check`     | Format check, lint, and typecheck |
-| `pnpm fix`       | Format and auto-fix lint issues   |
+| Command         | Description                       |
+| --------------- | --------------------------------- |
+| `bun dev`       | Start Vite + Hono dev servers     |
+| `bun run build` | Production build (`vite build`)   |
+| `bun start`     | Start the production server       |
+| `bun typecheck` | Run `tsgo --noEmit`               |
+| `bun lint`      | Run `oxlint`                      |
+| `bun lint:fix`  | Auto-fix lint issues              |
+| `bun fmt`       | Format all files                  |
+| `bun fmt:check` | Check formatting                  |
+| `bun check`     | Format check, lint, and typecheck |
+| `bun fix`       | Format and auto-fix lint issues   |
 
-Run `pnpm check` before committing.
+Run `bun check` before committing.
 
 ## Notes
 
