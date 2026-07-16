@@ -7,13 +7,11 @@ import {
   type ReactNode,
   type RefObject,
   useEffect,
-  useState,
 } from "react";
 
 import { CHROME_ICON_BUTTON_CLASS } from "./chromeButtonStyles";
 import { OwlFileTree } from "./OwlFileTree";
 import { useChromeThemeProps } from "./useChromeThemeProps";
-import { WorkerPoolStatus } from "./WorkerPoolStatus";
 import { Button } from "@/components/Button";
 import { cn } from "@/lib/cn";
 import { owlChromeMapping } from "@/lib/theme/owlChromeMapping";
@@ -41,13 +39,6 @@ export const OwlSidebar = memo(function OwlSidebar({
   const { style: sidebarChromeStyle } = useChromeThemeProps(owlChromeMapping);
   const sidebarStyle =
     Object.keys(sidebarChromeStyle).length > 0 ? sidebarChromeStyle : undefined;
-  const [workerStatusExpanded, setWorkerStatusExpanded] = useState(false);
-
-  useEffect(() => {
-    if (mobileOverlayOpen && window.matchMedia(MOBILE_MEDIA_QUERY).matches) {
-      setWorkerStatusExpanded(false);
-    }
-  }, [mobileOverlayOpen]);
 
   useEffect(() => {
     if (!mobileOverlayOpen || !window.matchMedia(MOBILE_MEDIA_QUERY).matches) {
@@ -113,11 +104,6 @@ export const OwlSidebar = memo(function OwlSidebar({
             <OwlFileTree source={source} onSelectItem={onSelectItem} />
           </div>
         </div>
-        <WorkerPoolStatus
-          expanded={workerStatusExpanded}
-          onToggle={() => setWorkerStatusExpanded((v) => !v)}
-          scrollRef={scrollRef}
-        />
       </SidebarWrapper>
     </>
   );
