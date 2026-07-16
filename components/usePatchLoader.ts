@@ -29,12 +29,7 @@ import {
   getStreamedPatchMetadata,
   streamGitPatchFiles,
 } from "@/lib/streamGitPatchFiles";
-import type {
-  CommentMetadata,
-  OwlDiffStats,
-  OwlFileTreeSource,
-  ViewerLoadState,
-} from "@/lib/types";
+import type { CommentMetadata, OwlFileTreeSource, ViewerLoadState } from "@/lib/types";
 
 const STREAM_PUBLISH_INTERVAL_MS = 100;
 const STREAM_INITIAL_PUBLISH_INTERVAL_MS = 500;
@@ -50,7 +45,6 @@ interface UsePatchLoaderOptions {
 }
 
 interface UsePatchLoaderResult {
-  diffStats: OwlDiffStats | null;
   errorMessage: string | null;
   initialItems: CodeViewItem<CommentMetadata>[];
   loadState: ViewerLoadState;
@@ -70,7 +64,6 @@ export function usePatchLoader({
   // updates do not cascade into the file tree and trigger needless rebuilds.
   // It is updated by fetch/stream batches in this viewer route.
   const [treeSource, setTreeSource] = useState<OwlFileTreeSource | null>(null);
-  const [diffStats, setDiffStats] = useState<OwlDiffStats | null>(null);
   const [loadState, setLoadState] = useState<ViewerLoadState>("fetching");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loadAttempt, setLoadAttempt] = useState(0);
@@ -142,7 +135,6 @@ export function usePatchLoader({
     setViewerKey(requestId);
     setInitialItems([]);
     setTreeSource(null);
-    setDiffStats(null);
     onLoadStart();
     setErrorMessage(null);
     setLoadState("fetching");
@@ -166,7 +158,6 @@ export function usePatchLoader({
         }
 
         setTreeSource(loadedData.treeSource);
-        setDiffStats(loadedData.diffStats);
         prepareItemsForViewer(loadedData.items);
         setInitialItems(loadedData.items);
         setLoadState("ready");
@@ -196,12 +187,6 @@ export function usePatchLoader({
           // are no-ops and downstream effects see a stable reference.
           if (response.status === 422) {
             setTreeSource(EMPTY_OWL_FILE_TREE_SOURCE);
-            setDiffStats({
-              addedLines: 0,
-              deletedLines: 0,
-              fileCount: 0,
-              totalLinesOfCode: 0,
-            });
             setInitialItems([]);
             setErrorMessage(null);
             setLoadState("ready");
@@ -247,7 +232,6 @@ export function usePatchLoader({
           pendingTreePublishFileCount = 0;
           hasPublishedTree = true;
           lastTreePublishTime = performance.now();
-          setDiffStats({ ...accumulator.diffStats });
           setTreeSource(snapshotOwlTreeSource(accumulator));
         };
 
@@ -390,7 +374,6 @@ export function usePatchLoader({
           return;
         }
 
-        setDiffStats({ ...accumulator.diffStats });
         setLoadState("ready");
       } catch {
         if (!isCurrentRequest()) {
@@ -421,7 +404,6 @@ export function usePatchLoader({
   }, []);
 
   return {
-    diffStats,
     errorMessage,
     initialItems,
     loadState,

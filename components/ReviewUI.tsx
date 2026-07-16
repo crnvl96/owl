@@ -27,7 +27,6 @@ function ReviewUIBody() {
     setFileTreeOverlayOpen(false);
   }, []);
   const {
-    diffStats,
     errorMessage,
     initialItems,
     loadState,
@@ -74,12 +73,10 @@ function ReviewUIBody() {
         <>
           <OwlSidebar
             className="[grid-area:viewer] md:[grid-area:tree]"
-            diffStats={diffStats}
             mobileOverlayOpen={fileTreeOverlayOpen}
             onMobileClose={handleCloseFileTreeOverlay}
             scrollRef={scrollRef}
             source={treeSource}
-            streaming={loadState === "streaming"}
             onSelectItem={handleSelectTreeItem}
           />
           {hasDiffItems ? (

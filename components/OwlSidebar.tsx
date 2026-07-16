@@ -15,7 +15,6 @@ import {
 } from "react";
 
 import { CHROME_ICON_BUTTON_CLASS } from "./chromeButtonStyles";
-import { OwlDiffStats } from "./OwlDiffStats";
 import { OwlFileTree } from "./OwlFileTree";
 import { useChromeThemeProps } from "./useChromeThemeProps";
 import { WorkerPoolStatus } from "./WorkerPoolStatus";
@@ -34,32 +33,26 @@ import { filterOwlFileTreeSource } from "@/lib/filterOwlFileTreeSource";
 import { getOwlFileTreeAvailableStatuses } from "@/lib/getOwlFileTreeAvailableStatuses";
 import { owlChromeMapping } from "@/lib/theme/owlChromeMapping";
 import { getDropdownThemeStyle } from "@/lib/theme/dropdownChromeStyle";
-import type { OwlDiffStats as OwlDiffStatsData, OwlFileTreeSource } from "@/lib/types";
-
-type SidebarStatusPanel = "diffStats" | "systemMonitor";
+import type { OwlFileTreeSource } from "@/lib/types";
 
 const MOBILE_MEDIA_QUERY = "(max-width: 767px)";
 
 interface OwlSidebarProps {
   className?: string;
-  diffStats: OwlDiffStatsData | null;
   mobileOverlayOpen?: boolean;
   onMobileClose(): void;
   onSelectItem(itemId: string): void;
   scrollRef: RefObject<HTMLDivElement | null>;
   source: OwlFileTreeSource;
-  streaming: boolean;
 }
 
 export const OwlSidebar = memo(function OwlSidebar({
   className,
-  diffStats,
   mobileOverlayOpen = false,
   onMobileClose,
   onSelectItem,
   scrollRef,
   source,
-  streaming,
 }: OwlSidebarProps) {
   // Pull the resolved Shiki theme so the whole sidebar (tabs row, file
   // tree, diff stats panel, footer) sits on the theme's sidebar surface
@@ -76,9 +69,7 @@ export const OwlSidebar = memo(function OwlSidebar({
     () => getDropdownThemeStyle(sidebarStyle),
     [sidebarStyle],
   );
-  const [activeStatusPanel, setActiveStatusPanel] = useState<SidebarStatusPanel | null>(
-    "diffStats",
-  );
+  const [workerStatusExpanded, setWorkerStatusExpanded] = useState(false);
   // Inclusion filter: the statuses the tree should show. Empty means "no
   // filter" — every file is shown — so the menu opens with nothing checked and
   // checking statuses narrows the tree to just those.
@@ -93,10 +84,6 @@ export const OwlSidebar = memo(function OwlSidebar({
     () => filterOwlFileTreeSource(source, selectedStatuses),
     [source, selectedStatuses],
   );
-  const toggleStatusPanel = useCallback((panel: SidebarStatusPanel) => {
-    setActiveStatusPanel((current) => (current === panel ? null : panel));
-  }, []);
-
   const clearStatusFilter = useCallback(() => {
     setSelectedStatuses(new Set());
   }, []);
@@ -127,7 +114,7 @@ export const OwlSidebar = memo(function OwlSidebar({
 
   useEffect(() => {
     if (mobileOverlayOpen && window.matchMedia(MOBILE_MEDIA_QUERY).matches) {
-      setActiveStatusPanel(null);
+      setWorkerStatusExpanded(false);
     }
   }, [mobileOverlayOpen]);
 
@@ -205,15 +192,9 @@ export const OwlSidebar = memo(function OwlSidebar({
             <OwlFileTree source={filteredSource} onSelectItem={onSelectItem} />
           </div>
         </div>
-        <OwlDiffStats
-          expanded={activeStatusPanel === "diffStats"}
-          onToggle={() => toggleStatusPanel("diffStats")}
-          stats={diffStats}
-          streaming={streaming}
-        />
         <WorkerPoolStatus
-          expanded={activeStatusPanel === "systemMonitor"}
-          onToggle={() => toggleStatusPanel("systemMonitor")}
+          expanded={workerStatusExpanded}
+          onToggle={() => setWorkerStatusExpanded((v) => !v)}
           scrollRef={scrollRef}
         />
       </SidebarWrapper>
