@@ -13,7 +13,6 @@ import { removeSavedCommentSidebarEntry } from "@/lib/removeSavedCommentSidebarE
 import { ACTIVE_THEME_SCHEME } from "@/lib/theme/activeTheme";
 import type {
   CommentMetadata,
-  DiffSource,
   OwlDeletedCommentEvent,
   OwlSavedCommentEntry,
   OwlSavedCommentEvent,
@@ -33,12 +32,6 @@ function ReviewUIBody() {
     "expanded",
   );
   const [fileTreeOverlayOpen, setFileTreeOverlayOpen] = useState(false);
-  // `worktree` is the default per the spec; `pastCommit` requires the user
-  // to pick a hash from the dropdown. The viewer pipeline and the patch
-  // loader both react to this via the `source` prop.
-  const [diffSource, setDiffSource] = useState<DiffSource>({
-    kind: "worktree",
-  });
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<CodeViewHandle<CommentMetadata> | null>(null);
@@ -62,7 +55,6 @@ function ReviewUIBody() {
   } = usePatchLoader({
     collapseMode,
     onLoadStart: handlePatchLoadStart,
-    source: diffSource,
     viewerRef,
   });
 
@@ -155,11 +147,9 @@ function ReviewUIBody() {
       <OwlHeader
         className="[grid-area:header]"
         collapseMode={collapseMode}
-        diffSource={diffSource}
         diffStyle={diffStyle}
         fileTreeOverlayOpen={fileTreeOverlayOpen}
         fileTreeAvailable={treeSource != null}
-        onSelectDiffSource={setDiffSource}
         onToggleCollapseMode={handleToggleCollapseMode}
         onToggleFileTreeOverlay={handleToggleFileTreeOverlay}
         setDiffStyle={setDiffStyle}

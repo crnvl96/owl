@@ -14,19 +14,9 @@ export interface FileTreeGitStatusPatch {
 
 export type ViewerLoadState = "fetching" | "streaming" | "parsing" | "ready" | "error";
 
-// What the viewer is currently rendering. The three kinds are mutually
-// exclusive: `worktree` shows the local uncommitted changes of the resolved
-// worktree, `pastCommit` shows the diff introduced by a specific commit
-// resolved from the same worktree's object database, and `branchCompare`
-// shows the diff between the current branch and another branch (three-dot:
-// changes on HEAD since the merge base). Both `pastCommit` and
-// `branchCompare` are independent of the working tree (git reads from the
-// object database), so a dirty worktree does not gate switching between
-// modes.
-export type DiffSource =
-  | { kind: "worktree" }
-  | { kind: "pastCommit"; hash: string }
-  | { kind: "branchCompare"; branch: string };
+// The viewer always shows the local uncommitted changes of the resolved
+// worktree.
+export type DiffSource = { kind: "worktree" };
 
 export interface SavedCommentMetadata {
   kind: "saved";

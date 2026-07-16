@@ -8,22 +8,18 @@ import {
 } from "@pierre/icons";
 
 import { CHROME_ICON_BUTTON_CLASS } from "./chromeButtonStyles";
-import { OwlDiffModePicker } from "./OwlDiffModePicker";
 import { OwlLogo } from "./OwlLogo";
 import { useChromeThemeProps } from "./useChromeThemeProps";
 import { Button } from "@/components/Button";
 import { cn } from "@/lib/cn";
 import { owlChromeMapping } from "@/lib/theme/owlChromeMapping";
-import type { DiffSource } from "@/lib/types";
 
 interface HeaderProps {
   className?: string;
   collapseMode: "expanded" | "collapsed";
-  diffSource: DiffSource;
   diffStyle: "split" | "unified";
   fileTreeAvailable: boolean;
   fileTreeOverlayOpen: boolean;
-  onSelectDiffSource(source: DiffSource): void;
   onToggleCollapseMode(): void;
   onToggleFileTreeOverlay(): void;
   setDiffStyle: Dispatch<SetStateAction<"split" | "unified">>;
@@ -32,11 +28,9 @@ interface HeaderProps {
 export const OwlHeader = memo(function OwlHeader({
   className,
   collapseMode,
-  diffSource,
   diffStyle,
   fileTreeAvailable,
   fileTreeOverlayOpen,
-  onSelectDiffSource,
   onToggleCollapseMode,
   onToggleFileTreeOverlay,
   setDiffStyle,
@@ -58,11 +52,6 @@ export const OwlHeader = memo(function OwlHeader({
       style={themeChromeStyle}
     >
       <OwlLogo className="absolute top-4 left-[50%] -translate-x-1/2 md:static md:translate-x-0" />
-      <OwlDiffModePicker
-        source={diffSource}
-        onSelectSource={onSelectDiffSource}
-        className="hidden md:flex"
-      />
       <div className="flex w-full items-center justify-between gap-2 md:ml-auto md:w-auto md:justify-end">
         <Button
           type="button"
@@ -76,11 +65,6 @@ export const OwlHeader = memo(function OwlHeader({
         >
           <IconFileTreeFill className="size-4 md:size-3" />
         </Button>
-        <OwlDiffModePicker
-          source={diffSource}
-          onSelectSource={onSelectDiffSource}
-          className="md:hidden"
-        />
         <div className="flex items-center gap-2">
           <div className="bg-border/60 hidden h-5 w-px md:block" aria-hidden="true" />
           <div className="flex items-center">
