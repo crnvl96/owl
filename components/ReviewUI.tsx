@@ -8,15 +8,8 @@ import { OwlSidebar } from "./OwlSidebar";
 import { OwlStatusPanel } from "./OwlStatusPanel";
 import { OwlViewer } from "./OwlViewer";
 import { usePatchLoader } from "./usePatchLoader";
-import { removeSavedCommentSidebarEntry } from "@/lib/removeSavedCommentSidebarEntry";
 import { ACTIVE_THEME_SCHEME } from "@/lib/theme/activeTheme";
-import type {
-  CommentMetadata,
-  OwlDeletedCommentEvent,
-  OwlSavedCommentEntry,
-  OwlSavedCommentEvent,
-} from "@/lib/types";
-import { upsertSavedCommentSidebarEntry } from "@/lib/upsertSavedCommentSidebarEntry";
+import type { CommentMetadata } from "@/lib/types";
 
 // The viewer always shows the local worktree's diff. It takes no props and
 // draws its palette from the single hardcoded theme (see lib/theme/activeTheme).
@@ -34,8 +27,6 @@ function ReviewUIBody() {
     setFileTreeOverlayOpen(false);
   }, []);
   const {
-    commentFileByItemId,
-    commentSections,
     diffStats,
     errorMessage,
     initialItems,
@@ -43,7 +34,6 @@ function ReviewUIBody() {
     onLineLinkChange,
     onViewerReady,
     retryLoad,
-    setCommentSections,
     treeSource,
     viewerKey,
   } = usePatchLoader({
@@ -70,45 +60,12 @@ function ReviewUIBody() {
       behavior: "smooth",
     });
   }, []);
-  const handleCommentSaved = useCallback(
-    (comment: OwlSavedCommentEvent) => {
-      setCommentSections((prev) =>
-        upsertSavedCommentSidebarEntry(prev, commentFileByItemId, comment),
-      );
-    },
-    [commentFileByItemId, setCommentSections],
-  );
-  const handleCommentDeleted = useCallback(
-    (comment: OwlDeletedCommentEvent) => {
-      setCommentSections((prev) => removeSavedCommentSidebarEntry(prev, comment));
-    },
-    [setCommentSections],
-  );
   const handleCloseFileTreeOverlay = useCallback(() => {
     setFileTreeOverlayOpen(false);
-  }, []);
-  const handleSelectComment = useCallback((comment: OwlSavedCommentEntry) => {
-    setFileTreeOverlayOpen(false);
-    viewerRef.current?.setSelectedLines({
-      id: comment.itemId,
-      range: comment.range,
-    });
-    viewerRef.current?.scrollTo({
-      type: "line",
-      id: comment.itemId,
-      lineNumber: comment.range.end,
-      side: comment.range.endSide ?? comment.range.side,
-      align: "center",
-      behavior: "smooth-auto",
-    });
   }, []);
   const viewerAvailable =
     isWorkerPoolReadyOrDisable &&
     (loadState === "ready" || (loadState === "streaming" && initialItems.length > 0));
-  // `treeSource` is now an empty-but-valid file tree source (not null) once
-  // the worktree is clean, so the chrome stays mounted. We render the viewer
-  // only when there are diff items to show; otherwise a blank area takes its
-  // grid slot so the user sees a consistent UI shell.
   const hasDiffItems = initialItems.length > 0;
 
   return (
@@ -117,11 +74,9 @@ function ReviewUIBody() {
         <>
           <OwlSidebar
             className="[grid-area:viewer] md:[grid-area:tree]"
-            commentSections={commentSections}
             diffStats={diffStats}
             mobileOverlayOpen={fileTreeOverlayOpen}
             onMobileClose={handleCloseFileTreeOverlay}
-            onSelectComment={handleSelectComment}
             scrollRef={scrollRef}
             source={treeSource}
             streaming={loadState === "streaming"}
@@ -135,8 +90,6 @@ function ReviewUIBody() {
               themeType={ACTIVE_THEME_SCHEME}
               viewerRef={viewerRef}
               initialItems={initialItems}
-              onCommentDeleted={handleCommentDeleted}
-              onCommentSaved={handleCommentSaved}
               onLineLinkChange={onLineLinkChange}
               onViewerReady={onViewerReady}
             />
@@ -160,8 +113,6 @@ function useIsWorkerPoolReadyOrDisabled() {
   const [isReady, setIsReady] = useState(() => workerPool?.isInitialized() ?? true);
   const isReadyRef = useRef(isReady);
   useEffect(() => {
-    // The callback will always be fired immediately with the new state, so we
-    // don't need to check for it in the effect
     return workerPool?.subscribeToStatChanges((stats) => {
       const newIsReady = stats.managerState === "initialized";
       if (newIsReady !== isReadyRef.current) {

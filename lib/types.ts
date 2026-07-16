@@ -1,4 +1,3 @@
-import type { AnnotationSide, SelectedLineRange } from "@pierre/diffs";
 import type { GitStatusEntry } from "@pierre/trees";
 
 // The workspace version of @pierre/trees exported this type and a
@@ -18,21 +17,10 @@ export type ViewerLoadState = "fetching" | "streaming" | "parsing" | "ready" | "
 // worktree.
 export type DiffSource = { kind: "worktree" };
 
-export interface SavedCommentMetadata {
-  kind: "saved";
-  key: string;
-  message: string;
-  range: SelectedLineRange;
-}
-
-export interface DraftCommentMetadata {
-  kind: "draft";
-  key: string;
-  message: string;
-  range: SelectedLineRange;
-}
-
-export type CommentMetadata = SavedCommentMetadata | DraftCommentMetadata;
+// Annotation metadata carried on CodeView items. No annotations are
+// created in the current viewer; the type exists to satisfy the
+// `@pierre/diffs` generic parameter.
+export type CommentMetadata = never;
 
 export interface OwlCommentSidebarFile {
   fileOrder: number;
@@ -40,53 +28,6 @@ export interface OwlCommentSidebarFile {
 }
 
 export type OwlCommentFileByItemId = ReadonlyMap<string, OwlCommentSidebarFile>;
-
-// Whether the line the comment is anchored to is a real addition/deletion or
-// an unchanged context line shown in the diff. Tracked so the sidebar can
-// render "Line N" without a misleading + / - sigil for context lines.
-export type CommentLineType = "change" | "context";
-
-export interface OwlSavedCommentEvent {
-  itemId: string;
-  key: string;
-  lineNumber: number;
-  lineType: CommentLineType;
-  message: string;
-  range: SelectedLineRange;
-  // `side` is `undefined` for comments anchored on a file item, where
-  // there is no addition/deletion distinction. Diff-mode comments always
-  // populate it. Mirrors the same field on `OwlSavedCommentEntry` so the
-  // two stay in sync.
-  side?: AnnotationSide;
-}
-
-export interface OwlDeletedCommentEvent {
-  itemId: string;
-  key: string;
-}
-
-export interface OwlSavedCommentEntry {
-  itemId: string;
-  key: string;
-  lineNumber: number;
-  lineType: CommentLineType;
-  message: string;
-  range: SelectedLineRange;
-  // `side` is `undefined` for comments anchored on a file item, where
-  // there is no addition/deletion distinction. Diff-mode comments always
-  // populate it. The type is the same `SelectedLineRange` used by the
-  // rest of the pipeline, which already models `side` as optional;
-  // making the field optional here too lets the same `CommentMetadata`
-  // shape flow through both rendering modes without a parallel struct.
-  side?: AnnotationSide;
-}
-
-export interface OwlSavedCommentItem {
-  comments: OwlSavedCommentEntry[];
-  fileOrder: number;
-  itemId: string;
-  path: string;
-}
 
 // The fully pre-computed input this tree needs for a given fetch. It is built
 // once at fetch time by snapshotOwlTreeSource and stored alongside the

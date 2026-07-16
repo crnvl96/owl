@@ -7,15 +7,7 @@ import {
   processFile,
 } from "@pierre/diffs";
 import { type CodeViewHandle, useStableCallback } from "@pierre/diffs/react";
-import {
-  type Dispatch,
-  type RefObject,
-  type SetStateAction,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { type RefObject, useCallback, useEffect, useRef, useState } from "react";
 
 import { CODE_VIEW_BATCH_COUNT, getInitialBatchSize } from "@/lib/constants";
 import {
@@ -39,10 +31,8 @@ import {
 } from "@/lib/streamGitPatchFiles";
 import type {
   CommentMetadata,
-  OwlCommentFileByItemId,
   OwlDiffStats,
   OwlFileTreeSource,
-  OwlSavedCommentItem,
   ViewerLoadState,
 } from "@/lib/types";
 
@@ -60,8 +50,6 @@ interface UsePatchLoaderOptions {
 }
 
 interface UsePatchLoaderResult {
-  commentFileByItemId: OwlCommentFileByItemId | null;
-  commentSections: OwlSavedCommentItem[];
   diffStats: OwlDiffStats | null;
   errorMessage: string | null;
   initialItems: CodeViewItem<CommentMetadata>[];
@@ -69,7 +57,6 @@ interface UsePatchLoaderResult {
   onLineLinkChange(selection: CodeViewLineSelection | null): void;
   onViewerReady(): void;
   retryLoad(): void;
-  setCommentSections: Dispatch<SetStateAction<OwlSavedCommentItem[]>>;
   treeSource: OwlFileTreeSource | null;
   viewerKey: number;
 }
@@ -84,9 +71,6 @@ export function usePatchLoader({
   // It is updated by fetch/stream batches in this viewer route.
   const [treeSource, setTreeSource] = useState<OwlFileTreeSource | null>(null);
   const [diffStats, setDiffStats] = useState<OwlDiffStats | null>(null);
-  const [commentFileByItemId, setCommentFileByItemId] =
-    useState<OwlCommentFileByItemId | null>(null);
-  const [commentSections, setCommentSections] = useState<OwlSavedCommentItem[]>([]);
   const [loadState, setLoadState] = useState<ViewerLoadState>("fetching");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loadAttempt, setLoadAttempt] = useState(0);
@@ -159,8 +143,6 @@ export function usePatchLoader({
     setInitialItems([]);
     setTreeSource(null);
     setDiffStats(null);
-    setCommentFileByItemId(null);
-    setCommentSections([]);
     onLoadStart();
     setErrorMessage(null);
     setLoadState("fetching");
@@ -184,8 +166,6 @@ export function usePatchLoader({
         }
 
         setTreeSource(loadedData.treeSource);
-        setCommentFileByItemId(loadedData.itemIdToFile);
-        setCommentSections([]);
         setDiffStats(loadedData.diffStats);
         prepareItemsForViewer(loadedData.items);
         setInitialItems(loadedData.items);
@@ -216,7 +196,6 @@ export function usePatchLoader({
           // are no-ops and downstream effects see a stable reference.
           if (response.status === 422) {
             setTreeSource(EMPTY_OWL_FILE_TREE_SOURCE);
-            setCommentFileByItemId(new Map());
             setDiffStats({
               addedLines: 0,
               deletedLines: 0,
@@ -268,7 +247,6 @@ export function usePatchLoader({
           pendingTreePublishFileCount = 0;
           hasPublishedTree = true;
           lastTreePublishTime = performance.now();
-          setCommentFileByItemId(accumulator.itemIdToFile);
           setDiffStats({ ...accumulator.diffStats });
           setTreeSource(snapshotOwlTreeSource(accumulator));
         };
@@ -412,7 +390,6 @@ export function usePatchLoader({
           return;
         }
 
-        setCommentFileByItemId(new Map(accumulator.itemIdToFile));
         setDiffStats({ ...accumulator.diffStats });
         setLoadState("ready");
       } catch {
@@ -444,8 +421,6 @@ export function usePatchLoader({
   }, []);
 
   return {
-    commentFileByItemId,
-    commentSections,
     diffStats,
     errorMessage,
     initialItems,
@@ -453,7 +428,6 @@ export function usePatchLoader({
     onLineLinkChange: handleLineLinkChange,
     onViewerReady: tryApplyLineHashTarget,
     retryLoad,
-    setCommentSections,
     treeSource,
     viewerKey,
   };
