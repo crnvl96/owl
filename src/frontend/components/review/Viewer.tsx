@@ -11,13 +11,12 @@ import { memo, type RefObject, useMemo, useState } from "react";
 import { ThemedCodeView } from "@/components/diff/ThemedCodeView";
 import { useChromeThemeProps } from "@/hooks/useChromeThemeProps";
 import { buildAnnotationThemeStyle } from "@/lib/annotationThemeStyle";
-import { cn } from "@/lib/cn";
 import { CODE_VIEW_CUSTOM_CSS, CODE_VIEW_LAYOUT } from "@/lib/config";
 import { owlChromeMapping } from "@/lib/theme/owlChromeMapping";
 import type { CommentMetadata } from "@/lib/types";
+import styles from "./Viewer.module.css";
 
 interface ViewerProps {
-  className?: string;
   scrollRef: RefObject<HTMLDivElement | null>;
   themeType: ThemeTypes;
   viewerRef: RefObject<CodeViewHandle<CommentMetadata> | null>;
@@ -27,7 +26,6 @@ interface ViewerProps {
 }
 
 export const Viewer = memo(function Viewer({
-  className,
   scrollRef,
   themeType,
   viewerRef,
@@ -35,42 +33,28 @@ export const Viewer = memo(function Viewer({
   onLineLinkChange,
   onViewerReady,
 }: ViewerProps) {
-  const [selectedLines, setSelectedLines] = useState<CodeViewLineSelection | null>(
-    null,
-  );
+  const [selectedLines, setSelectedLines] = useState<CodeViewLineSelection | null>(null);
   const { style: chromeStyle } = useChromeThemeProps(owlChromeMapping);
-  const themeChromeStyle =
-    Object.keys(chromeStyle).length > 0 ? chromeStyle : undefined;
+  const themeChromeStyle = Object.keys(chromeStyle).length > 0 ? chromeStyle : undefined;
   const annotationThemeStyle = useMemo(
     () => buildAnnotationThemeStyle(themeChromeStyle),
     [themeChromeStyle],
   );
 
   const handleSetSelection = useStableCallback(
-    (selection: CodeViewLineSelection | null) => {
-      setSelectedLines(selection);
-    },
+    (selection: CodeViewLineSelection | null) => setSelectedLines(selection),
   );
 
   const handleLineSelectionEnd = useStableCallback(
     (range: SelectedLineRange | null, item: CodeViewItem<CommentMetadata>) => {
-      // The line-hash deep link lets the user share a URL anchored at a
-      // specific line. Clear the link only when the selection itself was
-      // cleared.
-      if (range == null) {
-        onLineLinkChange(null);
-      } else {
-        onLineLinkChange({ id: item.id, range });
-      }
+      onLineLinkChange(range == null ? null : { id: item.id, range });
     },
   );
 
   const handleViewerRef = useStableCallback(
     (viewer: CodeViewHandle<CommentMetadata> | null) => {
       viewerRef.current = viewer;
-      if (viewer != null) {
-        onViewerReady();
-      }
+      if (viewer != null) onViewerReady();
     },
   );
 
@@ -94,15 +78,13 @@ export const Viewer = memo(function Viewer({
       }) satisfies CodeViewOptions<CommentMetadata>,
     [handleLineSelectionEnd, themeType],
   );
+
   return (
     <ThemedCodeView<CommentMetadata>
       ref={handleViewerRef}
       containerRef={scrollRef}
       initialItems={initialItems}
-      className={cn(
-        className,
-        "cv-scrollbar relative h-full min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-clip overscroll-contain border-b border-border w-full [contain:strict] [overflow-anchor:none] [will-change:scroll-position] md:border-b-0 [&_diffs-container]:overflow-clip [&_diffs-container]:[contain:layout_paint_style] [&_diffs-container]:shadow-[0_-1px_0_var(--owl-diff-separator,var(--color-border-opaque)),0_1px_0_var(--owl-diff-separator,var(--color-border-opaque))]",
-      )}
+      className={styles.viewer}
       options={options}
       style={annotationThemeStyle}
       selectedLines={selectedLines}

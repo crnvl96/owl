@@ -1,0 +1,130 @@
+@font-face {
+  font-family: "Berkeley Mono Variable";
+  src: url("/fonts/BerkeleyMonoVariable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --radius: 0.625rem;
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --border-opaque: color-mix(in oklch, var(--owl-sidebar-bg) 90%, oklch(1 0 0));
+  --color-border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --owl-sidebar-bg: #101010;
+  --diffs-font-family: var(--font-berkeley-mono);
+  --cv-gutter-vertical: 0px;
+  --cv-gutter-horizontal: 0px;
+  --cv-mini-gutter-vertical: 0px;
+  --cv-mini-gutter-horizontal: 0px;
+  color-scheme: dark;
+  -webkit-font-smoothing: antialiased;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  border-color: var(--border);
+}
+
+html {
+  font-size: 14px;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans);
+}
+
+body.owl {
+  background-color: var(--owl-sidebar-bg);
+}
+
+@media (width <= 768px) {
+  body.owl {
+    background-color: oklch(14.5% 0 0);
+  }
+}
+
+diffs-container {
+  --diffs-font-size: calc(14px * 0.8125);
+  --diffs-line-height: calc(var(--diffs-font-size) * 1.5385);
+}
+
+file-tree-container {
+  --trees-font-size-override: calc(14px * 0.8125);
+}
+
+code {
+  font-family: var(--diffs-font-family);
+  font-size: 95%;
+  font-weight: 500;
+  color: var(--primary);
+  letter-spacing: -0.025em;
+}
+
+textarea {
+  outline-offset: 1px;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ─── cv-scrollbar ──────────────────────────────────────────────────────── */
+/* Used by Viewer and measured by ScrollbarGutterVariables.                  */
+
+.cv-scrollbar {
+  --cv-scrollbar-thumb-bg: var(
+    --owl-scrollbar-thumb-bg,
+    light-dark(
+      color-mix(in lab, var(--background) 85%, black),
+      color-mix(in lab, var(--background) 80%, white)
+    )
+  );
+  scrollbar-gutter: stable;
+}
+
+.cv-scrollbar::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+.cv-scrollbar::-webkit-scrollbar-track {
+  background: var(--owl-scrollbar-track-bg, transparent);
+  border-left: 1px solid var(--owl-diff-separator, var(--color-border-opaque));
+  margin-top: -1px;
+}
+
+.cv-scrollbar::-webkit-scrollbar-thumb {
+  background-color: var(--cv-scrollbar-thumb-bg);
+  background-clip: content-box;
+  border: 2px solid transparent;
+  border-radius: 6px;
+}
+
+@supports (-moz-appearance: none) {
+  .cv-scrollbar {
+    scrollbar-color: var(--cv-scrollbar-thumb-bg) var(--owl-scrollbar-track-bg, transparent);
+  }
+}

@@ -4,7 +4,7 @@ import { join as joinPath } from "node:path";
 import { Hono } from "hono";
 import { serveStatic } from "hono/bun";
 
-import { hasNonWhitespaceContent, resolveWorktreePath, runGit } from "./lib/server/git";
+import { hasNonWhitespaceContent, resolveWorktreePath, runGit } from "./git";
 
 const CACHE_CONTROL = "no-store";
 const EMPTY_PATCH_MESSAGE = "No local changes in the current worktree.";

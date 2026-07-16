@@ -1,0 +1,31 @@
+.viewer {
+  composes: cv-scrollbar from global;
+  grid-area: viewer;
+  position: relative;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  flex: 1;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: clip;
+  overscroll-behavior: contain;
+  border-bottom: 1px solid var(--border);
+  contain: strict;
+  overflow-anchor: none;
+  will-change: scroll-position;
+}
+
+@media (min-width: 768px) {
+  .viewer {
+    border-bottom: none;
+  }
+}
+
+.viewer :global(diffs-container) {
+  overflow: clip;
+  contain: layout paint style;
+  box-shadow:
+    0 -1px 0 var(--owl-diff-separator, var(--color-border-opaque)),
+    0 1px 0 var(--owl-diff-separator, var(--color-border-opaque));
+}

@@ -1,0 +1,18 @@
+.grid {
+  display: grid;
+  min-height: 0;
+  flex: 1;
+  grid-template-columns: 1fr;
+  grid-template-rows: minmax(0, 1fr);
+  overflow: hidden;
+  overscroll-behavior: contain;
+  contain: strict;
+  grid-template-areas: 'viewer';
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: 320px minmax(0, 1fr);
+    grid-template-areas: 'tree viewer';
+  }
+}

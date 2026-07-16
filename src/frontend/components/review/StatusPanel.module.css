@@ -1,0 +1,55 @@
+.container {
+  grid-column: 1 / -1;
+  display: flex;
+  min-height: 0;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.containerDefaultBg {
+  background-color: var(--background);
+}
+
+.section {
+  width: 100%;
+  max-width: 28rem;
+  padding: 1.25rem;
+  text-align: center;
+}
+
+.icon {
+  display: block;
+  margin: 0 auto 0.75rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--muted-foreground);
+}
+
+.spinner {
+  display: block;
+  margin: 0 auto 0.75rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--muted-foreground);
+  animation: spin 1s linear infinite reverse;
+  transform-origin: center;
+}
+
+.title {
+  color: var(--foreground);
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.message {
+  color: var(--muted-foreground);
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+  text-wrap: pretty;
+}
+
+.retryButton {
+  margin-top: 1rem;
+}

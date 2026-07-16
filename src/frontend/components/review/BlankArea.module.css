@@ -1,0 +1,7 @@
+.blank {
+  background-color: var(--owl-sidebar-bg);
+  grid-area: viewer;
+  min-height: 0;
+  min-width: 0;
+  flex: 1;
+}

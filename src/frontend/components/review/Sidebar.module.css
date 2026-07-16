@@ -1,0 +1,154 @@
+/* ─── Backdrop ──────────────────────────────────────────────────────────── */
+/* Dimming overlay behind the slide-up panel on mobile.                      */
+
+.backdrop {
+  all: unset;
+  z-index: 20;
+  cursor: default;
+  background-color: oklch(0.145 0 0 / 0.6);
+  backdrop-filter: blur(4px);
+  transition: opacity 150ms;
+  grid-column: 1 / -1;
+  grid-row: 1 / -1;
+}
+
+@media (min-width: 768px) {
+  .backdrop {
+    display: none;
+  }
+}
+
+.backdropOpen {
+  pointer-events: auto;
+  opacity: 1;
+}
+
+.backdropClosed {
+  pointer-events: none;
+  opacity: 0;
+}
+
+/* ─── Wrapper ───────────────────────────────────────────────────────────── */
+
+.wrapper {
+  grid-area: viewer; /* mobile: sits over the viewer slot as a slide-up sheet */
+  z-index: 30;
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+  contain: strict;
+  transition: transform 300ms cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wrapper {
+    transition: none;
+  }
+}
+
+.wrapperDefaultBg {
+  background-color: var(--owl-sidebar-bg);
+}
+
+/* Mobile open: slides up from the bottom edge */
+.wrapperOpen {
+  pointer-events: auto;
+  transform: translateY(0);
+  overflow: hidden;
+  border-radius: 0.75rem 0.75rem 0 0;
+  box-shadow: 0 0 0 1px var(--color-border-opaque), 0 16px 32px rgb(0 0 0 / 0.25);
+}
+
+/* Mobile closed: pushed below the viewport */
+.wrapperClosed {
+  pointer-events: none;
+  transform: translateY(calc(100% + 1.5rem));
+  overflow: hidden;
+  border-radius: 0.75rem;
+  padding-top: 0.75rem;
+  border-right: 1px solid var(--color-border-opaque);
+}
+
+/* Desktop: always a static sidebar in the 'tree' grid area */
+@media (min-width: 768px) {
+  .wrapper {
+    grid-area: tree;
+    z-index: auto;
+    will-change: auto;
+    transition: none;
+  }
+
+  .wrapperOpen {
+    overflow: visible;
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
+  }
+
+  .wrapperClosed {
+    pointer-events: auto;
+    transform: none;
+    overflow: visible;
+    border-radius: 0;
+    padding-top: 0.75rem;
+    border-right: 1px solid var(--color-border-opaque);
+  }
+}
+
+/* ─── Header ────────────────────────────────────────────────────────────── */
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem 1rem 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .header {
+    padding: 0.125rem 0.75rem 0;
+  }
+}
+
+/* ─── Close button (mobile only) ────────────────────────────────────────── */
+
+.closeButton {
+  all: unset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: inherit;
+}
+
+.closeButton:hover {
+  color: var(--muted-foreground);
+}
+
+.closeButton:focus-visible {
+  color: var(--muted-foreground);
+}
+
+@media (min-width: 768px) {
+  .closeButton {
+    display: none;
+  }
+}
+
+/* ─── Content ───────────────────────────────────────────────────────────── */
+
+.content {
+  margin-top: 0.75rem;
+  min-height: 0;
+  flex: 1;
+}
+
+.filesRegion {
+  height: 100%;
+  min-height: 0;
+}

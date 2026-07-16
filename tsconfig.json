@@ -23,7 +23,7 @@
     "skipLibCheck": true,
     "strict": true,
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./src/frontend/*"]
     }
   }
 }

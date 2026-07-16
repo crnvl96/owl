@@ -1,4 +1,3 @@
-import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
@@ -9,11 +8,10 @@ export default defineConfig({
         plugins: [["babel-plugin-react-compiler", { target: "19" }]],
       },
     }),
-    tailwindcss(),
   ],
   resolve: {
     alias: {
-      "@": new URL(".", import.meta.url).pathname,
+      "@": new URL("./src/frontend", import.meta.url).pathname,
     },
   },
   server: {
