@@ -33,10 +33,9 @@ const DENSITY_OVERRIDE_STYLES = {
 } as CSSProperties;
 
 interface OwlFileTreeProps {
-  // Callback invoked with the underlying tree model once it's mounted, and
-  // again with `null` on unmount. Lets parents drive imperative APIs like
-  // search open/close without owning the model creation.
-  onModelReady(model: FileTreeModel | null): void;
+  // Optional callback invoked with the underlying tree model once it's
+  // mounted, and again with `null` on unmount.
+  onModelReady?(model: FileTreeModel | null): void;
   onSelectItem(itemId: string): void;
   source: OwlFileTreeSource;
 }
@@ -121,8 +120,8 @@ export const OwlFileTree = memo(function OwlFileTree({
   }, [model, source]);
 
   useEffect(() => {
-    onModelReady(model);
-    return () => onModelReady(null);
+    onModelReady?.(model);
+    return () => onModelReady?.(null);
   }, [model, onModelReady]);
 
   return (

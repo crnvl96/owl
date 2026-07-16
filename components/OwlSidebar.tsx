@@ -1,9 +1,7 @@
 "use client";
 
-import { IconFilter, IconSearch, IconXSquircle } from "@pierre/icons";
-import { FileTree } from "@pierre/trees";
+import { IconFilter, IconXSquircle } from "@pierre/icons";
 import type { GitStatus } from "@pierre/trees";
-import { useFileTreeSearch } from "@pierre/trees/react";
 import {
   type CSSProperties,
   memo,
@@ -81,7 +79,6 @@ export const OwlSidebar = memo(function OwlSidebar({
   const [activeStatusPanel, setActiveStatusPanel] = useState<SidebarStatusPanel | null>(
     "diffStats",
   );
-  const [fileTreeModel, setFileTreeModel] = useState<FileTree | null>(null);
   // Inclusion filter: the statuses the tree should show. Empty means "no
   // filter" — every file is shown — so the menu opens with nothing checked and
   // checking statuses narrows the tree to just those.
@@ -96,9 +93,6 @@ export const OwlSidebar = memo(function OwlSidebar({
     () => filterOwlFileTreeSource(source, selectedStatuses),
     [source, selectedStatuses],
   );
-  const handleModelReady = useCallback((model: FileTree | null) => {
-    setFileTreeModel(model);
-  }, []);
   const toggleStatusPanel = useCallback((panel: SidebarStatusPanel) => {
     setActiveStatusPanel((current) => (current === panel ? null : panel));
   }, []);
@@ -184,7 +178,6 @@ export const OwlSidebar = memo(function OwlSidebar({
         themeStyle={sidebarStyle}
       >
         <div className="flex items-center gap-3 px-4 pt-5 pb-2 md:px-3 md:pt-0.5 md:pb-0">
-          {fileTreeModel != null && <FileTreeSearchToggle model={fileTreeModel} />}
           {availableStatuses.size > 1 && (
             <FileTreeFilterButton
               availableStatuses={availableStatuses}
@@ -209,11 +202,7 @@ export const OwlSidebar = memo(function OwlSidebar({
         </div>
         <div className="mt-3 min-h-0 flex-1">
           <div role="region" aria-label="Files" className="h-full min-h-0">
-            <OwlFileTree
-              source={filteredSource}
-              onModelReady={handleModelReady}
-              onSelectItem={onSelectItem}
-            />
+            <OwlFileTree source={filteredSource} onSelectItem={onSelectItem} />
           </div>
         </div>
         <OwlDiffStats
@@ -391,34 +380,5 @@ function FileTreeFilterButton({
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
-}
-
-// Lives in its own component so we can call useFileTreeSearch only once we
-// actually have a model; conditional hook calls aren't allowed in the parent.
-function FileTreeSearchToggle({ model }: { model: FileTree }) {
-  const search = useFileTreeSearch(model);
-  return (
-    <Button
-      type="button"
-      variant="ghost"
-      size="icon-only"
-      aria-label={search.isOpen ? "Hide file search" : "Show file search"}
-      aria-pressed={search.isOpen}
-      className={CHROME_ICON_BUTTON_CLASS}
-      // Avoid focus moving to this button before click: the tree search input
-      // closes on blur, so without preventDefault the blur runs first, then
-      // click sees isOpen false and calls open() again.
-      onPointerDown={(event) => event.preventDefault()}
-      onClick={() => {
-        if (search.isOpen) {
-          search.close();
-        } else {
-          search.open();
-        }
-      }}
-    >
-      <IconSearch className="size-4 md:size-3" />
-    </Button>
   );
 }
