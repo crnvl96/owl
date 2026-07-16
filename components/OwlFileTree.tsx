@@ -1,36 +1,19 @@
 "use client";
 
 import { useStableCallback } from "@pierre/diffs/react";
-import type {
-  FileTreeBatchOperation,
-  FileTree as FileTreeModel,
-  FileTreeOptions,
-} from "@pierre/trees";
+import type { FileTreeBatchOperation, FileTree as FileTreeModel } from "@pierre/trees";
 import { useFileTree } from "@pierre/trees/react";
-import { type CSSProperties, memo, useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 
 import { ThemedFileTree } from "./ThemedFileTree";
 import {
   BASE_FILE_TREE_OPTIONS,
   CODE_VIEW_FILE_TREE_ITEM_HEIGHT,
+  FILE_TREE_DENSITY_OVERRIDE_STYLES,
   getInitialBatchSize,
-} from "@/lib/constants";
+  PRESERVE_INPUT_ORDER_SORT,
+} from "@/lib/config";
 import type { OwlFileTreeSource } from "@/lib/types";
-type FileTreeSortComparator = Exclude<NonNullable<FileTreeOptions["sort"]>, "default">;
-// Keeps @pierre/trees from applying its default semantic sort so the sidebar
-// follows the same patch path sequence that drives the code view.
-const PRESERVE_INPUT_ORDER_SORT: FileTreeSortComparator = () => 0;
-
-// Layout-only overrides. Colors flow through from the resolved Shiki theme
-// (via themeToTreeStyles) so the sidebar matches the diff theme, but the
-// density and padding stay tuned for the owl layout regardless of
-// which theme the user picks. `--trees-git-renamed-color-override` is kept
-// because most Shiki themes don't define a "renamed" decoration color.
-const DENSITY_OVERRIDE_STYLES = {
-  "--trees-density-override": 0.8,
-  "--trees-padding-inline-override": 8,
-  "--trees-git-renamed-color-override": "light-dark(#007aff, #007aff)",
-} as CSSProperties;
 
 interface OwlFileTreeProps {
   // Optional callback invoked with the underlying tree model once it's
@@ -129,7 +112,7 @@ export const OwlFileTree = memo(function OwlFileTree({
       className="h-full min-h-0 overflow-auto overscroll-contain md:ml-3"
       model={model}
       reconcileForegroundFromChrome
-      style={DENSITY_OVERRIDE_STYLES}
+      style={FILE_TREE_DENSITY_OVERRIDE_STYLES}
     />
   );
 });

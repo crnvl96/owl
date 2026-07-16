@@ -8,7 +8,7 @@ import { OwlSidebar } from "./OwlSidebar";
 import { OwlStatusPanel } from "./OwlStatusPanel";
 import { OwlViewer } from "./OwlViewer";
 import { usePatchLoader } from "./usePatchLoader";
-import { ACTIVE_THEME_SCHEME } from "@/lib/theme/activeTheme";
+import { THEME_SCHEME } from "@/lib/config";
 import type { CommentMetadata } from "@/lib/types";
 
 // The viewer always shows the local worktree's diff. It takes no props and
@@ -84,7 +84,7 @@ function ReviewUIBody() {
               key={viewerKey}
               className="[grid-area:viewer]"
               scrollRef={scrollRef}
-              themeType={ACTIVE_THEME_SCHEME}
+              themeType={THEME_SCHEME}
               viewerRef={viewerRef}
               initialItems={initialItems}
               onLineLinkChange={onLineLinkChange}

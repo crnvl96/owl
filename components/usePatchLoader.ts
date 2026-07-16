@@ -9,7 +9,7 @@ import {
 import { type CodeViewHandle, useStableCallback } from "@pierre/diffs/react";
 import { type RefObject, useCallback, useEffect, useRef, useState } from "react";
 
-import { CODE_VIEW_BATCH_COUNT, getInitialBatchSize } from "@/lib/constants";
+import { CODE_VIEW_BATCH_COUNT, getInitialBatchSize } from "@/lib/config";
 import {
   appendFileDiffToOwlData,
   buildOwlData,
@@ -31,13 +31,14 @@ import {
 } from "@/lib/streamGitPatchFiles";
 import type { CommentMetadata, OwlFileTreeSource, ViewerLoadState } from "@/lib/types";
 
-const STREAM_PUBLISH_INTERVAL_MS = 100;
-const STREAM_INITIAL_PUBLISH_INTERVAL_MS = 500;
-const STREAM_WORK_BUDGET_MS = 8;
-const STREAM_TREE_PUBLISH_FILE_BATCH_SIZE = 1_000;
-const STREAM_TREE_PUBLISH_INTERVAL_MS = 1_000;
-const GENERIC_PATCH_LOAD_ERROR_MESSAGE =
-  "We couldn’t load that diff. Check the URL and try again.";
+import {
+  GENERIC_PATCH_LOAD_ERROR_MESSAGE,
+  STREAM_INITIAL_PUBLISH_INTERVAL_MS,
+  STREAM_PUBLISH_INTERVAL_MS,
+  STREAM_TREE_PUBLISH_FILE_BATCH_SIZE,
+  STREAM_TREE_PUBLISH_INTERVAL_MS,
+  STREAM_WORK_BUDGET_MS,
+} from "@/lib/config";
 
 interface UsePatchLoaderOptions {
   onLoadStart(): void;

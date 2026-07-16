@@ -2,7 +2,7 @@
 
 import type { ThemesType, ThemeTypes } from "@pierre/diffs";
 
-import { ACTIVE_THEME_NAME, ACTIVE_THEME_SCHEME } from "@/lib/theme/activeTheme";
+import { THEME_NAME, THEME_SCHEME } from "@/lib/config";
 
 // The single diff theme pair (pierre-dark-soft for both light and dark slots;
 // the active scheme below picks which to render). Kept as a hook so callers
@@ -12,7 +12,7 @@ export function useDiffThemeProps(): {
   themeType: ThemeTypes;
 } {
   return {
-    theme: { dark: ACTIVE_THEME_NAME, light: ACTIVE_THEME_NAME },
-    themeType: ACTIVE_THEME_SCHEME,
+    theme: { dark: THEME_NAME, light: THEME_NAME },
+    themeType: THEME_SCHEME,
   };
 }

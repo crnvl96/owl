@@ -8,7 +8,7 @@ import {
 import { pierreThemes, shikiThemes } from "@pierre/theming/themes";
 import { useEffect, useState } from "react";
 
-import { ACTIVE_THEME_NAME } from "@/lib/theme/activeTheme";
+import { THEME_NAME } from "@/lib/config";
 
 // One resolver per process. The Pierre and Shiki collections carry the theme
 // loaders (dynamic imports of each `@pierre/theme/*` and `@shikijs/themes/*`
@@ -33,14 +33,14 @@ function getSharedResolver(): ThemeResolver {
 export function useActiveTheme(): ThemeLike | undefined {
   const resolver = getSharedResolver();
   const [theme, setTheme] = useState<ThemeLike | undefined>(() =>
-    resolver.getResolvedTheme(ACTIVE_THEME_NAME),
+    resolver.getResolvedTheme(THEME_NAME),
   );
   useEffect(() => {
     if (theme != null) {
       return;
     }
     let cancelled = false;
-    resolver.resolveTheme(ACTIVE_THEME_NAME).then((resolved) => {
+    resolver.resolveTheme(THEME_NAME).then((resolved) => {
       if (!cancelled) {
         setTheme(resolved);
       }
