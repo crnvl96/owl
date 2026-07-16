@@ -90,7 +90,6 @@ interface ActiveDraftComment {
 
 interface OwlViewerProps {
   className?: string;
-  diffStyle: "split" | "unified";
   onCommentDeleted(comment: OwlDeletedCommentEvent): void;
   onCommentSaved(comment: OwlSavedCommentEvent): void;
   scrollRef: RefObject<HTMLDivElement | null>;
@@ -103,7 +102,6 @@ interface OwlViewerProps {
 
 export const OwlViewer = memo(function OwlViewer({
   className,
-  diffStyle,
   onCommentDeleted,
   onCommentSaved,
   scrollRef,
@@ -533,7 +531,7 @@ export const OwlViewer = memo(function OwlViewer({
         // __devOnlyValidateItemHeights: true,
         layout: CODE_VIEW_LAYOUT,
         themeType,
-        diffStyle,
+        diffStyle: "unified",
         diffIndicators: "none",
         overflow: "scroll",
         disableBackground: false,
@@ -558,7 +556,7 @@ export const OwlViewer = memo(function OwlViewer({
           handleLineSelectionEnd(range, context.item);
         },
       }) satisfies CodeViewOptions<CommentMetadata>,
-    [diffStyle, handleCreateDraftComment, handleLineSelectionEnd, themeType],
+    [handleCreateDraftComment, handleLineSelectionEnd, themeType],
   );
   return (
     <ThemedCodeView<CommentMetadata>

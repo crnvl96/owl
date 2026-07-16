@@ -27,10 +27,6 @@ export function ReviewUI() {
 
 function ReviewUIBody() {
   const isWorkerPoolReadyOrDisable = useIsWorkerPoolReadyOrDisabled();
-  const [diffStyle, setDiffStyle] = useState<"split" | "unified">("split");
-  const [collapseMode, setCollapseMode] = useState<"expanded" | "collapsed">(
-    "expanded",
-  );
   const [fileTreeOverlayOpen, setFileTreeOverlayOpen] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -39,7 +35,6 @@ function ReviewUIBody() {
     setFileTreeOverlayOpen(false);
   }, []);
   const {
-    applyCollapseModeToLoaded,
     commentFileByItemId,
     commentSections,
     diffStats,
@@ -53,27 +48,10 @@ function ReviewUIBody() {
     treeSource,
     viewerKey,
   } = usePatchLoader({
-    collapseMode,
     onLoadStart: handlePatchLoadStart,
     viewerRef,
   });
 
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(max-width: 767px)");
-    const updateMobileState = (matches: boolean) => {
-      setDiffStyle(matches ? "unified" : "split");
-      if (!matches) {
-        setFileTreeOverlayOpen(false);
-      }
-    };
-    const handleChange = (event: MediaQueryListEvent) => {
-      updateMobileState(event.matches);
-    };
-
-    updateMobileState(mediaQuery.matches);
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
-  }, []);
   const handleSelectTreeItem = useCallback((itemId: string) => {
     setFileTreeOverlayOpen(false);
     const viewer = viewerRef.current;
@@ -93,11 +71,6 @@ function ReviewUIBody() {
       behavior: "smooth",
     });
   }, []);
-  const handleToggleCollapseMode = useCallback(() => {
-    const next = collapseMode === "expanded" ? "collapsed" : "expanded";
-    setCollapseMode(next);
-    applyCollapseModeToLoaded(next);
-  }, [applyCollapseModeToLoaded, collapseMode]);
   const handleCommentSaved = useCallback(
     (comment: OwlSavedCommentEvent) => {
       setCommentSections((prev) =>
@@ -146,13 +119,9 @@ function ReviewUIBody() {
     <ReviewGrid>
       <OwlHeader
         className="[grid-area:header]"
-        collapseMode={collapseMode}
-        diffStyle={diffStyle}
         fileTreeOverlayOpen={fileTreeOverlayOpen}
         fileTreeAvailable={treeSource != null}
-        onToggleCollapseMode={handleToggleCollapseMode}
         onToggleFileTreeOverlay={handleToggleFileTreeOverlay}
-        setDiffStyle={setDiffStyle}
       />
       {viewerAvailable && treeSource != null ? (
         <>
@@ -172,7 +141,6 @@ function ReviewUIBody() {
             <OwlViewer
               key={viewerKey}
               className="[grid-area:viewer]"
-              diffStyle={diffStyle}
               scrollRef={scrollRef}
               themeType={ACTIVE_THEME_SCHEME}
               viewerRef={viewerRef}

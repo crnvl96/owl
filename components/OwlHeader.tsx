@@ -1,11 +1,5 @@
-import { type Dispatch, memo, type SetStateAction } from "react";
-import {
-  IconCollapsedRow,
-  IconDiffSplit,
-  IconDiffUnified,
-  IconExpandAll,
-  IconFileTreeFill,
-} from "@pierre/icons";
+import { memo } from "react";
+import { IconFileTreeFill } from "@pierre/icons";
 
 import { CHROME_ICON_BUTTON_CLASS } from "./chromeButtonStyles";
 import { OwlLogo } from "./OwlLogo";
@@ -16,24 +10,16 @@ import { owlChromeMapping } from "@/lib/theme/owlChromeMapping";
 
 interface HeaderProps {
   className?: string;
-  collapseMode: "expanded" | "collapsed";
-  diffStyle: "split" | "unified";
   fileTreeAvailable: boolean;
   fileTreeOverlayOpen: boolean;
-  onToggleCollapseMode(): void;
   onToggleFileTreeOverlay(): void;
-  setDiffStyle: Dispatch<SetStateAction<"split" | "unified">>;
 }
 
 export const OwlHeader = memo(function OwlHeader({
   className,
-  collapseMode,
-  diffStyle,
   fileTreeAvailable,
   fileTreeOverlayOpen,
-  onToggleCollapseMode,
   onToggleFileTreeOverlay,
-  setDiffStyle,
 }: HeaderProps) {
   // Pull the resolved Shiki theme so the header bar lives on the same
   // surface (background, text, icons, borders) as the sidebar. Falls back to
@@ -65,46 +51,6 @@ export const OwlHeader = memo(function OwlHeader({
         >
           <IconFileTreeFill className="size-4 md:size-3" />
         </Button>
-        <div className="flex items-center gap-2">
-          <div className="bg-border/60 hidden h-5 w-px md:block" aria-hidden="true" />
-          <div className="flex items-center">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-md"
-              title={
-                diffStyle === "split"
-                  ? "Switch to unified view"
-                  : "Switch to split view"
-              }
-              className={cn(CHROME_ICON_BUTTON_CLASS, "hidden md:flex")}
-              onClick={() => setDiffStyle(diffStyle === "split" ? "unified" : "split")}
-            >
-              {diffStyle === "split" ? (
-                <IconDiffSplit className="size-4 md:size-3" />
-              ) : (
-                <IconDiffUnified className="size-4 md:size-3" />
-              )}
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-md"
-              aria-pressed={collapseMode === "collapsed"}
-              title={
-                collapseMode === "expanded" ? "Collapse all files" : "Expand all files"
-              }
-              className={CHROME_ICON_BUTTON_CLASS}
-              onClick={onToggleCollapseMode}
-            >
-              {collapseMode === "expanded" ? (
-                <IconExpandAll className="size-4 md:size-3" />
-              ) : (
-                <IconCollapsedRow className="size-4 md:size-3" />
-              )}
-            </Button>
-          </div>
-        </div>
       </div>
       <hr className="border-border/80 w-full md:hidden" />
     </div>
