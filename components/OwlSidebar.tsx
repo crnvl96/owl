@@ -1,16 +1,12 @@
 "use client";
 
-import { IconFilter, IconXSquircle } from "@pierre/icons";
-import type { GitStatus } from "@pierre/trees";
+import { IconXSquircle } from "@pierre/icons";
 import {
   type CSSProperties,
   memo,
   type ReactNode,
   type RefObject,
-  useCallback,
   useEffect,
-  useMemo,
-  useRef,
   useState,
 } from "react";
 
@@ -19,20 +15,8 @@ import { OwlFileTree } from "./OwlFileTree";
 import { useChromeThemeProps } from "./useChromeThemeProps";
 import { WorkerPoolStatus } from "./WorkerPoolStatus";
 import { Button } from "@/components/Button";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/DropdownMenu";
 import { cn } from "@/lib/cn";
-import { filterOwlFileTreeSource } from "@/lib/filterOwlFileTreeSource";
-import { getOwlFileTreeAvailableStatuses } from "@/lib/getOwlFileTreeAvailableStatuses";
 import { owlChromeMapping } from "@/lib/theme/owlChromeMapping";
-import { getDropdownThemeStyle } from "@/lib/theme/dropdownChromeStyle";
 import type { OwlFileTreeSource } from "@/lib/types";
 
 const MOBILE_MEDIA_QUERY = "(max-width: 767px)";
@@ -54,63 +38,10 @@ export const OwlSidebar = memo(function OwlSidebar({
   scrollRef,
   source,
 }: OwlSidebarProps) {
-  // Pull the resolved Shiki theme so the whole sidebar (tabs row, file
-  // tree, diff stats panel, footer) sits on the theme's sidebar surface
-  // and its chrome text follows the theme's own foreground tokens
-  // instead of an opacity-derived fade of the file-tree's muted text.
-  // Shared with the header so both chrome surfaces stay in sync.
   const { style: sidebarChromeStyle } = useChromeThemeProps(owlChromeMapping);
   const sidebarStyle =
     Object.keys(sidebarChromeStyle).length > 0 ? sidebarChromeStyle : undefined;
-  // Portaled dropdowns (the Git-status filter) render outside the sidebar
-  // wrapper, so the chrome variables set on it don't cascade. Re-apply the
-  // resolved chrome on the menu surface itself, mirroring the header dropdowns.
-  const dropdownThemeStyle = useMemo(
-    () => getDropdownThemeStyle(sidebarStyle),
-    [sidebarStyle],
-  );
   const [workerStatusExpanded, setWorkerStatusExpanded] = useState(false);
-  // Inclusion filter: the statuses the tree should show. Empty means "no
-  // filter" — every file is shown — so the menu opens with nothing checked and
-  // checking statuses narrows the tree to just those.
-  const [selectedStatuses, setSelectedStatuses] = useState<ReadonlySet<GitStatus>>(
-    () => new Set(),
-  );
-  const availableStatuses = useMemo(
-    () => getOwlFileTreeAvailableStatuses(source),
-    [source],
-  );
-  const filteredSource = useMemo(
-    () => filterOwlFileTreeSource(source, selectedStatuses),
-    [source, selectedStatuses],
-  );
-  const clearStatusFilter = useCallback(() => {
-    setSelectedStatuses(new Set());
-  }, []);
-
-  const toggleSelectedStatus = useCallback((status: GitStatus) => {
-    setSelectedStatuses((prev) => {
-      const next = new Set(prev);
-      if (next.has(status)) {
-        next.delete(status);
-      } else {
-        next.add(status);
-      }
-      return next;
-    });
-  }, []);
-
-  // Alt+click "isolate": narrow the filter to only the clicked status. If it's
-  // already the sole selection, clear the filter instead so the tree returns to
-  // showing everything.
-  const isolateStatus = useCallback((status: GitStatus) => {
-    setSelectedStatuses((prev) => {
-      if (prev.size === 1 && prev.has(status)) {
-        return new Set();
-      }
-      return new Set([status]);
-    });
-  }, []);
 
   useEffect(() => {
     if (mobileOverlayOpen && window.matchMedia(MOBILE_MEDIA_QUERY).matches) {
@@ -165,16 +96,6 @@ export const OwlSidebar = memo(function OwlSidebar({
         themeStyle={sidebarStyle}
       >
         <div className="flex items-center gap-3 px-4 pt-5 pb-2 md:px-3 md:pt-0.5 md:pb-0">
-          {availableStatuses.size > 1 && (
-            <FileTreeFilterButton
-              availableStatuses={availableStatuses}
-              selectedStatuses={selectedStatuses}
-              onClear={clearStatusFilter}
-              onToggle={toggleSelectedStatus}
-              onIsolate={isolateStatus}
-              dropdownThemeStyle={dropdownThemeStyle}
-            />
-          )}
           {onMobileClose != null && (
             <Button
               variant="ghost"
@@ -189,7 +110,7 @@ export const OwlSidebar = memo(function OwlSidebar({
         </div>
         <div className="mt-3 min-h-0 flex-1">
           <div role="region" aria-label="Files" className="h-full min-h-0">
-            <OwlFileTree source={filteredSource} onSelectItem={onSelectItem} />
+            <OwlFileTree source={source} onSelectItem={onSelectItem} />
           </div>
         </div>
         <WorkerPoolStatus
@@ -220,9 +141,6 @@ function SidebarWrapper({
       className={cn(
         className,
         "contain-strict z-30 flex h-full min-h-0 flex-col transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] will-change-transform motion-reduce:transition-none md:z-auto md:translate-y-0 md:will-change-auto",
-        // Fall back to the neutral owl chrome background when no Shiki
-        // theme bg is available yet (initial render before the resolver
-        // returns).
         themeStyle == null && "bg-[var(--owl-sidebar-bg)]",
         mobileOverlayOpen
           ? "pointer-events-auto translate-y-0 overflow-hidden rounded-t-xl shadow-[0_0_0_1px_var(--color-border-opaque),_0_16px_32px_rgb(0_0_0_/0.25)] md:h-full md:overflow-visible md:rounded-none md:border-0 md:shadow-none"
@@ -232,134 +150,5 @@ function SidebarWrapper({
     >
       {children}
     </div>
-  );
-}
-
-// Statuses that can appear in a diff, in the order they should appear in the
-// filter dropdown. Colors mirror the exact light-dark() values from the tree's
-// style.css so the badges match what the tree rows show.
-const DIFF_STATUS_ITEMS: {
-  status: GitStatus;
-  label: string;
-  short: string;
-  color: string;
-}[] = [
-  {
-    status: "added",
-    label: "Added",
-    short: "A",
-    color: "light-dark(#16a994, #00cab1)",
-  },
-  {
-    status: "modified",
-    label: "Modified",
-    short: "M",
-    color: "light-dark(#1ca1c7, #08c0ef)",
-  },
-  {
-    status: "renamed",
-    label: "Renamed",
-    short: "R",
-    color: "light-dark(#d5a910, #ffd452)",
-  },
-  {
-    status: "deleted",
-    label: "Deleted",
-    short: "D",
-    color: "light-dark(#ff2e3f, #ff6762)",
-  },
-];
-
-interface FileTreeFilterButtonProps {
-  availableStatuses: ReadonlySet<GitStatus>;
-  dropdownThemeStyle?: CSSProperties;
-  onClear(): void;
-  onIsolate(status: GitStatus): void;
-  onToggle(status: GitStatus): void;
-  selectedStatuses: ReadonlySet<GitStatus>;
-}
-
-function FileTreeFilterButton({
-  availableStatuses,
-  dropdownThemeStyle,
-  onClear,
-  onIsolate,
-  onToggle,
-  selectedStatuses,
-}: FileTreeFilterButtonProps) {
-  const isFiltered = selectedStatuses.size > 0;
-  const visibleItems = DIFF_STATUS_ITEMS.filter(({ status }) =>
-    availableStatuses.has(status),
-  );
-  const [isMac] = useState(
-    () => typeof navigator !== "undefined" && /mac/iu.test(navigator.platform),
-  );
-  // Track whether Alt was held on the most recent pointer-down so the
-  // onCheckedChange handler (which receives no event) can branch on it.
-  const altKeyRef = useRef(false);
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-only"
-          aria-label="Filter by Git status"
-          aria-pressed={isFiltered}
-          className={cn(CHROME_ICON_BUTTON_CLASS, "relative")}
-        >
-          <IconFilter className="size-4 md:size-3" />
-          {isFiltered && (
-            <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full border-[1px] border-[var(--owl-sidebar-bg)] bg-blue-500 dark:bg-blue-400" />
-          )}
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="p-2" style={dropdownThemeStyle}>
-        <DropdownMenuLabel className="flex flex-col px-2 font-normal">
-          Filter by Git status
-          <small className="text-muted-foreground text-xs">
-            {isMac ? "Option" : "Alt"}-click to show only one status
-          </small>
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator className="mx-2" />
-        {visibleItems.map(({ status, label, short, color }) => (
-          <DropdownMenuCheckboxItem
-            key={status}
-            checked={selectedStatuses.has(status)}
-            indicatorSide="right"
-            onPointerDown={(e) => {
-              altKeyRef.current = e.altKey;
-            }}
-            onSelect={(e) => e.preventDefault()}
-            onCheckedChange={() => {
-              if (altKeyRef.current) {
-                onIsolate(status);
-              } else {
-                onToggle(status);
-              }
-            }}
-            className={
-              isFiltered && !selectedStatuses.has(status) ? "text-muted-foreground" : ""
-            }
-          >
-            <span
-              className="mr-2 w-4 shrink-0 rounded-sm text-center font-mono text-xs font-semibold"
-              style={{
-                color,
-                backgroundColor: `color-mix(in srgb, ${color} 15%, transparent)`,
-              }}
-            >
-              {short}
-            </span>
-            {label}
-          </DropdownMenuCheckboxItem>
-        ))}
-        <DropdownMenuSeparator className="mx-2" />
-        <DropdownMenuItem className="px-2" disabled={!isFiltered} onSelect={onClear}>
-          <IconXSquircle className="mr-2 opacity-50" />
-          Clear filter
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
   );
 }
