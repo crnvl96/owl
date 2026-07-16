@@ -18,10 +18,6 @@ type CopyState = "idle" | "copied" | "failed";
 // be noticeable without becoming a sticky state.
 const COPIED_DURATION_MS = 1600;
 
-interface ClipboardSnapshotSuccessResponse {
-  path: string;
-}
-
 interface OwlGenerateReportButtonProps {
   className?: string;
   fileContextByItemId: ReadonlyMap<string, FileContext>;
@@ -38,12 +34,6 @@ interface OwlGenerateReportButtonProps {
 // (insecure context, permission denied) leaves the title on "Copy failed"
 // for the same window so the user gets a clear signal that nothing was
 // written, without throwing or surfacing a dialog.
-//
-// The clipboard source has a slightly different flow: before assembling
-// the report, the button asks the server to write the imported content
-// to a fresh file in the OS temp directory, then includes that file's
-// absolute path in the report header. The temp file is the artifact the
-// agent reads to recover the original content the user was reviewing.
 export function OwlGenerateReportButton({
   className,
   fileContextByItemId,
@@ -75,13 +65,8 @@ export function OwlGenerateReportButton({
 
     void (async () => {
       try {
-        const importedFilePath =
-          source.kind === "clipboard"
-            ? await writeClipboardSnapshot(source.content)
-            : undefined;
         const report = generateReviewReport({
           fileContextByItemId,
-          importedFilePath,
           sections,
           source,
         });
@@ -129,24 +114,4 @@ export function OwlGenerateReportButton({
       <Icon className="size-4 md:size-3" />
     </Button>
   );
-}
-
-// Posts the imported content to the server, which writes it to a
-// fresh file in `os.tmpdir()` and returns the absolute path. The path
-// is the value the report header echoes so an agent can re-read the
-// exact file the user was reviewing.
-async function writeClipboardSnapshot(content: string): Promise<string> {
-  const response = await fetch("/api/clipboard-snapshot", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ content }),
-  });
-  if (!response.ok) {
-    const detail = (await response.text()).trim();
-    throw new Error(
-      detail.length > 0 ? detail : `Snapshot failed (${response.status}).`,
-    );
-  }
-  const payload = (await response.json()) as ClipboardSnapshotSuccessResponse;
-  return payload.path;
 }

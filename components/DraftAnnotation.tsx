@@ -9,8 +9,8 @@ import type { DraftCommentMetadata } from "@/lib/types";
 
 interface DraftAnnotationProps {
   // Either a diff-line annotation (with side) or a file-line annotation
-  // (no side, used for clipboard imports). The card only reads
-  // `metadata.key` and `metadata.message`, so both shapes are valid.
+  // (no side). The card only reads `metadata.key` and `metadata.message`,
+  // so both shapes are valid.
   annotation:
     | DiffLineAnnotation<DraftCommentMetadata>
     | LineAnnotation<DraftCommentMetadata>;

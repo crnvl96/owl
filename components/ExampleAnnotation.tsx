@@ -13,10 +13,10 @@ import type { SavedCommentMetadata } from "@/lib/types";
 
 interface ExampleAnnotationProps {
   // Either a diff-line annotation (with side) or a file-line annotation
-  // (no side, used for clipboard imports). The card reads `metadata.range`
-  // (to re-select on click) and `metadata.message` (to render the body);
-  // both fields are populated regardless of which shape the viewer hands
-  // us, so the card renders identically for diff and file comments.
+  // (no side). The card reads `metadata.range` (to re-select on click) and
+  // `metadata.message` (to render the body); both fields are populated
+  // regardless of which shape the viewer hands us, so the card renders
+  // identically for diff and file comments.
   annotation:
     | DiffLineAnnotation<SavedCommentMetadata>
     | LineAnnotation<SavedCommentMetadata>;

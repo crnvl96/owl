@@ -14,24 +14,19 @@ export interface FileTreeGitStatusPatch {
 
 export type ViewerLoadState = "fetching" | "streaming" | "parsing" | "ready" | "error";
 
-// What the viewer is currently rendering. The four kinds are mutually
+// What the viewer is currently rendering. The three kinds are mutually
 // exclusive: `worktree` shows the local uncommitted changes of the resolved
 // worktree, `pastCommit` shows the diff introduced by a specific commit
-// resolved from the same worktree's object database, `branchCompare` shows
-// the diff between the current branch and another branch (three-dot:
-// changes on HEAD since the merge base), and `clipboard` renders a single
-// non-diff file built from text the user pasted from outside Owl. The
-// clipboard kind is the only one that does not consult git — it renders a
-// `CodeViewFileItem` instead of a `CodeViewDiffItem` and lets the user
-// comment on it the same way they would on a diff. Both `pastCommit` and
+// resolved from the same worktree's object database, and `branchCompare`
+// shows the diff between the current branch and another branch (three-dot:
+// changes on HEAD since the merge base). Both `pastCommit` and
 // `branchCompare` are independent of the working tree (git reads from the
 // object database), so a dirty worktree does not gate switching between
-// modes; `clipboard` is independent of git entirely.
+// modes.
 export type DiffSource =
   | { kind: "worktree" }
   | { kind: "pastCommit"; hash: string }
-  | { kind: "branchCompare"; branch: string }
-  | { kind: "clipboard"; content: string; fileName?: string };
+  | { kind: "branchCompare"; branch: string };
 
 export interface SavedCommentMetadata {
   kind: "saved";
@@ -68,10 +63,10 @@ export interface OwlSavedCommentEvent {
   lineType: CommentLineType;
   message: string;
   range: SelectedLineRange;
-  // `side` is `undefined` for comments anchored on a single-file
-  // (clipboard) item, where there is no addition/deletion distinction.
-  // Diff-mode comments always populate it. Mirrors the same field on
-  // `OwlSavedCommentEntry` so the two stay in sync.
+  // `side` is `undefined` for comments anchored on a file item, where
+  // there is no addition/deletion distinction. Diff-mode comments always
+  // populate it. Mirrors the same field on `OwlSavedCommentEntry` so the
+  // two stay in sync.
   side?: AnnotationSide;
 }
 
@@ -87,11 +82,11 @@ export interface OwlSavedCommentEntry {
   lineType: CommentLineType;
   message: string;
   range: SelectedLineRange;
-  // `side` is `undefined` for comments anchored on a single-file (clipboard)
-  // item, where there is no addition/deletion distinction. Diff-mode
-  // comments always populate it. The type is the same `SelectedLineRange`
-  // used by the rest of the pipeline, which already models `side` as
-  // optional; making the field optional here too lets the same `CommentMetadata`
+  // `side` is `undefined` for comments anchored on a file item, where
+  // there is no addition/deletion distinction. Diff-mode comments always
+  // populate it. The type is the same `SelectedLineRange` used by the
+  // rest of the pipeline, which already models `side` as optional;
+  // making the field optional here too lets the same `CommentMetadata`
   // shape flow through both rendering modes without a parallel struct.
   side?: AnnotationSide;
 }

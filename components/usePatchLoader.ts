@@ -41,7 +41,6 @@ import type {
   CommentMetadata,
   DiffSource,
   OwlCommentFileByItemId,
-  OwlCommentSidebarFile,
   OwlDiffStats,
   OwlFileTreeSource,
   OwlSavedCommentItem,
@@ -55,29 +54,6 @@ const STREAM_TREE_PUBLISH_FILE_BATCH_SIZE = 1_000;
 const STREAM_TREE_PUBLISH_INTERVAL_MS = 1_000;
 const GENERIC_PATCH_LOAD_ERROR_MESSAGE =
   "We couldn’t load that diff. Check the URL and try again.";
-// The clipboard source has a single synthetic file, so we use a stable
-// hardcoded id for it. The id needs to be unique within the viewer (other
-// sources can also produce file-mode items in theory), but for now only
-// the clipboard uses it.
-const CLIPBOARD_ITEM_ID = "clipboard";
-
-// Counts the lines in a string the way the file viewer will: an empty
-// string is 0 lines, every other string is `1 + newline count`. Used by
-// the clipboard short-circuit to populate the diff-stats panel so the
-// sidebar doesn't show `Lines: 0` for non-empty content.
-function countLines(contents: string): number {
-  if (contents.length === 0) {
-    return 0;
-  }
-  let count = 1;
-  for (let index = 0; index < contents.length; index++) {
-    // \n
-    if (contents.charCodeAt(index) === 10) {
-      count++;
-    }
-  }
-  return count;
-}
 
 interface UsePatchLoaderOptions {
   collapseMode: "expanded" | "collapsed";
@@ -227,11 +203,7 @@ export function usePatchLoader({
     // The diff source drives both the URL we fetch and the cache key the
     // viewer uses to memoize parse results. `loadAttempt` (in the dep array)
     // is what triggers retries — the key just needs to stay stable across
-    // them for a given source. The API URL is computed lazily inside
-    // `loadPatch` so the clipboard short-circuit below (which never
-    // fetches) can run without invoking `getDiffSourceApiURL` on a
-    // `clipboard` source (which would throw, since the clipboard kind
-    // has no server endpoint).
+    // them for a given source.
     const patchRequestKey = getPatchRequestKey(source);
 
     const controller = new AbortController();
@@ -252,66 +224,7 @@ export function usePatchLoader({
     setErrorMessage(null);
     setLoadState("fetching");
 
-    // Clipboard short-circuit: there is no patch to fetch — the content
-    // is already in memory on the client. Build a single `CodeViewFileItem`
-    // synchronously and settle the viewer into the ready state with a
-    // file tree / diff stats payload that reflects the single file, so
-    // the sidebar stays consistent with the diff sources. The fetch /
-    // stream pipeline below is skipped entirely for this kind.
-    if (source.kind === "clipboard") {
-      const fileName = source.fileName ?? "clipboard.md";
-      const fileItem: CodeViewItem<CommentMetadata> = {
-        id: CLIPBOARD_ITEM_ID,
-        type: "file",
-        file: {
-          name: fileName,
-          contents: source.content,
-          cacheKey: patchRequestKey,
-        },
-        version: 0,
-        collapsed: false,
-      };
-      const lineCount = countLines(source.content);
-      const sidebarFile: OwlCommentSidebarFile = {
-        fileOrder: 0,
-        path: fileName,
-      };
-      const itemIdToFile: OwlCommentFileByItemId = new Map([
-        [CLIPBOARD_ITEM_ID, sidebarFile],
-      ]);
-      const singleFileTree: OwlFileTreeSource = {
-        gitStatus: [],
-        pathCount: 1,
-        paths: [fileName],
-        pathToItemId: new Map([[fileName, CLIPBOARD_ITEM_ID]]),
-      };
-      const singleFileStats: OwlDiffStats = {
-        addedLines: 0,
-        deletedLines: 0,
-        fileCount: 1,
-        totalLinesOfCode: lineCount,
-      };
-
-      loadedItemIdsRef.current.add(CLIPBOARD_ITEM_ID);
-      setInitialItems([fileItem]);
-      setTreeSource(singleFileTree);
-      setDiffStats(singleFileStats);
-      setCommentFileByItemId(itemIdToFile);
-      setCommentSections([]);
-      setLoadState("ready");
-      // The clipboard short-circuit never issues a fetch, so the only
-      // cleanup work is aborting the placeholder controller. Returning a
-      // proper cleanup keeps the effect symmetric with the diff paths and
-      // ensures switching away from the clipboard source mid-tick doesn't
-      // leak the controller.
-      return () => {
-        controller.abort();
-      };
-    }
-
     async function loadPatch() {
-      // Safe to compute here: the clipboard short-circuit above returns
-      // before this function ever runs.
       const apiURL = getDiffSourceApiURL(source);
 
       async function commitFullPatch(patchContent: string) {
@@ -691,9 +604,7 @@ function yieldToBrowser(): Promise<void> {
 
 // Maps a DiffSource to the API route that serves its unified-diff body.
 // Kept as a free function so the URL logic stays in one place; the viewer
-// pipeline (fetch + stream) is identical for all diff sources. The
-// `clipboard` source does not call into this — it short-circuits the
-// pipeline to a single in-memory file item — so it has no URL here.
+// pipeline (fetch + stream) is identical for all diff sources.
 function getDiffSourceApiURL(source: DiffSource): string {
   if (source.kind === "worktree") {
     return "/api/local-worktree-diff";
@@ -701,31 +612,18 @@ function getDiffSourceApiURL(source: DiffSource): string {
   if (source.kind === "branchCompare") {
     return `/api/branch-comparison-diff?branch=${encodeURIComponent(source.branch)}`;
   }
-  if (source.kind === "clipboard") {
-    // The clipboard short-circuit in the effect above does not call this
-    // function. Reaching this branch is a programming error rather than a
-    // runtime condition we want to handle, so we throw rather than
-    // returning a placeholder URL.
-    throw new Error("clipboard source has no API URL");
-  }
   return `/api/past-commit-diff?hash=${encodeURIComponent(source.hash)}`;
 }
 
 // Stable cache key for the given source. Used by `@pierre/diffs` to memoize
 // parsed file diffs so a re-visit (or a back-and-forth toggle) doesn't redo
 // the parse. Includes the full hash so different commits don't share a key.
-// The clipboard source keys off the content so consecutive imports of the
-// same text reuse the highlight cache, while different content gets a fresh
-// render.
 function getPatchRequestKey(source: DiffSource): string {
   if (source.kind === "worktree") {
     return "local-worktree";
   }
   if (source.kind === "branchCompare") {
     return `branch-compare:${source.branch}`;
-  }
-  if (source.kind === "clipboard") {
-    return `clipboard:${source.content}`;
   }
   return `past-commit:${source.hash}`;
 }

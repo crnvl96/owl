@@ -179,10 +179,10 @@ export const OwlViewer = memo(function OwlViewer({
 
       // Look up the target item so we can pick the right annotation shape.
       // Diff items need a `side` (validated by the CodeView's diff gutter);
-      // file items (clipboard imports) get a plain `LineAnnotation` because
-      // there is no left/right distinction. The viewer handle is the only
-      // source of truth for the current item type, since the type can
-      // change between renders for the same id.
+      // file items get a plain `LineAnnotation` because there is no
+      // left/right distinction. The viewer handle is the only source of
+      // truth for the current item type, since the type can change between
+      // renders for the same id.
       const targetItem = viewer.getItem(itemId);
       if (targetItem == null) {
         return;
@@ -548,9 +548,9 @@ export const OwlViewer = memo(function OwlViewer({
         unsafeCSS: CODE_VIEW_CUSTOM_CSS,
         onGutterUtilityClick(range, context) {
           // The gutter utility is wired up for both diff and file items.
-          // File items (clipboard imports) need the same + button to open
-          // a draft comment; the `handleCreateDraftComment` callback picks
-          // the right annotation shape based on the item type.
+          // File items need the same + button to open a draft comment;
+          // the `handleCreateDraftComment` callback picks the right
+          // annotation shape based on the item type.
           if (context.item.type !== "diff" && context.item.type !== "file") {
             return;
           }
