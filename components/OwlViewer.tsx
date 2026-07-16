@@ -93,7 +93,6 @@ interface OwlViewerProps {
   diffStyle: "split" | "unified";
   onCommentDeleted(comment: OwlDeletedCommentEvent): void;
   onCommentSaved(comment: OwlSavedCommentEvent): void;
-  overflow: "wrap" | "scroll";
   scrollRef: RefObject<HTMLDivElement | null>;
   themeType: ThemeTypes;
   viewerRef: RefObject<CodeViewHandle<CommentMetadata> | null>;
@@ -107,7 +106,6 @@ export const OwlViewer = memo(function OwlViewer({
   diffStyle,
   onCommentDeleted,
   onCommentSaved,
-  overflow,
   scrollRef,
   themeType,
   viewerRef,
@@ -527,7 +525,7 @@ export const OwlViewer = memo(function OwlViewer({
   // NOTE(amadeus): For some insane reason, the react compiler did not know how
   // to properly memoize this, so we pulled it into a `useMemo` for safety...
   // Backgrounds and line numbers are always on; diff indicators are always
-  // off — the only toggle left in the display-settings dropdown is word wrap.
+  // off; word wrap is fixed to scroll (no settings toggle).
   const options: CodeViewOptions<CommentMetadata> = useMemo(
     () =>
       ({
@@ -537,7 +535,7 @@ export const OwlViewer = memo(function OwlViewer({
         themeType,
         diffStyle,
         diffIndicators: "none",
-        overflow,
+        overflow: "scroll",
         disableBackground: false,
         disableLineNumbers: false,
         lineHoverHighlight: "number",
@@ -560,7 +558,7 @@ export const OwlViewer = memo(function OwlViewer({
           handleLineSelectionEnd(range, context.item);
         },
       }) satisfies CodeViewOptions<CommentMetadata>,
-    [diffStyle, handleCreateDraftComment, handleLineSelectionEnd, overflow, themeType],
+    [diffStyle, handleCreateDraftComment, handleLineSelectionEnd, themeType],
   );
   return (
     <ThemedCodeView<CommentMetadata>

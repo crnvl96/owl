@@ -1,67 +1,45 @@
-import { type Dispatch, memo, type SetStateAction, useMemo } from "react";
+import { type Dispatch, memo, type SetStateAction } from "react";
 import {
   IconCollapsedRow,
   IconDiffSplit,
   IconDiffUnified,
   IconExpandAll,
   IconFileTreeFill,
-  IconGearFill,
 } from "@pierre/icons";
 
 import { CHROME_ICON_BUTTON_CLASS } from "./chromeButtonStyles";
 import { OwlDiffModePicker } from "./OwlDiffModePicker";
-import { OwlGenerateReportButton } from "./OwlGenerateReportButton";
 import { OwlLogo } from "./OwlLogo";
 import { useChromeThemeProps } from "./useChromeThemeProps";
 import { Button } from "@/components/Button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/DropdownMenu";
-import { Switch } from "@/components/Switch";
 import { cn } from "@/lib/cn";
-import type { FileContext } from "@/lib/generateReviewReport";
 import { owlChromeMapping } from "@/lib/theme/owlChromeMapping";
-import { getDropdownThemeStyle } from "@/lib/theme/dropdownChromeStyle";
-import type { DiffSource, OwlSavedCommentItem } from "@/lib/types";
-
-const SETTING_ROW_CLASS =
-  "w-full flex cursor-pointer items-center justify-between gap-4 px-2 py-1.5 text-sm";
+import type { DiffSource } from "@/lib/types";
 
 interface HeaderProps {
   className?: string;
   collapseMode: "expanded" | "collapsed";
-  commentSections: readonly OwlSavedCommentItem[];
   diffSource: DiffSource;
   diffStyle: "split" | "unified";
-  fileContextByItemId: ReadonlyMap<string, FileContext>;
   fileTreeAvailable: boolean;
   fileTreeOverlayOpen: boolean;
-  overflow: "wrap" | "scroll";
   onSelectDiffSource(source: DiffSource): void;
   onToggleCollapseMode(): void;
   onToggleFileTreeOverlay(): void;
   setDiffStyle: Dispatch<SetStateAction<"split" | "unified">>;
-  setOverflow: Dispatch<SetStateAction<"wrap" | "scroll">>;
 }
 
 export const OwlHeader = memo(function OwlHeader({
   className,
   collapseMode,
-  commentSections,
   diffSource,
   diffStyle,
-  fileContextByItemId,
   fileTreeAvailable,
   fileTreeOverlayOpen,
-  overflow,
   onSelectDiffSource,
   onToggleCollapseMode,
   onToggleFileTreeOverlay,
   setDiffStyle,
-  setOverflow,
 }: HeaderProps) {
   // Pull the resolved Shiki theme so the header bar lives on the same
   // surface (background, text, icons, borders) as the sidebar. Falls back to
@@ -70,10 +48,6 @@ export const OwlHeader = memo(function OwlHeader({
   const { style: headerChromeStyle } = useChromeThemeProps(owlChromeMapping);
   const themeChromeStyle =
     Object.keys(headerChromeStyle).length > 0 ? headerChromeStyle : undefined;
-  const dropdownThemeStyle = useMemo(
-    () => getDropdownThemeStyle(themeChromeStyle),
-    [themeChromeStyle],
-  );
   return (
     <div
       className={cn(
@@ -145,44 +119,6 @@ export const OwlHeader = memo(function OwlHeader({
                 <IconCollapsedRow className="size-4 md:size-3" />
               )}
             </Button>
-            <OwlGenerateReportButton
-              fileContextByItemId={fileContextByItemId}
-              sections={commentSections}
-              source={diffSource}
-            />
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon-md"
-                  aria-label="Display settings"
-                  title="Display settings"
-                  className={CHROME_ICON_BUTTON_CLASS}
-                >
-                  <IconGearFill className="size-4 md:size-3" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="w-58 p-2"
-                style={dropdownThemeStyle}
-              >
-                <DropdownMenuItem
-                  className="cursor-default p-0"
-                  onSelect={(e) => e.preventDefault()}
-                >
-                  <label className={SETTING_ROW_CLASS}>
-                    <span className="min-w-0 flex-1">Word wrap</span>
-                    <Switch
-                      checked={overflow === "wrap"}
-                      onCheckedChange={(checked) =>
-                        setOverflow(checked ? "wrap" : "scroll")
-                      }
-                    />
-                  </label>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
           </div>
         </div>
       </div>
