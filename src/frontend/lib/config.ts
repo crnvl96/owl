@@ -53,7 +53,7 @@ export function getPoolOptions(): WorkerPoolOptions {
     ),
     totalASTLRUCacheSize: limits.totalASTLRUCacheSize,
     workerFactory() {
-      return new Worker(new URL("@pierre/diffs/worker/worker.js", import.meta.url));
+      return new Worker(new URL("@pierre/diffs/worker/worker.js", import.meta.url), { type: "module" });
     },
   };
 }
