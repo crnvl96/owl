@@ -2,10 +2,10 @@ import { Geist } from "next/font/google";
 import localFont from "next/font/local";
 import type { ReactNode } from "react";
 
-import { PreloadHighlighter } from "@/components/PreloadHighlighter";
-import { ScrollbarGutterVariables } from "@/components/ScrollbarGutterVariables";
-import { Toaster } from "@/components/Toaster";
-import { WorkerPoolContext } from "@/components/WorkerPoolContext";
+import { PreloadHighlighter } from "@/components/layout/PreloadHighlighter";
+import { ScrollbarGutterVariables } from "@/components/layout/ScrollbarGutterVariables";
+import { Toaster } from "@/components/ui/Toaster";
+import { WorkerPoolContext } from "@/components/layout/WorkerPoolContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

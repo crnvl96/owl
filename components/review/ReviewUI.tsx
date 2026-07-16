@@ -3,10 +3,10 @@
 import { type CodeViewHandle } from "@pierre/diffs/react";
 import { type ReactNode, useCallback, useRef, useState } from "react";
 
-import { OwlBlankArea } from "./OwlBlankArea";
-import { OwlSidebar } from "./OwlSidebar";
-import { OwlStatusPanel } from "./OwlStatusPanel";
-import { OwlViewer } from "./OwlViewer";
+import { BlankArea } from "./BlankArea";
+import { Sidebar } from "./Sidebar";
+import { StatusPanel } from "./StatusPanel";
+import { Viewer } from "./Viewer";
 import { useIsWorkerPoolReadyOrDisabled } from "@/hooks/useIsWorkerPoolReadyOrDisabled";
 import { usePatchLoader } from "@/hooks/usePatchLoader";
 import { THEME_SCHEME } from "@/lib/config";
@@ -72,7 +72,7 @@ function ReviewUIBody() {
     <ReviewGrid>
       {viewerAvailable && treeSource != null ? (
         <>
-          <OwlSidebar
+          <Sidebar
             className="[grid-area:viewer] md:[grid-area:tree]"
             mobileOverlayOpen={fileTreeOverlayOpen}
             onMobileClose={handleCloseFileTreeOverlay}
@@ -81,7 +81,7 @@ function ReviewUIBody() {
             onSelectItem={handleSelectTreeItem}
           />
           {hasDiffItems ? (
-            <OwlViewer
+            <Viewer
               key={viewerKey}
               className="[grid-area:viewer]"
               scrollRef={scrollRef}
@@ -92,11 +92,11 @@ function ReviewUIBody() {
               onViewerReady={onViewerReady}
             />
           ) : (
-            <OwlBlankArea />
+            <BlankArea />
           )}
         </>
       ) : (
-        <OwlStatusPanel
+        <StatusPanel
           errorMessage={errorMessage}
           onRetry={retryLoad}
           state={loadState}

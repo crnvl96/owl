@@ -9,17 +9,17 @@ import {
   useEffect,
 } from "react";
 
-import { CHROME_ICON_BUTTON_CLASS } from "./chromeButtonStyles";
-import { OwlFileTree } from "./OwlFileTree";
+import { CHROME_ICON_BUTTON_CLASS } from "@/components/ui/chromeButtonStyles";
+import { FileTree } from "@/components/review/FileTree";
 import { useChromeThemeProps } from "@/hooks/useChromeThemeProps";
-import { Button } from "@/components/Button";
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import { owlChromeMapping } from "@/lib/theme/owlChromeMapping";
 import type { OwlFileTreeSource } from "@/lib/types";
 
 const MOBILE_MEDIA_QUERY = "(max-width: 767px)";
 
-interface OwlSidebarProps {
+interface SidebarProps {
   className?: string;
   mobileOverlayOpen?: boolean;
   onMobileClose(): void;
@@ -28,14 +28,14 @@ interface OwlSidebarProps {
   source: OwlFileTreeSource;
 }
 
-export const OwlSidebar = memo(function OwlSidebar({
+export const Sidebar = memo(function Sidebar({
   className,
   mobileOverlayOpen = false,
   onMobileClose,
   onSelectItem,
   scrollRef,
   source,
-}: OwlSidebarProps) {
+}: SidebarProps) {
   const { style: sidebarChromeStyle } = useChromeThemeProps(owlChromeMapping);
   const sidebarStyle =
     Object.keys(sidebarChromeStyle).length > 0 ? sidebarChromeStyle : undefined;
@@ -101,7 +101,7 @@ export const OwlSidebar = memo(function OwlSidebar({
         </div>
         <div className="mt-3 min-h-0 flex-1">
           <div role="region" aria-label="Files" className="h-full min-h-0">
-            <OwlFileTree source={source} onSelectItem={onSelectItem} />
+            <FileTree source={source} onSelectItem={onSelectItem} />
           </div>
         </div>
       </SidebarWrapper>

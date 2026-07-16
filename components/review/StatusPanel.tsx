@@ -1,18 +1,18 @@
 import { IconCiWarningFill, IconRefresh } from "@pierre/icons";
 
 import { useChromeThemeProps } from "@/hooks/useChromeThemeProps";
-import { Button } from "@/components/Button";
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import { owlChromeMapping } from "@/lib/theme/owlChromeMapping";
 import type { ViewerLoadState } from "@/lib/types";
 
-interface OwlStatusPanelProps {
+interface StatusPanelProps {
   errorMessage: string | null;
   onRetry(): void;
   state: ViewerLoadState;
 }
 
-export function OwlStatusPanel({ errorMessage, onRetry, state }: OwlStatusPanelProps) {
+export function StatusPanel({ errorMessage, onRetry, state }: StatusPanelProps) {
   // Mirror the rest of the owl chrome so the loading screen sits on the
   // active Shiki theme's surface instead of the global light/dark palette.
   // Mounted before the viewer is available, so we lean on the same provider

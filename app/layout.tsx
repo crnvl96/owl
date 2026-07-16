@@ -17,4 +17,4 @@ export const metadata: Metadata = {
   },
 };
 
-export { RootLayout as default } from "@/components/RootLayout";
+export { RootLayout as default } from "@/components/layout/RootLayout";

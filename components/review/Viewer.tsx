@@ -8,7 +8,7 @@ import {
 import { type CodeViewHandle, useStableCallback } from "@pierre/diffs/react";
 import { memo, type RefObject, useMemo, useState } from "react";
 
-import { ThemedCodeView } from "./ThemedCodeView";
+import { ThemedCodeView } from "@/components/diff/ThemedCodeView";
 import { useChromeThemeProps } from "@/hooks/useChromeThemeProps";
 import { buildAnnotationThemeStyle } from "@/lib/annotationThemeStyle";
 import { cn } from "@/lib/cn";
@@ -16,7 +16,7 @@ import { CODE_VIEW_CUSTOM_CSS, CODE_VIEW_LAYOUT } from "@/lib/config";
 import { owlChromeMapping } from "@/lib/theme/owlChromeMapping";
 import type { CommentMetadata } from "@/lib/types";
 
-interface OwlViewerProps {
+interface ViewerProps {
   className?: string;
   scrollRef: RefObject<HTMLDivElement | null>;
   themeType: ThemeTypes;
@@ -26,7 +26,7 @@ interface OwlViewerProps {
   onViewerReady(): void;
 }
 
-export const OwlViewer = memo(function OwlViewer({
+export const Viewer = memo(function Viewer({
   className,
   scrollRef,
   themeType,
@@ -34,7 +34,7 @@ export const OwlViewer = memo(function OwlViewer({
   initialItems,
   onLineLinkChange,
   onViewerReady,
-}: OwlViewerProps) {
+}: ViewerProps) {
   const [selectedLines, setSelectedLines] = useState<CodeViewLineSelection | null>(
     null,
   );

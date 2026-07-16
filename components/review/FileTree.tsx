@@ -5,7 +5,7 @@ import type { FileTreeBatchOperation, FileTree as FileTreeModel } from "@pierre/
 import { useFileTree } from "@pierre/trees/react";
 import { memo, useEffect, useRef, useState } from "react";
 
-import { ThemedFileTree } from "./ThemedFileTree";
+import { ThemedFileTree } from "@/components/diff/ThemedFileTree";
 import {
   BASE_FILE_TREE_OPTIONS,
   CODE_VIEW_FILE_TREE_ITEM_HEIGHT,
@@ -15,7 +15,7 @@ import {
 } from "@/lib/config";
 import type { OwlFileTreeSource } from "@/lib/types";
 
-interface OwlFileTreeProps {
+interface FileTreeProps {
   // Optional callback invoked with the underlying tree model once it's
   // mounted, and again with `null` on unmount.
   onModelReady?(model: FileTreeModel | null): void;
@@ -23,11 +23,11 @@ interface OwlFileTreeProps {
   source: OwlFileTreeSource;
 }
 
-export const OwlFileTree = memo(function OwlFileTree({
+export const FileTree = memo(function FileTree({
   onModelReady,
   onSelectItem,
   source,
-}: OwlFileTreeProps) {
+}: FileTreeProps) {
   const sourceRef = useRef(source);
   const previousSourceRef = useRef(source);
   const [initialVisibleRowCount] = useState(getInitialBatchSize);
