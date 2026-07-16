@@ -10,7 +10,6 @@ import {
   type ThemeTypes,
 } from "@pierre/diffs";
 import { type CodeViewHandle, useStableCallback } from "@pierre/diffs/react";
-import { IconChevronSm } from "@pierre/icons";
 import { memo, type RefObject, useMemo, useRef, useState } from "react";
 
 import { DraftAnnotation } from "./DraftAnnotation";
@@ -435,33 +434,6 @@ export const OwlViewer = memo(function OwlViewer({
     },
   );
 
-  const handleToggleItemCollapsed = useStableCallback((itemId: string) => {
-    const { current: viewerHandle } = viewerRef;
-    const viewer = viewerHandle?.getInstance();
-    const item = viewerHandle?.getItem(itemId);
-    if (viewerHandle == null || viewer == null || item == null) {
-      return;
-    }
-
-    // NOTE(amadeus): If the top of the item is before the scrollTop, then
-    // we'll want to apply a scroll fix on the next render to ensure we
-    // keep the collapsed file in view and anchored.
-    const itemTop = viewer.getTopForItem(itemId);
-    item.collapsed = item.collapsed !== true;
-    item.version = getNextItemVersion(item);
-    if (!viewerHandle.updateItem(item)) {
-      return;
-    }
-
-    if (itemTop != null && itemTop < viewer.getScrollTop()) {
-      viewer.scrollTo({
-        type: "item",
-        id: item.id,
-        align: "start",
-      });
-    }
-  });
-
   const renderCommentAnnotation = useStableCallback(
     (
       annotation: DiffLineAnnotation<CommentMetadata> | LineAnnotation<CommentMetadata>,
@@ -497,24 +469,6 @@ export const OwlViewer = memo(function OwlViewer({
           itemId={item.id}
           onDelete={handleRemoveComment}
           onToggleSelection={handleToggleCommentSelection}
-        />
-      );
-    },
-  );
-
-  const renderHeaderPrefix = useStableCallback(
-    (item: CodeViewItem<CommentMetadata>) => {
-      if (item.type !== "diff") {
-        return null;
-      }
-
-      return (
-        <CollapseDiffButton
-          disabled={
-            item.fileDiff.splitLineCount === 0 && item.fileDiff.unifiedLineCount === 0
-          }
-          collapsed={item.collapsed}
-          onToggle={() => handleToggleItemCollapsed(item.id)}
         />
       );
     },
@@ -572,43 +526,6 @@ export const OwlViewer = memo(function OwlViewer({
       selectedLines={selectedLines}
       onSelectedLinesChange={handleSetSelection}
       renderAnnotation={renderCommentAnnotation}
-      renderHeaderPrefix={renderHeaderPrefix}
     />
   );
 });
-
-interface CollapseDiffButtonProps {
-  disabled?: boolean;
-  collapsed?: boolean;
-  onToggle(): void;
-}
-
-function CollapseDiffButton({
-  disabled = false,
-  collapsed = false,
-  onToggle,
-}: CollapseDiffButtonProps) {
-  return (
-    <button
-      type="button"
-      disabled={disabled}
-      aria-expanded={!disabled && !collapsed}
-      aria-hidden={disabled}
-      aria-label={disabled ? undefined : collapsed ? "Expand diff" : "Collapse diff"}
-      className="text-muted-foreground hover:bg-muted hover:text-foreground ml-[-8px] inline-flex size-6 cursor-pointer items-center justify-center rounded-md transition disabled:pointer-events-none disabled:opacity-50"
-      onClick={(event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        onToggle();
-      }}
-    >
-      <IconChevronSm
-        aria-hidden="true"
-        className={cn(
-          "size-4 transition-transform",
-          (disabled || collapsed) && "-rotate-90",
-        )}
-      />
-    </button>
-  );
-}
