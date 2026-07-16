@@ -11,11 +11,9 @@ import {
   IconCircleFill,
   IconEye,
   IconEyeSlash,
-  IconInfoFill,
   IconSquircleLgFill,
   IconTriangleFill,
 } from "@pierre/icons";
-import Link from "next/link";
 import { memo, type RefObject, useEffect, useState } from "react";
 
 import { StatItem } from "./StatItem";
@@ -199,28 +197,6 @@ function StatsDisplay({ expanded, onToggle, stats, scrollRef }: StatsDisplayProp
           <StatItem label="Diff Cache" value={stats.diffCacheSize} />
         </div>
       )}
-      <StatusRow icon={IconInfoFill}>
-        <div className="text-muted-foreground/75">
-          Powered by{" "}
-          <Link
-            href="https://diffs.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-link text-muted-foreground hover:text-foreground no-underline"
-          >
-            Diffs
-          </Link>{" "}
-          and{" "}
-          <Link
-            href="https://trees.software"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-link text-muted-foreground hover:text-foreground no-underline"
-          >
-            Trees
-          </Link>
-        </div>
-      </StatusRow>
     </div>
   );
 }
