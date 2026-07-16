@@ -4,7 +4,7 @@ import { FileTree, type FileTreeProps } from "@pierre/trees/react";
 import type { CSSProperties } from "react";
 import { useMemo } from "react";
 
-import { useTreeThemeProps } from "./useTreeThemeProps";
+import { useTreeThemeProps } from "@/hooks/useTreeThemeProps";
 
 interface ThemedFileTreeProps extends FileTreeProps {
   // Preserves the contrast-based foreground upgrade the file rows depend on.

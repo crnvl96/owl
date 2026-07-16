@@ -3,8 +3,8 @@
 import { CodeView, type CodeViewHandle, type CodeViewProps } from "@pierre/diffs/react";
 import { type Ref, useMemo } from "react";
 
-import { useDiffThemeProps } from "./useDiffThemeProps";
-import { useWorkerDiffTheme } from "./useWorkerDiffTheme";
+import { useDiffThemeProps } from "@/hooks/useDiffThemeProps";
+import { useWorkerDiffTheme } from "@/hooks/useWorkerDiffTheme";
 
 type ThemedCodeViewComponent = <LAnnotation = undefined>(
   props: CodeViewProps<LAnnotation> & {

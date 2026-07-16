@@ -9,7 +9,7 @@ import { type CodeViewHandle, useStableCallback } from "@pierre/diffs/react";
 import { memo, type RefObject, useMemo, useState } from "react";
 
 import { ThemedCodeView } from "./ThemedCodeView";
-import { useChromeThemeProps } from "./useChromeThemeProps";
+import { useChromeThemeProps } from "@/hooks/useChromeThemeProps";
 import { buildAnnotationThemeStyle } from "@/lib/annotationThemeStyle";
 import { cn } from "@/lib/cn";
 import { CODE_VIEW_CUSTOM_CSS, CODE_VIEW_LAYOUT } from "@/lib/config";

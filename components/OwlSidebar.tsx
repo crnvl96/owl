@@ -11,7 +11,7 @@ import {
 
 import { CHROME_ICON_BUTTON_CLASS } from "./chromeButtonStyles";
 import { OwlFileTree } from "./OwlFileTree";
-import { useChromeThemeProps } from "./useChromeThemeProps";
+import { useChromeThemeProps } from "@/hooks/useChromeThemeProps";
 import { Button } from "@/components/Button";
 import { cn } from "@/lib/cn";
 import { owlChromeMapping } from "@/lib/theme/owlChromeMapping";

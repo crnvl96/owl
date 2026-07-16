@@ -1,6 +1,6 @@
 import { IconCiWarningFill, IconRefresh } from "@pierre/icons";
 
-import { useChromeThemeProps } from "./useChromeThemeProps";
+import { useChromeThemeProps } from "@/hooks/useChromeThemeProps";
 import { Button } from "@/components/Button";
 import { cn } from "@/lib/cn";
 import { owlChromeMapping } from "@/lib/theme/owlChromeMapping";

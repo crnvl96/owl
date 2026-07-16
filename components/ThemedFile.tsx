@@ -3,8 +3,8 @@
 import { File, type FileProps } from "@pierre/diffs/react";
 import { useMemo } from "react";
 
-import { useDiffThemeProps } from "./useDiffThemeProps";
-import { useWorkerDiffTheme } from "./useWorkerDiffTheme";
+import { useDiffThemeProps } from "@/hooks/useDiffThemeProps";
+import { useWorkerDiffTheme } from "@/hooks/useWorkerDiffTheme";
 
 // Sugar over useDiffThemeProps: applies the active theme names + themeType to
 // the React <File> options and keeps the worker pool in step when present.

@@ -1,13 +1,14 @@
 "use client";
 
-import { type CodeViewHandle, useWorkerPool } from "@pierre/diffs/react";
-import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { type CodeViewHandle } from "@pierre/diffs/react";
+import { type ReactNode, useCallback, useRef, useState } from "react";
 
 import { OwlBlankArea } from "./OwlBlankArea";
 import { OwlSidebar } from "./OwlSidebar";
 import { OwlStatusPanel } from "./OwlStatusPanel";
 import { OwlViewer } from "./OwlViewer";
-import { usePatchLoader } from "./usePatchLoader";
+import { useIsWorkerPoolReadyOrDisabled } from "@/hooks/useIsWorkerPoolReadyOrDisabled";
+import { usePatchLoader } from "@/hooks/usePatchLoader";
 import { THEME_SCHEME } from "@/lib/config";
 import type { CommentMetadata } from "@/lib/types";
 
@@ -103,22 +104,6 @@ function ReviewUIBody() {
       )}
     </ReviewGrid>
   );
-}
-
-function useIsWorkerPoolReadyOrDisabled() {
-  const workerPool = useWorkerPool();
-  const [isReady, setIsReady] = useState(() => workerPool?.isInitialized() ?? true);
-  const isReadyRef = useRef(isReady);
-  useEffect(() => {
-    return workerPool?.subscribeToStatChanges((stats) => {
-      const newIsReady = stats.managerState === "initialized";
-      if (newIsReady !== isReadyRef.current) {
-        setIsReady(newIsReady);
-        isReadyRef.current = newIsReady;
-      }
-    });
-  }, [workerPool]);
-  return isReady;
 }
 
 interface ReviewGridProps {
