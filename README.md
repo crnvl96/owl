@@ -2,7 +2,7 @@
 
 > **⚠️ Beta Software** — Owl is in early development and not yet ready for production use. APIs, configuration, and UI are subject to change without notice.
 
-A visual diff viewer for local Git worktrees and past commits. Owl renders unified and split diffs with syntax highlighting, a file tree sidebar, and inline comment annotations. It runs entirely against your local repository — no pull requests, no URLs, just your working copy.
+A visual diff viewer for local Git worktrees. Owl renders unified diffs with syntax highlighting, a file tree sidebar, and line-link selection. It runs entirely against your local repository — no pull requests, no URLs, just your working copy.
 
 ---
 
@@ -27,10 +27,9 @@ A visual diff viewer for local Git worktrees and past commits. Owl renders unifi
 ## Features
 
 - **Worktree diff** — View all local changes (staged, unstaged, and untracked files) in one unified patch.
-- **Dual view modes** — Switch between unified and split diff layouts.
 - **Syntax highlighting** — Code is highlighted using the `@pierre/diffs` engine with streaming web worker support.
 - **File tree sidebar** — Browse changed files by path with Git status indicators (added, modified, deleted, untracked).
-- **Inline annotations** — Draft and save comments inline on hunks for code review workflows.
+- **Line-link selection** — Select and link to specific lines in the diff for sharing and navigation.
 - **Dark theme** — Built-in dark theme with Geist font.
 - **Fully local** — No network calls to external Git forges. All operations target your local repository.
 
@@ -65,7 +64,7 @@ A visual diff viewer for local Git worktrees and past commits. Owl renders unifi
 ### Installation
 
 ```sh
-git clone <repo-url> && cd owl
+git clone git@github.com:crnvl96/owl.git && cd owl
 bun install
 ```
 
@@ -170,7 +169,7 @@ owl/
 
 - **Frontend** is a single-page React application bootstrapped in `src/frontend/main.tsx`. It communicates exclusively with the Hono API server at `/api`.
 - **Server** is a thin Hono app that spawns `git` child processes to generate diffs. All Git operations are server-side only and scoped to the worktree configured via `OWL_WORKTREE_PATH`.
-- **Diff rendering** uses `@pierre/diffs` for parsing and rendering unified diffs, with syntax highlighting offloaded to web workers for responsiveness on large patches.
+- **Diff rendering** uses `@pierre/diffs` for parsing and rendering unified diffs (the only view mode currently supported), with syntax highlighting offloaded to web workers for responsiveness on large patches.
 - **File tree** is powered by `@pierre/trees`, which builds a hierarchical file listing from the diff output and annotates each entry with its Git change type.
 
 ---
